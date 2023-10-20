@@ -1,0 +1,42 @@
+﻿@page "/survey-form"
+
+@inject IJSRuntime JSRuntime
+@implements IAsyncDisposable
+
+<PageTitle>Survey Form</PageTitle>
+
+<h3>Survey Form</h3>
+
+<div id="surveyContainer"></div>
+
+@* @section Scripts {
+    <script src="js/jquery.min.js"></script>
+    <script src="js/survey.jquery.min.js"></script>
+} *@
+
+@code {
+    private IJSObjectReference? module;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./Pages/SurveyForm.razor.js");
+
+        await module.InvokeVoidAsync("init");
+    }
+
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        if (module is not null)
+        {
+            await module.DisposeAsync();
+        }
+    }
+
+    [JSInvokable]
+    public static Task OnSurveyComplete(object result)
+    {
+        Console.WriteLine("Survey Completed:", result);
+
+        return Task.CompletedTask;
+    }
+}
