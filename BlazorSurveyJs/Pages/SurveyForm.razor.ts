@@ -1,4 +1,4 @@
-/// <reference path="../wwwroot/libs/jquery/jquery.d.ts" />
+/// <reference path="../node_modules/@types/jquery/index.d.ts" />
 /// <reference path="../wwwroot/libs/survey-jquery/survey.jquery.d.ts" />
 
 declare const Survey: any;
