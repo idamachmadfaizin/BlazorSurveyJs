@@ -5,23 +5,25 @@
 
 <PageTitle>Survey Form</PageTitle>
 
+<HeadContent>
+    <link href="libs/survey-core/defaultv2.min.css" rel="stylesheet" />
+</HeadContent>
+
 <h3>Survey Form</h3>
 
-<div id="surveyContainer"></div>
-
-@* @section Scripts {
-    <script src="js/jquery.min.js"></script>
-    <script src="js/survey.jquery.min.js"></script>
-} *@
+<survey params="survey: model"></survey>
 
 @code {
     private IJSObjectReference? module;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./Pages/SurveyForm.razor.js");
+        if (firstRender)
+        {
+            module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./Pages/SurveyForm.razor.js");
+            await module.InvokeVoidAsync("init");
+        }
 
-        await module.InvokeVoidAsync("init");
     }
 
     async ValueTask IAsyncDisposable.DisposeAsync()
