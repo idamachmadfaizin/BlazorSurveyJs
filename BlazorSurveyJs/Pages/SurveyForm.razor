@@ -6,12 +6,12 @@
 <PageTitle>Survey Form</PageTitle>
 
 <HeadContent>
-    <link href="libs/survey-core/defaultv2.min.css" rel="stylesheet" />
+    <link href="libs/survey-jquery/defaultv2.css" rel="stylesheet" />
 </HeadContent>
 
 <h3>Survey Form</h3>
 
-<survey params="survey: model"></survey>
+<div id="surveyContainer"></div>
 
 @code {
     private IJSObjectReference? module;
@@ -23,7 +23,6 @@
             module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./Pages/SurveyForm.razor.js");
             await module.InvokeVoidAsync("init");
         }
-
     }
 
     async ValueTask IAsyncDisposable.DisposeAsync()

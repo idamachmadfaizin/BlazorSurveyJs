@@ -1,5 +1,8 @@
-declare const Survey;
-declare const ko;
+/// <reference path="../wwwroot/libs/jquery/jquery.d.ts" />
+/// <reference path="../wwwroot/libs/survey-jquery/survey.jquery.d.ts" />
+
+declare const Survey: any;
+declare const $: any;
 
 export function init() {
     const surveyJson = {
@@ -15,8 +18,7 @@ export function init() {
     };
 
     const survey = new Survey.Model(surveyJson);
-
-    ko.applyBindings({
-        model: survey
+    $(function () {
+        $("#surveyContainer").Survey({ model: survey });
     });
 }
