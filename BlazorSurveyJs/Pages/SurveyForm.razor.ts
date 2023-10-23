@@ -1,12 +1,11 @@
 /// <reference path="../wwwroot/js/site.ts" />
 
 declare const Survey: any;
-declare const $: any;
 
-const scripts = [
-    "libs/jquery/jquery.min.js",
+//const scripts = [
+//    "libs/jquery/jquery.min.js",
 
-];
+//];
 
 //BlazorSurveyJs.injectScripts(scripts);
 
@@ -15,7 +14,7 @@ export async function initAsync() {
 
     const surveyJson = localStorage.getItem(BlazorSurveyJs.surveyStorageKey) || {};
 
-    await BlazorSurveyJs.checkJqueryAsync();
+    //await BlazorSurveyJs.checkJqueryAsync();
     
     const survey = new Survey.Model(surveyJson);
     const viewModel = { model: survey };

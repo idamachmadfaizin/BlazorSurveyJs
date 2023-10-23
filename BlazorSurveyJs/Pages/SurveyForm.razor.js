@@ -8,15 +8,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-const scripts = [
-    "libs/jquery/jquery.min.js",
-];
+//const scripts = [
+//    "libs/jquery/jquery.min.js",
+//];
 //BlazorSurveyJs.injectScripts(scripts);
 export function initAsync() {
     return __awaiter(this, void 0, void 0, function* () {
         console.log('init called');
         const surveyJson = localStorage.getItem(BlazorSurveyJs.surveyStorageKey) || {};
-        yield BlazorSurveyJs.checkJqueryAsync();
+        //await BlazorSurveyJs.checkJqueryAsync();
         const survey = new Survey.Model(surveyJson);
         const viewModel = { model: survey };
         const surveyElement = document.querySelector('survey');

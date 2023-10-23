@@ -8,14 +8,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-const scripts = [
-    "libs/jquery/jquery.min.js",
-    "libs/knockout/knockout-latest.js",
-    "libs/survey-core/survey.core.min.js",
-    "libs/survey-knockout-ui/survey-knockout-ui.min.js",
-    "libs/survey-creator-core/survey-creator-core.min.js",
-    "libs/survey-creator-knockout/survey-creator-knockout.min.js"
-];
+//const scripts = [
+//    "libs/jquery/jquery.min.js",
+//    "libs/knockout/knockout-latest.js",
+//    "libs/survey-core/survey.core.min.js",
+//    "libs/survey-knockout-ui/survey-knockout-ui.min.js",
+//    "libs/survey-creator-core/survey-creator-core.min.js",
+//    "libs/survey-creator-knockout/survey-creator-knockout.min.js"
+//];
 //BlazorSurveyJs.injectScripts(scripts);
 let creator;
 export function initAsync() {
