@@ -1,35 +1,35 @@
 ﻿@page "/survey-form"
 
-@inject IJSRuntime JSRuntime
+@inject IJSRuntime JsRuntime
 @implements IAsyncDisposable
 
 <PageTitle>Survey Form</PageTitle>
 
-<HeadContent>
-    <link href="libs/survey-jquery/defaultv2.css" rel="stylesheet" />
-</HeadContent>
-
 <h3>Survey Form</h3>
 
-<div id="surveyContainer"></div>
+@* <div id="surveyContainer"></div> *@
+<survey params="survey: model"></survey>
 
 @code {
-    private IJSObjectReference? module;
+    private IJSObjectReference? jsModule;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./Pages/SurveyForm.razor.js");
-            await module.InvokeVoidAsync("init");
+            jsModule = await JsRuntime.ImportAsync("./Pages/SurveyForm.razor.js");
+            await jsModule.InvokeVoidAsync("initAsync");
         }
     }
 
     async ValueTask IAsyncDisposable.DisposeAsync()
     {
-        if (module is not null)
+        // await JsRuntime.InvokeVoidAsync("BlazorSurveyJs.clearInjectedScripts");
+
+        if (jsModule is not null)
         {
-            await module.DisposeAsync();
+            await jsModule.InvokeVoidAsync("dispose");
+            await jsModule.DisposeAsync();
         }
     }
 

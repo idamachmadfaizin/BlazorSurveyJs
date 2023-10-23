@@ -7,14 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="compilerconfig.json" />
+    <TypeScriptCompile Remove="wwwroot\js\site.ts" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="compilerconfig.json" />
+    <Content Include="wwwroot\js\site.ts" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AspNetCore.SassCompiler" Version="1.69.3" />
     <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="5.2.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

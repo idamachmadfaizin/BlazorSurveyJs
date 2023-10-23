@@ -1,0 +1,31 @@
+﻿@page "/survey-creator"
+
+@inject IJSRuntime JSRuntime
+@implements IAsyncDisposable
+
+<PageTitle>Survey Creator</PageTitle>
+
+<h3>SurveyCreator</h3>
+
+<div id="surveyCreator" style="height: 100vh;"></div>
+
+@code {
+    private IJSObjectReference? jsModule;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            jsModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./Pages/SurveyCreator.razor.js");
+            await jsModule.InvokeVoidAsync("initAsync");
+        }
+    }
+
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        if (jsModule is not null)
+        {
+            await jsModule.DisposeAsync();
+        }
+    }
+}

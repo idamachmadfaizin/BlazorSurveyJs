@@ -10,37 +10,21 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 const scripts = [
     "libs/jquery/jquery.min.js",
+    "libs/knockout/knockout-latest.js",
+    "libs/survey-core/survey.core.min.js",
+    "libs/survey-knockout-ui/survey-knockout-ui.min.js",
+    "libs/survey-creator-core/survey-creator-core.min.js",
+    "libs/survey-creator-knockout/survey-creator-knockout.min.js"
 ];
 //BlazorSurveyJs.injectScripts(scripts);
 export function initAsync() {
     return __awaiter(this, void 0, void 0, function* () {
         console.log('init called');
-        const surveyJson = {
-            elements: [{
-                    name: "FirstName",
-                    title: "Enter your first name:",
-                    type: "text"
-                }, {
-                    name: "LastName",
-                    title: "Enter your last name:",
-                    type: "text"
-                }]
+        const creatorOptions = {
+            showLogicTab: true,
+            isAutoSave: true
         };
-        yield BlazorSurveyJs.checkJqueryAsync();
-        const survey = new Survey.Model(surveyJson);
-        const viewModel = { model: survey };
-        const surveyElement = document.querySelector('survey');
-        if (!isSurveyBound(surveyElement)) {
-            console.log('binding');
-            ko.applyBindings(viewModel, surveyElement);
-        }
+        const creator = new SurveyCreator.SurveyCreator(creatorOptions);
+        creator.render("surveyCreator");
     });
-}
-export function dispose() {
-    const surveyElement = document.querySelector('survey');
-    ko.cleanNode(surveyElement);
-    surveyElement.innerHTML = '';
-}
-function isSurveyBound(element) {
-    return !!element.koSurvey;
 }
