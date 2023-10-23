@@ -13,17 +13,7 @@ const scripts = [
 export async function initAsync() {
     console.log('init called');
 
-    const surveyJson = {
-        elements: [{
-            name: "FirstName",
-            title: "Enter your first name:",
-            type: "text"
-        }, {
-            name: "LastName",
-            title: "Enter your last name:",
-            type: "text"
-        }]
-    };
+    const surveyJson = localStorage.getItem(BlazorSurveyJs.surveyStorageKey) || {};
 
     await BlazorSurveyJs.checkJqueryAsync();
     

@@ -17,6 +17,7 @@ const scripts = [
     "libs/survey-creator-knockout/survey-creator-knockout.min.js"
 ];
 //BlazorSurveyJs.injectScripts(scripts);
+let creator;
 export function initAsync() {
     return __awaiter(this, void 0, void 0, function* () {
         console.log('init called');
@@ -24,7 +25,17 @@ export function initAsync() {
             showLogicTab: true,
             isAutoSave: true
         };
-        const creator = new SurveyCreator.SurveyCreator(creatorOptions);
+        creator = new SurveyCreator.SurveyCreator(creatorOptions);
+        creator.saveSurveyFunc = creatorSaveSurvey;
+        var surveyScheme = localStorage.getItem(BlazorSurveyJs.surveyStorageKey);
+        if (surveyScheme) {
+            creator.text = surveyScheme;
+        }
         creator.render("surveyCreator");
     });
+}
+function creatorSaveSurvey(saveNo, callback) {
+    console.log('creatorSaveSurvey');
+    localStorage.setItem(BlazorSurveyJs.surveyStorageKey, creator.text);
+    callback(saveNo, true);
 }

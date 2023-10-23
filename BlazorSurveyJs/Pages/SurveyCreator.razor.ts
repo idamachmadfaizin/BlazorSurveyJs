@@ -13,6 +13,7 @@ const scripts = [
 ];
 
 //BlazorSurveyJs.injectScripts(scripts);
+let creator;
 
 export async function initAsync() {
     console.log('init called');
@@ -22,7 +23,20 @@ export async function initAsync() {
         isAutoSave: true
     };
 
-    const creator = new SurveyCreator.SurveyCreator(creatorOptions);
+    creator = new SurveyCreator.SurveyCreator(creatorOptions);
+
+    creator.saveSurveyFunc = creatorSaveSurvey;
+
+    var surveyScheme = localStorage.getItem(BlazorSurveyJs.surveyStorageKey);
+    if (surveyScheme) {
+        creator.text = surveyScheme;
+    }
 
     creator.render("surveyCreator");
+}
+
+function creatorSaveSurvey(saveNo, callback) {
+    console.log('creatorSaveSurvey');
+    localStorage.setItem(BlazorSurveyJs.surveyStorageKey, creator.text);
+    callback(saveNo, true);
 }

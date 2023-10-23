@@ -5,10 +5,11 @@
 
 <PageTitle>Survey Form</PageTitle>
 
-<h3>Survey Form</h3>
+@* <h3>Survey Form</h3> *@
 
-@* <div id="surveyContainer"></div> *@
-<survey params="survey: model"></survey>
+<div style="height: 100vh; background-color: #f3f3f3;">
+    <survey params="survey: model"></survey>
+</div>
 
 @code {
     private IJSObjectReference? jsModule;

@@ -22,4 +22,8 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <UpToDateCheckInput Remove="pages\SurveyCreator.razor.scss" />
+  </ItemGroup>
+
 </Project>

@@ -11,7 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 var BlazorSurveyJs;
 (function (BlazorSurveyJs) {
-    //export let viewModel;
+    BlazorSurveyJs.surveyStorageKey = "surveySchemeJson";
     function delayAsync(ms = 0) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }

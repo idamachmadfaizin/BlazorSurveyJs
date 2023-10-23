@@ -5,7 +5,7 @@ declare const ko: any;
 declare const SurveyCreator: any;
 
 module BlazorSurveyJs {
-    //export let viewModel;
+    export let surveyStorageKey = "surveySchemeJson";
 
     export function delayAsync(ms = 0) {
         return new Promise(resolve => setTimeout(resolve, ms));
