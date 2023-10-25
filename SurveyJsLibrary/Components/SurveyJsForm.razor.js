@@ -1,8 +1,8 @@
 // @ts-check
 
-import "/libs/knockout/knockout-latest.js";
-import "/libs/survey-core/survey.core.min.js";
-import "/libs/survey-knockout-ui/survey-knockout-ui.min.js";
+import "/_content/SurveyJsLibrary/libs/knockout/knockout-latest.js";
+import "/_content/SurveyJsLibrary/libs/survey-core/survey.core.min.js";
+import "/_content/SurveyJsLibrary/libs/survey-knockout-ui/survey-knockout-ui.min.js";
 
 /**
  * @typedef {Object} IViewModel

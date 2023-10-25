@@ -5,7 +5,7 @@
 @inject IJSRuntime jsRuntime
 
 <HeadContent>
-    <link href="libs/survey-core/defaultv2.min.css" rel="stylesheet" />
+    <link href="/_content/@(assemblyName)/libs/survey-core/defaultv2.min.css" rel="stylesheet" />
 </HeadContent>
 
 <survey id="@this.GetHashCode()" params="survey: model" @attributes=AllOtherAttributes></survey>
@@ -27,14 +27,14 @@
     [Parameter(CaptureUnmatchedValues = true)]
     public Dictionary<string, object>? AllOtherAttributes { get; set; }
 
-    private readonly string assemblyName = Assembly.GetEntryAssembly()?.GetName().Name ?? "";
+    private readonly string assemblyName = Assembly.GetExecutingAssembly().GetName().Name ?? "";
     private IJSObjectReference? jsModule;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            jsModule = await jsRuntime.InvokeAsync<IJSObjectReference>("import", "./Components/SurveyJsForm.razor.js");
+            jsModule = await jsRuntime.InvokeAsync<IJSObjectReference>("import", $"/_content/{assemblyName}/Components/SurveyJsForm.razor.js");
 
             await jsModule.InvokeVoidAsync("setAssemblyName", assemblyName);
             await jsModule.InvokeVoidAsync("render", this.GetHashCode(), this.Scheme is not null ? JsonConvert.SerializeObject(this.Scheme) : null);
