@@ -5,7 +5,9 @@
 @implements IAsyncDisposable
 @inject IJSRuntime jsRuntime
 
-<h3>SurveyJsForm</h3>
+<HeadContent>
+    <link href="libs/survey-core/defaultv2.min.css" rel="stylesheet" />
+</HeadContent>
 
 <survey id="@this.GetHashCode()" params="survey: model"></survey>
 
