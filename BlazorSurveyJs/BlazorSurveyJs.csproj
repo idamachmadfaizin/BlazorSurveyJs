@@ -15,4 +15,8 @@
     <UpToDateCheckInput Remove="pages\SurveyCreator.razor.scss" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\SurveyJsLibrary\SurveyJsLibrary.csproj" />
+  </ItemGroup>
+
 </Project>

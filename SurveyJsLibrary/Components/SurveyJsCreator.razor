@@ -26,7 +26,7 @@
     public EventCallback<object> OnSurveySave { get; set; }
 
     [Parameter(CaptureUnmatchedValues = true)]
-    public Dictionary<string, object> AllOtherAttributes { get; set; }
+    public Dictionary<string, object>? AllOtherAttributes { get; set; }
 
     private readonly string assemblyName = Assembly.GetEntryAssembly()?.GetName().Name ?? "";
     private IJSObjectReference? jsModule;
