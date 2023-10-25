@@ -6,23 +6,24 @@
 
 <HeadContent>
     <link href="libs/survey-core/defaultv2.min.css" rel="stylesheet" />
+    <link href="libs/survey-creator-core/survey-creator-core.min.css" rel="stylesheet" />
 </HeadContent>
 
-<survey id="@this.GetHashCode()" params="survey: model" @attributes=AllOtherAttributes></survey>
+<div id="@this.GetHashCode()" @attributes=AllOtherAttributes></div>
 
 @code {
-    public SurveyJsForm()
+    public SurveyJsCreator()
     {
         Instance = this;
     }
 
-    private static SurveyJsForm Instance = default!;
+    private static SurveyJsCreator Instance = default!;
 
     [Parameter]
     public object? Scheme { get; set; }
 
     [Parameter]
-    public EventCallback<object> OnSurveyComplete { get; set; }
+    public EventCallback<object> OnSurveySave { get; set; }
 
     [Parameter(CaptureUnmatchedValues = true)]
     public Dictionary<string, object> AllOtherAttributes { get; set; }
@@ -34,7 +35,7 @@
     {
         if (firstRender)
         {
-            jsModule = await jsRuntime.InvokeAsync<IJSObjectReference>("import", "./Components/SurveyJsForm.razor.js");
+            jsModule = await jsRuntime.InvokeAsync<IJSObjectReference>("import", "./Components/SurveyJsCreator.razor.js");
 
             await jsModule.InvokeVoidAsync("setAssemblyName", assemblyName);
             await jsModule.InvokeVoidAsync("render", this.GetHashCode(), this.Scheme is not null ? JsonConvert.SerializeObject(this.Scheme) : null);
@@ -42,16 +43,15 @@
     }
 
     [JSInvokable]
-    public static async void OnSurveyCompleteHandle(object data)
+    public static async void OnSurveySaveHandle(object data)
     {
-        await Instance.OnSurveyComplete.InvokeAsync(data);
+        await Instance.OnSurveySave.InvokeAsync(data);
     }
 
     async ValueTask IAsyncDisposable.DisposeAsync()
     {
         if (jsModule is not null)
         {
-            await jsModule.InvokeVoidAsync("dispose");
             await jsModule.DisposeAsync();
         }
 

@@ -60,7 +60,7 @@ export function dispose() {
  * Call Dotnet method when survey on complete.
  * @param {any} sender
  */
-function onSurveyComplete(sender) {
+async function onSurveyComplete(sender) {
     console.log('onSurveyComplete', sender);
-    DotNet.invokeMethodAsync(ASSEMBLY_NAME, "OnSurveyComplete", sender.data);
+    await DotNet.invokeMethodAsync(ASSEMBLY_NAME, "OnSurveyCompleteHandle", sender.data);
 }

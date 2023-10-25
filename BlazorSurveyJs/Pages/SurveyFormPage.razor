@@ -1,15 +1,15 @@
 ﻿@page "/survey-form"
 @using Newtonsoft.Json;
 
+@inject ILogger<SurveyFormPage> logger
+
 <PageTitle>Survey Form</PageTitle>
 
-<h3>SurveyJsForm</h3>
+<h3>SurveyJs Form</h3>
 
-<SurveyJsForm Scheme="Scheme"></SurveyJsForm>
+<SurveyJsForm Scheme="Scheme" OnSurveyComplete="OnSurveyComplete"></SurveyJsForm>
 
 @code {
-    protected object? Scheme { get; set; }
-
     public SurveyFormPage()
     {
         var obj = JsonConvert.DeserializeObject(@"
@@ -25,5 +25,12 @@
             }]
         }");
         Scheme = obj;
+    }
+
+    protected object? Scheme { get; set; }
+
+    private void OnSurveyComplete(object data)
+    {
+        logger.LogInformation(data.ToString());
     }
 }
