@@ -1,0 +1,27 @@
+﻿@page "/survey-form"
+@using Newtonsoft.Json;
+
+<PageTitle>Survey Form</PageTitle>
+
+<SurveyJsForm Scheme="Scheme"></SurveyJsForm>
+
+@code {
+    protected object? Scheme { get; set; }
+
+    public SurveyFormPage()
+    {
+        var obj = JsonConvert.DeserializeObject(@"
+        {
+            elements: [{
+                name: 'FirstName',
+                title: 'Your first name:',
+                type: 'text',
+            }, {
+                name: 'LastName',
+                title: 'Your last name:',
+                type: 'text',
+            }]
+        }");
+        Scheme = obj;
+    }
+}

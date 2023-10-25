@@ -7,19 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <TypeScriptCompile Remove="wwwroot\js\site.ts" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="wwwroot\js\site.ts" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="AspNetCore.SassCompiler" Version="1.69.3" />
     <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="5.2.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
   <ItemGroup>

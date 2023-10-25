@@ -1,0 +1,49 @@
+﻿@using Newtonsoft.Json.Linq;
+@using Newtonsoft.Json;
+@using System.Reflection;
+
+@implements IAsyncDisposable
+@inject IJSRuntime jsRuntime
+
+<h3>SurveyJsForm</h3>
+
+<survey id="@this.GetHashCode()" params="survey: model"></survey>
+
+@code {
+    [Parameter]
+    public object? Scheme { get; set; }
+
+    private readonly string assemblyName = Assembly.GetEntryAssembly()?.GetName().Name ?? "";
+    private IJSObjectReference? jsModule;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            jsModule = await jsRuntime.InvokeAsync<IJSObjectReference>("import", "./Components/SurveyJsForm.razor.js");
+
+            await jsModule.InvokeVoidAsync("setAssemblyName", assemblyName);
+            await jsModule.InvokeVoidAsync("render", this.GetHashCode(), JsonConvert.SerializeObject(this.Scheme));
+        }
+    }
+
+    [JSInvokable]
+    public static void OnSurveyComplete(object data)
+    {
+        var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+        var logger = new Logger<SurveyJsForm>(loggerFactory);
+
+        logger.LogInformation($"OnSurveyComplete: {data}");
+    }
+
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        if (jsModule is not null)
+        {
+            await jsModule.InvokeVoidAsync("dispose");
+            await jsModule.DisposeAsync();
+        }
+
+        GC.SuppressFinalize(this);
+    }
+}
