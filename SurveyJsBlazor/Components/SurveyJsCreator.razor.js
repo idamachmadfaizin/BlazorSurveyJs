@@ -1,11 +1,11 @@
 // @ts-check
 
-import "/_content/SurveyJsLibrary/libs/knockout/knockout-latest.js";
-import "/_content/SurveyJsLibrary/libs/survey-core/survey.core.min.js";
-import "/_content/SurveyJsLibrary/libs/survey-knockout-ui/survey-knockout-ui.min.js";
+import "/_content/SurveyJsBlazor/libs/knockout/knockout-latest.js";
+import "/_content/SurveyJsBlazor/libs/survey-core/survey.core.min.js";
+import "/_content/SurveyJsBlazor/libs/survey-knockout-ui/survey-knockout-ui.min.js";
 
-import "/_content/SurveyJsLibrary/libs/survey-creator-core/survey-creator-core.js";
-import "/_content/SurveyJsLibrary/libs/survey-creator-knockout/survey-creator-knockout.js";
+import "/_content/SurveyJsBlazor/libs/survey-creator-core/survey-creator-core.js";
+import "/_content/SurveyJsBlazor/libs/survey-creator-knockout/survey-creator-knockout.js";
 
 /** @type {string}*/
 let ASSEMBLY_NAME;

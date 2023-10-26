@@ -37,7 +37,6 @@
         {
             jsModule = await jsRuntime.InvokeAsync<IJSObjectReference>("import", $"/_content/{assemblyName}/Components/SurveyJsCreator.razor.js");
 
-            await jsModule.InvokeVoidAsync("setAssemblyName", assemblyName);
             await jsModule.InvokeVoidAsync("render", this.GetHashCode(), this.Scheme is not null ? JsonConvert.SerializeObject(this.Scheme) : null);
         }
     }

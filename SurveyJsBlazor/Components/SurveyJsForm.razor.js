@@ -1,31 +1,20 @@
 // @ts-check
 
-import "/_content/SurveyJsLibrary/libs/knockout/knockout-latest.js";
-import "/_content/SurveyJsLibrary/libs/survey-core/survey.core.min.js";
-import "/_content/SurveyJsLibrary/libs/survey-knockout-ui/survey-knockout-ui.min.js";
+import ASSEMBLY_NAME from "/_content/SurveyJsBlazor/js/assembly-name.js";
+import "/_content/SurveyJsBlazor/libs/knockout/knockout-latest.js";
+import "/_content/SurveyJsBlazor/libs/survey-core/survey.core.min.js";
+import "/_content/SurveyJsBlazor/libs/survey-knockout-ui/survey-knockout-ui.min.js";
 
 /**
  * @typedef {Object} IViewModel
  * @property {any} model
  */
 
-/** @type {string}*/
-let ASSEMBLY_NAME;
-
 /** @type {Element | null} */
 let surveyElement = null;
 
 /** @type {IViewModel}*/
 let viewModel = null;
-
-/**
- * Set assembly name.
- * @param {string} name
- */
-export function setAssemblyName(name) {
-    ASSEMBLY_NAME = name;
-    console.log({ ASSEMBLY_NAME });
-}
 
 /**
  * Render SurveyJS Form.
