@@ -1,7 +1,6 @@
 // @ts-check
 
 // @ts-ignore
-import ASSEMBLY_NAME from "/_content/SurveyJsBlazor/js/assembly-name.js";
 import "/_content/SurveyJsBlazor/libs/knockout/knockout-latest.js";
 import "/_content/SurveyJsBlazor/libs/survey-core/survey.core.min.js";
 import "/_content/SurveyJsBlazor/libs/survey-knockout-ui/survey-knockout-ui.min.js";
@@ -22,11 +21,13 @@ let viewModel = null;
  * @param {string} hashId
  * @param {string} jsonScheme
  */
-export function render(hashId, jsonScheme) {
+export function render(dotNetObjRef, hashId, jsonScheme) {
     // @ts-ignore
     const survey = new Survey.Model(jsonScheme);
 
-    survey.onComplete.add(onSurveyComplete);
+    survey.onComplete.add((sender) => {
+        onSurveyComplete(dotNetObjRef, sender);
+    });
     viewModel = { model: survey };
 
     surveyElement = document.querySelector(`survey[id="${hashId}"]`);
@@ -51,7 +52,6 @@ export function dispose() {
  * Call Dotnet method when survey on complete.
  * @param {any} sender
  */
-async function onSurveyComplete(sender) {
-    // @ts-ignore
-    await DotNet.invokeMethodAsync(ASSEMBLY_NAME, "OnSurveyCompleteHandle", sender.data);
+async function onSurveyComplete(dotNetObjRef, sender) {
+    await dotNetObjRef.invokeMethodAsync("OnSurveyCompleteHandle", sender.data);
 }

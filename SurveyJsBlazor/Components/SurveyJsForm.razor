@@ -11,13 +11,6 @@
 <survey id="@this.GetHashCode()" params="survey: model" @attributes=AllOtherAttributes></survey>
 
 @code {
-    public SurveyJsForm()
-    {
-        Instance = this;
-    }
-
-    private static SurveyJsForm Instance = default!;
-
     [Parameter]
     public object? Scheme { get; set; }
 
@@ -29,6 +22,12 @@
 
     private readonly string assemblyName = Assembly.GetExecutingAssembly().GetName().Name ?? "";
     private IJSObjectReference? jsModule;
+    private DotNetObjectReference<SurveyJsForm>? objRef;
+
+    protected override void OnInitialized()
+    {
+        objRef = DotNetObjectReference.Create(this);
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -36,14 +35,16 @@
         {
             jsModule = await jsRuntime.InvokeAsync<IJSObjectReference>("import", $"/_content/{assemblyName}/Components/SurveyJsForm.razor.js");
 
-            await jsModule.InvokeVoidAsync("render", this.GetHashCode(), this.Scheme is not null ? JsonConvert.SerializeObject(this.Scheme) : null);
+            string? serializedScheme = this.Scheme is not null ? JsonConvert.SerializeObject(this.Scheme) : null;
+
+            await jsModule.InvokeVoidAsync("render", objRef, this.GetHashCode(), serializedScheme);
         }
     }
 
     [JSInvokable]
-    public static async void OnSurveyCompleteHandle(object data)
+    public async void OnSurveyCompleteHandle(object data)
     {
-        await Instance.OnSurveyComplete.InvokeAsync(data);
+        await OnSurveyComplete.InvokeAsync(data);
     }
 
     async ValueTask IAsyncDisposable.DisposeAsync()
@@ -53,6 +54,7 @@
             await jsModule.InvokeVoidAsync("dispose");
             await jsModule.DisposeAsync();
         }
+        objRef?.Dispose();
 
         GC.SuppressFinalize(this);
     }
