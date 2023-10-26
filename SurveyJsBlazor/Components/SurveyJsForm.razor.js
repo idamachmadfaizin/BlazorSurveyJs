@@ -1,5 +1,6 @@
 // @ts-check
 
+// @ts-ignore
 import ASSEMBLY_NAME from "/_content/SurveyJsBlazor/js/assembly-name.js";
 import "/_content/SurveyJsBlazor/libs/knockout/knockout-latest.js";
 import "/_content/SurveyJsBlazor/libs/survey-core/survey.core.min.js";
@@ -22,15 +23,15 @@ let viewModel = null;
  * @param {string} jsonScheme
  */
 export function render(hashId, jsonScheme) {
-    console.log('render called', { hashId, jsonScheme });
-
+    // @ts-ignore
     const survey = new Survey.Model(jsonScheme);
 
     survey.onComplete.add(onSurveyComplete);
     viewModel = { model: survey };
-    console.log({ viewModel });
 
     surveyElement = document.querySelector(`survey[id="${hashId}"]`);
+    
+    // @ts-ignore
     ko.applyBindings(viewModel, surveyElement);
 }
 
@@ -40,6 +41,7 @@ export function render(hashId, jsonScheme) {
 export function dispose() {
     if (surveyElement) {
         viewModel.model.dispose();
+        // @ts-ignore
         ko.cleanNode(surveyElement);
         surveyElement.innerHTML = '';
     }
@@ -50,6 +52,6 @@ export function dispose() {
  * @param {any} sender
  */
 async function onSurveyComplete(sender) {
-    console.log('onSurveyComplete', sender);
+    // @ts-ignore
     await DotNet.invokeMethodAsync(ASSEMBLY_NAME, "OnSurveyCompleteHandle", sender.data);
 }
