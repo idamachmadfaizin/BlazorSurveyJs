@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SurveyJsLibrary\SurveyJsLibrary.csproj" />
+    <ProjectReference Include="..\SurveyJsBlazor\SurveyJsBlazor.csproj" />
   </ItemGroup>
 
 </Project>
