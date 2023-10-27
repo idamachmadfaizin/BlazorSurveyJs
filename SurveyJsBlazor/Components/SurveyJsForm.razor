@@ -1,5 +1,6 @@
 ﻿@using System.Reflection;
 @using Newtonsoft.Json;
+@using SurveyJsBlazor.Models;
 
 @implements IAsyncDisposable
 @inject IJSRuntime jsRuntime
@@ -15,7 +16,7 @@
     public object? Scheme { get; set; }
 
     [Parameter]
-    public EventCallback<object> OnSurveyComplete { get; set; }
+    public EventCallback<object> OnComplete { get; set; }
 
     [Parameter(CaptureUnmatchedValues = true)]
     public Dictionary<string, object>? AllOtherAttributes { get; set; }
@@ -37,21 +38,31 @@
 
             string? serializedScheme = this.Scheme is not null ? JsonConvert.SerializeObject(this.Scheme) : null;
 
-            await jsModule.InvokeVoidAsync("render", objRef, this.GetHashCode(), serializedScheme);
+            var renderModel = new SurveyJsFormRenderModel
+            {
+                DotNetObject = objRef, 
+                HashId = this.GetHashCode(),
+                JsonScheme = serializedScheme
+            };
+            await jsModule.InvokeVoidAsync("render", renderModel);
         }
     }
 
     [JSInvokable]
-    public async void OnSurveyCompleteHandle(object data)
+    public async void OnCompleteHandle(object data)
     {
-        await OnSurveyComplete.InvokeAsync(data);
+        await OnComplete.InvokeAsync(data);
     }
 
     async ValueTask IAsyncDisposable.DisposeAsync()
     {
         if (jsModule is not null)
         {
-            await jsModule.InvokeVoidAsync("dispose");
+            var disposeModel = new SurveyJsFormDisposeModel
+            {
+                HashId = this.GetHashCode(),
+            };
+            await jsModule.InvokeVoidAsync("dispose", disposeModel);
             await jsModule.DisposeAsync();
         }
         objRef?.Dispose();

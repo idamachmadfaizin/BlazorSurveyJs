@@ -1,5 +1,6 @@
 ﻿@using System.Reflection;
 @using Newtonsoft.Json;
+@using SurveyJsBlazor.Models;
 
 @implements IAsyncDisposable
 @inject IJSRuntime jsRuntime
@@ -21,15 +22,24 @@
 
     [Parameter]
     public object? Scheme { get; set; }
+    
+    [Parameter]
+    public CreatorOptions? CreatorOptions { get; set; }
 
     [Parameter]
-    public EventCallback<object> OnSurveySave { get; set; }
+    public EventCallback<object> SaveSurveyFunc { get; set; }
 
     [Parameter(CaptureUnmatchedValues = true)]
     public Dictionary<string, object>? AllOtherAttributes { get; set; }
 
     private readonly string assemblyName = Assembly.GetExecutingAssembly().GetName().Name ?? "";
     private IJSObjectReference? jsModule;
+    private DotNetObjectReference<SurveyJsCreator>? objRef;
+
+    protected override void OnInitialized()
+    {
+        objRef = DotNetObjectReference.Create(this);
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -37,14 +47,24 @@
         {
             jsModule = await jsRuntime.InvokeAsync<IJSObjectReference>("import", $"/_content/{assemblyName}/Components/SurveyJsCreator.razor.js");
 
-            await jsModule.InvokeVoidAsync("render", this.GetHashCode(), this.Scheme is not null ? JsonConvert.SerializeObject(this.Scheme) : null);
+            string? serializedScheme = this.Scheme is not null ? JsonConvert.SerializeObject(this.Scheme) : null;
+
+            var renderModel = new SurveyJsCreatorRenderModel
+            {
+                DotNetObject = objRef,
+                HashId = this.GetHashCode(),
+                CreatorOptions = CreatorOptions,
+                JsonScheme = serializedScheme
+            };
+
+            await jsModule.InvokeVoidAsync("render", renderModel);
         }
     }
 
     [JSInvokable]
-    public static async void OnSurveySaveHandle(object data)
+    public async void SaveSurveyFuncHandle(object data)
     {
-        await Instance.OnSurveySave.InvokeAsync(data);
+        await SaveSurveyFunc.InvokeAsync(data);
     }
 
     async ValueTask IAsyncDisposable.DisposeAsync()
@@ -53,6 +73,7 @@
         {
             await jsModule.DisposeAsync();
         }
+        objRef?.Dispose();
 
         GC.SuppressFinalize(this);
     }

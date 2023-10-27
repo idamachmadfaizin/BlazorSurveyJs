@@ -1,36 +1,43 @@
+/// <reference path="../wwwroot/js/interfaces.d.ts" />
 // @ts-check
 
-// @ts-ignore
 import "/_content/SurveyJsBlazor/libs/knockout/knockout-latest.js";
 import "/_content/SurveyJsBlazor/libs/survey-core/survey.core.min.js";
 import "/_content/SurveyJsBlazor/libs/survey-knockout-ui/survey-knockout-ui.min.js";
+
+const Methods = {
+    OnCompleteHandle: "OnCompleteHandle",
+};
 
 /**
  * @typedef {Object} IViewModel
  * @property {any} model
  */
-
-/** @type {Element | null} */
-let surveyElement = null;
-
 /** @type {IViewModel}*/
 let viewModel = null;
 
 /**
- * Render SurveyJS Form.
- * @param {string} hashId
- * @param {string} jsonScheme
+ * @typedef {Object} IRenderModel
+ * @property {IDotNetObject} dotNetObject
+ * @property {number} hashId
+ * @property {Object?} jsonScheme
  */
-export function render(dotNetObjRef, hashId, jsonScheme) {
+/**
+ * Render SurveyJS Form.
+ * @param {IRenderModel} renderModel
+ */
+export function render({ dotNetObject, hashId, jsonScheme }) {
+    console.log({ dotNetObject, hashId, jsonScheme })
     // @ts-ignore
     const survey = new Survey.Model(jsonScheme);
 
     survey.onComplete.add((sender) => {
-        onSurveyComplete(dotNetObjRef, sender);
+        onSurveyComplete(dotNetObject, sender);
     });
     viewModel = { model: survey };
 
-    surveyElement = document.querySelector(`survey[id="${hashId}"]`);
+    /** @type {Element | null} */
+    const surveyElement = document.querySelector(`survey[id="${hashId}"]`);
     
     // @ts-ignore
     ko.applyBindings(viewModel, surveyElement);
@@ -39,7 +46,10 @@ export function render(dotNetObjRef, hashId, jsonScheme) {
 /**
  * Dispose SurveyJs Form.
  */
-export function dispose() {
+export function dispose({ hashId }) {
+    /** @type {Element | null} */
+    const surveyElement = document.querySelector(`survey[id="${hashId}"]`);
+
     if (surveyElement) {
         viewModel.model.dispose();
         // @ts-ignore
@@ -49,9 +59,10 @@ export function dispose() {
 }
 
 /**
- * Call Dotnet method when survey on complete.
+ * Call Dotnet method when survey on complete
+ * @param {IDotNetObject} dotNetObject
  * @param {any} sender
  */
-async function onSurveyComplete(dotNetObjRef, sender) {
-    await dotNetObjRef.invokeMethodAsync("OnSurveyCompleteHandle", sender.data);
+async function onSurveyComplete(dotNetObject, sender) {
+    await dotNetObject.invokeMethodAsync(Methods.OnCompleteHandle, sender);
 }

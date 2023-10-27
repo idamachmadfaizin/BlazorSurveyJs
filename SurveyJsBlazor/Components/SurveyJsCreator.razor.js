@@ -1,7 +1,6 @@
+/// <reference path="../wwwroot/js/interfaces.d.ts" />
 // @ts-check
 
-// @ts-ignore
-import ASSEMBLY_NAME from "/_content/SurveyJsBlazor/js/assembly-name.js";
 import "/_content/SurveyJsBlazor/libs/knockout/knockout-latest.js";
 import "/_content/SurveyJsBlazor/libs/survey-core/survey.core.min.js";
 import "/_content/SurveyJsBlazor/libs/survey-knockout-ui/survey-knockout-ui.min.js";
@@ -9,23 +8,32 @@ import "/_content/SurveyJsBlazor/libs/survey-knockout-ui/survey-knockout-ui.min.
 import "/_content/SurveyJsBlazor/libs/survey-creator-core/survey-creator-core.js";
 import "/_content/SurveyJsBlazor/libs/survey-creator-knockout/survey-creator-knockout.js";
 
+const Methods = {
+    SaveSurveyFuncHandle: "SaveSurveyFuncHandle",
+};
+
+/**
+ * @typedef {Object} IRenderModel
+ * @property {IDotNetObject} dotNetObject
+ * @property {number} hashId
+ * @property {Object} creatorOptions
+ * @property {Object?} jsonScheme
+ */
 /**
  * Render SurveyJs Creator.
- * @param {string} hashId
- * @param {string} jsonScheme
+ * @param {IRenderModel} renderModel
  */
-export function render(hashId, jsonScheme) {
-    const creatorOptions = {
-        showLogicTab: true,
-        isAutoSave: true
-    };
+export function render({ dotNetObject, hashId, creatorOptions, jsonScheme }) {
+    console.log({ creatorOptions })
+    if (!creatorOptions) {
+        creatorOptions = {};
+    }
 
     // @ts-ignore
     const creator = new SurveyCreator.SurveyCreator(creatorOptions);
 
     creator.saveSurveyFunc = async (saveNo, callback) => {
-        // @ts-ignore
-        await DotNet.invokeMethodAsync(ASSEMBLY_NAME, "OnSurveySaveHandle", creator.text);
+        await dotNetObject.invokeMethodAsync(Methods.SaveSurveyFuncHandle, creator.text);
 
         callback(saveNo, true);
     }
