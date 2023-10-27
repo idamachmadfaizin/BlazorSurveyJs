@@ -1,4 +1,4 @@
-using BlazorSurveyJs.Data;
+using BlazorServerApp.Data;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 
