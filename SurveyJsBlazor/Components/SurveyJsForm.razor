@@ -38,13 +38,13 @@
 
             string? serializedScheme = this.Scheme is not null ? JsonConvert.SerializeObject(this.Scheme) : null;
 
-            var renderModel = new SurveyJsFormRenderModel
+            var model = new FormJs.Render
             {
-                DotNetObject = objRef, 
+                DotNetObject = objRef,
                 HashId = this.GetHashCode(),
                 JsonScheme = serializedScheme
             };
-            await jsModule.InvokeVoidAsync("render", renderModel);
+            await jsModule.InvokeVoidAsync("render", model);
         }
     }
 
@@ -54,15 +54,26 @@
         await OnComplete.InvokeAsync(data);
     }
 
+    public async Task Clear()
+    {
+        if (jsModule is null) return;
+        
+        var model = new FormJs.Clear
+        {
+            HashId = this.GetHashCode()
+        };
+        await jsModule.InvokeVoidAsync("clear", model);
+    }
+
     async ValueTask IAsyncDisposable.DisposeAsync()
     {
         if (jsModule is not null)
         {
-            var disposeModel = new SurveyJsFormDisposeModel
+            var model = new FormJs.Dispose
             {
                 HashId = this.GetHashCode(),
             };
-            await jsModule.InvokeVoidAsync("dispose", disposeModel);
+            await jsModule.InvokeVoidAsync("dispose", model);
             await jsModule.DisposeAsync();
         }
         objRef?.Dispose();

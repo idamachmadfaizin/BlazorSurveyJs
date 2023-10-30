@@ -5,16 +5,18 @@ import "/_content/SurveyJsBlazor/libs/knockout/knockout-latest.js";
 import "/_content/SurveyJsBlazor/libs/survey-core/survey.core.min.js";
 import "/_content/SurveyJsBlazor/libs/survey-knockout-ui/survey-knockout-ui.min.js";
 
+/**
+ * The list of dotnet component method with attribute "JSInvokable".
+ */
 const Methods = {
     OnCompleteHandle: "OnCompleteHandle",
 };
+Object.freeze(Methods);
 
 /**
  * @typedef {Object} IViewModel
  * @property {any} model
  */
-/** @type {IViewModel}*/
-let viewModel = null;
 
 /**
  * @typedef {Object} IRenderModel
@@ -27,14 +29,14 @@ let viewModel = null;
  * @param {IRenderModel} renderModel
  */
 export function render({ dotNetObject, hashId, jsonScheme }) {
-    console.log({ dotNetObject, hashId, jsonScheme })
     // @ts-ignore
     const survey = new Survey.Model(jsonScheme);
 
     survey.onComplete.add((sender) => {
         onSurveyComplete(dotNetObject, sender);
     });
-    viewModel = { model: survey };
+    /** @type {IViewModel}*/
+    const viewModel = { model: survey };
 
     /** @type {Element | null} */
     const surveyElement = document.querySelector(`survey[id="${hashId}"]`);
@@ -44,18 +46,44 @@ export function render({ dotNetObject, hashId, jsonScheme }) {
 }
 
 /**
+ * @typedef {Object} IKoViewModel
+ * @property {IViewModel} viewModel
+ * @property {Element} element
+ */
+/**
+ * Get survey viewModel.
+ * @param {string} hashId
+ * @returns {IKoViewModel}
+ */
+function getViewModel(hashId) {
+    const surveyElement = document.querySelector(`survey[id="${hashId}"]`);
+
+    // @ts-ignore
+    const viewModel = ko.dataFor(surveyElement);
+
+    /** @type {IKoViewModel} */
+    return { viewModel: viewModel, element: surveyElement };
+}
+
+/**
  * Dispose SurveyJs Form.
  */
 export function dispose({ hashId }) {
-    /** @type {Element | null} */
-    const surveyElement = document.querySelector(`survey[id="${hashId}"]`);
+    const survey = getViewModel(hashId);
 
-    if (surveyElement) {
-        viewModel.model.dispose();
+    if (survey.element && survey.viewModel) {
+        if (!survey.viewModel.model.isDisposed) {
+            survey.viewModel.model.dispose();
+        }
         // @ts-ignore
-        ko.cleanNode(surveyElement);
-        surveyElement.innerHTML = '';
+        ko.cleanNode(survey.element);
+        survey.element.innerHTML = '';
     }
+}
+
+export function clear({ hashId }) {
+    const survey = getViewModel(hashId);
+    survey.viewModel.model.clear();
 }
 
 /**
@@ -64,5 +92,5 @@ export function dispose({ hashId }) {
  * @param {any} sender
  */
 async function onSurveyComplete(dotNetObject, sender) {
-    await dotNetObject.invokeMethodAsync(Methods.OnCompleteHandle, sender);
+    await dotNetObject.invokeMethodAsync(Methods.OnCompleteHandle, sender.data);
 }

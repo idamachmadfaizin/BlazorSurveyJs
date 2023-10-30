@@ -49,7 +49,7 @@
 
             string? serializedScheme = this.Scheme is not null ? JsonConvert.SerializeObject(this.Scheme) : null;
 
-            var renderModel = new SurveyJsCreatorRenderModel
+            var renderModel = new CreatorJs.Render
             {
                 DotNetObject = objRef,
                 HashId = this.GetHashCode(),

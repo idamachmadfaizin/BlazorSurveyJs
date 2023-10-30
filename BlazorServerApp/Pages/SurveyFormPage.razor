@@ -6,8 +6,9 @@
 <PageTitle>Survey Form</PageTitle>
 
 <h3>SurveyJs Form</h3>
+<button @onclick="Clear">Clear</button>
 
-<SurveyJsForm Scheme="Scheme" OnComplete="OnSurveyComplete"></SurveyJsForm>
+<SurveyJsForm Scheme="Scheme" OnComplete="OnSurveyComplete" @ref="surveyJsForm"></SurveyJsForm>
 
 @code {
     public SurveyFormPage()
@@ -30,8 +31,15 @@
 
     protected object? Scheme { get; set; }
 
+    SurveyJsForm surveyJsForm;
+
     private void OnSurveyComplete(object data)
     {
         logger.LogInformation(data.ToString());
+    }
+
+    async Task Clear()
+    {
+        await surveyJsForm.Clear();
     }
 }

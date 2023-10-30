@@ -11,6 +11,7 @@ import "/_content/SurveyJsBlazor/libs/survey-creator-knockout/survey-creator-kno
 const Methods = {
     SaveSurveyFuncHandle: "SaveSurveyFuncHandle",
 };
+Object.freeze(Methods);
 
 /**
  * @typedef {Object} IRenderModel
@@ -24,7 +25,6 @@ const Methods = {
  * @param {IRenderModel} renderModel
  */
 export function render({ dotNetObject, hashId, creatorOptions, jsonScheme }) {
-    console.log({ creatorOptions })
     if (!creatorOptions) {
         creatorOptions = {};
     }
