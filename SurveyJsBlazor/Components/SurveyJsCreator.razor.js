@@ -8,6 +8,9 @@ import "/_content/SurveyJsBlazor/libs/survey-knockout-ui/survey-knockout-ui.min.
 import "/_content/SurveyJsBlazor/libs/survey-creator-core/survey-creator-core.js";
 import "/_content/SurveyJsBlazor/libs/survey-creator-knockout/survey-creator-knockout.js";
 
+/**
+ * The list of dotnet component method with attribute "JSInvokable".
+ */
 const Methods = {
     SaveSurveyFuncHandle: "SaveSurveyFuncHandle",
 };

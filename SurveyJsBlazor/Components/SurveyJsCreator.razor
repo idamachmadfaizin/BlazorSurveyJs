@@ -6,20 +6,13 @@
 @inject IJSRuntime jsRuntime
 
 <HeadContent>
-    <link href="/_content/@(assemblyName)/libs/survey-core/defaultv2.min.css" rel="stylesheet" />
-    <link href="/_content/@(assemblyName)/libs/survey-creator-core/survey-creator-core.min.css" rel="stylesheet" />
+    <link href="./_content/@(assemblyName)/libs/survey-core/defaultv2.min.css" rel="stylesheet" />
+    <link href="./_content/@(assemblyName)/libs/survey-creator-core/survey-creator-core.min.css" rel="stylesheet" />
 </HeadContent>
 
 <div id="@this.GetHashCode()" @attributes=AllOtherAttributes></div>
 
 @code {
-    public SurveyJsCreator()
-    {
-        Instance = this;
-    }
-
-    private static SurveyJsCreator Instance = default!;
-
     [Parameter]
     public object? Scheme { get; set; }
     
@@ -33,19 +26,20 @@
     public Dictionary<string, object>? AllOtherAttributes { get; set; }
 
     private readonly string assemblyName = Assembly.GetExecutingAssembly().GetName().Name ?? "";
-    private IJSObjectReference? jsModule;
-    private DotNetObjectReference<SurveyJsCreator>? objRef;
+    private readonly DotNetObjectReference<SurveyJsCreator> objRef;
+    private readonly Lazy<Task<IJSObjectReference>> jsModuleTask;
 
-    protected override void OnInitialized()
+    public SurveyJsCreator()
     {
         objRef = DotNetObjectReference.Create(this);
+        jsModuleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>("import", $"./_content/{assemblyName}/Components/SurveyJsCreator.razor.js").AsTask());
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            jsModule = await jsRuntime.InvokeAsync<IJSObjectReference>("import", $"/_content/{assemblyName}/Components/SurveyJsCreator.razor.js");
+            var module = await jsModuleTask.Value;
 
             string? serializedScheme = this.Scheme is not null ? JsonConvert.SerializeObject(this.Scheme) : null;
 
@@ -56,8 +50,7 @@
                 CreatorOptions = CreatorOptions,
                 JsonScheme = serializedScheme
             };
-
-            await jsModule.InvokeVoidAsync("render", renderModel);
+            await module.InvokeVoidAsync("render", renderModel);
         }
     }
 
@@ -69,10 +62,12 @@
 
     async ValueTask IAsyncDisposable.DisposeAsync()
     {
-        if (jsModule is not null)
+        if (jsModuleTask.IsValueCreated)
         {
-            await jsModule.DisposeAsync();
+            var module = await jsModuleTask.Value;
+            await module.DisposeAsync();
         }
+
         objRef?.Dispose();
 
         GC.SuppressFinalize(this);

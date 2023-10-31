@@ -6,7 +6,7 @@
 @inject IJSRuntime jsRuntime
 
 <HeadContent>
-    <link href="/_content/@(assemblyName)/libs/survey-core/defaultv2.min.css" rel="stylesheet" />
+    <link href="./_content/@(assemblyName)/libs/survey-core/defaultv2.min.css" rel="stylesheet" />
 </HeadContent>
 
 <survey id="@this.GetHashCode()" params="survey: model" @attributes=AllOtherAttributes></survey>
@@ -22,19 +22,20 @@
     public Dictionary<string, object>? AllOtherAttributes { get; set; }
 
     private readonly string assemblyName = Assembly.GetExecutingAssembly().GetName().Name ?? "";
-    private IJSObjectReference? jsModule;
-    private DotNetObjectReference<SurveyJsForm>? objRef;
+    private readonly DotNetObjectReference<SurveyJsForm> objRef;
+    private readonly Lazy<Task<IJSObjectReference>> jsModuleTask;
 
-    protected override void OnInitialized()
+    public SurveyJsForm()
     {
         objRef = DotNetObjectReference.Create(this);
+        jsModuleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>("import", $"./_content/{assemblyName}/Components/SurveyJsForm.razor.js").AsTask());
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            jsModule = await jsRuntime.InvokeAsync<IJSObjectReference>("import", $"/_content/{assemblyName}/Components/SurveyJsForm.razor.js");
+            var module = await jsModuleTask.Value;
 
             string? serializedScheme = this.Scheme is not null ? JsonConvert.SerializeObject(this.Scheme) : null;
 
@@ -44,7 +45,7 @@
                 HashId = this.GetHashCode(),
                 JsonScheme = serializedScheme
             };
-            await jsModule.InvokeVoidAsync("render", model);
+            await module.InvokeVoidAsync("render", model);
         }
     }
 
@@ -56,27 +57,31 @@
 
     public async Task Clear()
     {
-        if (jsModule is null) return;
-        
+        var module = await jsModuleTask.Value;
+
         var model = new FormJs.Clear
         {
             HashId = this.GetHashCode()
         };
-        await jsModule.InvokeVoidAsync("clear", model);
+
+        await module.InvokeVoidAsync("clear", model);
     }
 
     async ValueTask IAsyncDisposable.DisposeAsync()
     {
-        if (jsModule is not null)
+        if (jsModuleTask.IsValueCreated)
         {
+            var module = await jsModuleTask.Value;
+
             var model = new FormJs.Dispose
             {
                 HashId = this.GetHashCode(),
             };
-            await jsModule.InvokeVoidAsync("dispose", model);
-            await jsModule.DisposeAsync();
+            await module.InvokeVoidAsync("dispose", model);
+            await module.DisposeAsync();
         }
-        objRef?.Dispose();
+
+        objRef.Dispose();
 
         GC.SuppressFinalize(this);
     }
