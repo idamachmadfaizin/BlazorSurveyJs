@@ -11,6 +11,9 @@
 <SurveyJsForm Scheme="Scheme" OnComplete="OnSurveyComplete" @ref="surveyJsForm"></SurveyJsForm>
 
 @code {
+    SurveyJsForm surveyJsForm = default!;
+    protected readonly object? Scheme;
+
     public SurveyFormPage()
     {
         var obj = JsonConvert.DeserializeObject(@"
@@ -29,9 +32,6 @@
         Scheme = obj;
     }
 
-    protected object? Scheme { get; set; }
-
-    SurveyJsForm surveyJsForm;
 
     private void OnSurveyComplete(object data)
     {
