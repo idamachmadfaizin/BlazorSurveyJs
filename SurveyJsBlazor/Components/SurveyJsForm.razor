@@ -9,7 +9,9 @@
     <link href="./_content/@(assemblyName)/libs/survey-core/defaultv2.min.css" rel="stylesheet" />
 </HeadContent>
 
-<survey id="@this.GetHashCode()" params="survey: model" @attributes=AllOtherAttributes></survey>
+<div @attributes=AllOtherAttributes>
+    <survey id="@this.GetHashCode()" params="survey: model"></survey>
+</div>
 
 @code {
     [Parameter]

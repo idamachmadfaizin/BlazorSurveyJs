@@ -6,9 +6,9 @@
 <PageTitle>Survey Form</PageTitle>
 
 <h3>SurveyJs Form</h3>
-<button @onclick="Clear">Clear</button>
+<button class="btn btn-primary" @onclick="Clear">Clear</button>
 
-<SurveyJsForm Scheme="Scheme" OnComplete="OnSurveyComplete" @ref="surveyJsForm"></SurveyJsForm>
+<SurveyJsForm Scheme="Scheme" OnComplete="OnSurveyComplete" @ref="surveyJsForm" class="mt-2"></SurveyJsForm>
 
 @code {
     SurveyJsForm surveyJsForm = default!;
