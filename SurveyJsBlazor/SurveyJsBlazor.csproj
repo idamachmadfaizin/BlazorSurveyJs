@@ -6,6 +6,14 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <TypeScriptCompile Remove="wwwroot\scripts\survey-js-blazor.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="wwwroot\scripts\survey-js-blazor.ts" />
+  </ItemGroup>
+
 
   <ItemGroup>
     <SupportedPlatform Include="browser" />
@@ -13,6 +21,10 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="6.0.23" />
+    <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="5.2.2">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 

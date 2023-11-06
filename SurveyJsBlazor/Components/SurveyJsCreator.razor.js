@@ -1,5 +1,9 @@
-/// <reference path="../wwwroot/js/interfaces.d.ts" />
+/// <reference path="../wwwroot/scripts/interfaces.d.ts" />
+/// <reference path="../wwwroot/scripts/survey-js-blazor.d.ts" />
 // @ts-check
+
+// @ts-ignore
+import SurveyJsBlazor from "/_content/SurveyJsBlazor/scripts/survey-js-blazor.js";
 
 import "/_content/SurveyJsBlazor/libs/knockout/knockout-latest.js";
 import "/_content/SurveyJsBlazor/libs/survey-core/survey.core.min.js";
@@ -15,6 +19,8 @@ const Methods = {
     SaveSurveyFuncHandle: "SaveSurveyFuncHandle",
 };
 Object.freeze(Methods);
+
+SurveyJsBlazor.addQuestionProperty();
 
 /**
  * @typedef {Object} IRenderModel
