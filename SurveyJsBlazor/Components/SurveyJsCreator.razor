@@ -44,12 +44,12 @@
             string? serializedScheme = this.Scheme is not null ? JsonConvert.SerializeObject(this.Scheme) : null;
 
             var renderModel = new CreatorJs.Render
-            {
-                DotNetObject = objRef,
-                HashId = this.GetHashCode(),
-                CreatorOptions = CreatorOptions,
-                JsonScheme = serializedScheme
-            };
+                {
+                    DotNetObject = objRef,
+                    HashId = this.GetHashCode(),
+                    CreatorOptions = CreatorOptions,
+                    JsonScheme = serializedScheme
+                };
             await module.InvokeVoidAsync("render", renderModel);
         }
     }
@@ -62,14 +62,20 @@
 
     async ValueTask IAsyncDisposable.DisposeAsync()
     {
-        if (jsModuleTask.IsValueCreated)
+        try
         {
-            var module = await jsModuleTask.Value;
-            await module.DisposeAsync();
+            if (jsModuleTask.IsValueCreated)
+            {
+                var module = await jsModuleTask.Value;
+                await module.DisposeAsync();
+            }
+
+            objRef?.Dispose();
+
+            GC.SuppressFinalize(this);
         }
-
-        objRef?.Dispose();
-
-        GC.SuppressFinalize(this);
+        catch (JSDisconnectedException)
+        {
+        }
     }
 }

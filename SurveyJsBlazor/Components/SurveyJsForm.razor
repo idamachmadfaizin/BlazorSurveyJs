@@ -42,11 +42,11 @@
             string? serializedScheme = this.Scheme is not null ? JsonConvert.SerializeObject(this.Scheme) : null;
 
             var model = new FormJs.Render
-            {
-                DotNetObject = objRef,
-                HashId = this.GetHashCode(),
-                JsonScheme = serializedScheme
-            };
+                {
+                    DotNetObject = objRef,
+                    HashId = this.GetHashCode(),
+                    JsonScheme = serializedScheme
+                };
             await module.InvokeVoidAsync("render", model);
         }
     }
@@ -62,29 +62,35 @@
         var module = await jsModuleTask.Value;
 
         var model = new FormJs.Clear
-        {
-            HashId = this.GetHashCode()
-        };
+            {
+                HashId = this.GetHashCode()
+            };
 
         await module.InvokeVoidAsync("clear", model);
     }
 
     async ValueTask IAsyncDisposable.DisposeAsync()
     {
-        if (jsModuleTask.IsValueCreated)
+        try
         {
-            var module = await jsModuleTask.Value;
-
-            var model = new FormJs.Dispose
+            if (jsModuleTask.IsValueCreated)
             {
-                HashId = this.GetHashCode(),
-            };
-            await module.InvokeVoidAsync("dispose", model);
-            await module.DisposeAsync();
+                var module = await jsModuleTask.Value;
+
+                var model = new FormJs.Dispose
+                    {
+                        HashId = this.GetHashCode(),
+                    };
+                await module.InvokeVoidAsync("dispose", model);
+                await module.DisposeAsync();
+            }
+
+            objRef.Dispose();
+
+            GC.SuppressFinalize(this);
         }
-
-        objRef.Dispose();
-
-        GC.SuppressFinalize(this);
+        catch (JSDisconnectedException)
+        {
+        }
     }
 }
