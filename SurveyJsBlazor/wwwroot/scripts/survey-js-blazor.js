@@ -11,4 +11,3 @@ var SurveyJsBlazor;
     SurveyJsBlazor.addQuestionProperty = addQuestionProperty;
 })(SurveyJsBlazor || (SurveyJsBlazor = {}));
 export default SurveyJsBlazor;
-//# sourceMappingURL=survey-js-blazor.js.map
