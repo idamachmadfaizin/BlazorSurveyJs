@@ -26,13 +26,17 @@
         };
     }
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        var objLocalStorage = await localStorage.GetItemAsStringAsync(localStorageKey);
-        if (objLocalStorage is not null)
+        if (firstRender)
         {
-            var obj = JsonConvert.DeserializeObject(objLocalStorage);
-            Scheme = obj;
+            var objLocalStorage = await localStorage.GetItemAsStringAsync(localStorageKey);
+            if (objLocalStorage is not null)
+            {
+                var obj = JsonConvert.DeserializeObject(objLocalStorage);
+                Scheme = obj;
+                StateHasChanged();
+            }
         }
     }
 

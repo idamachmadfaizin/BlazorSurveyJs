@@ -33,16 +33,29 @@
     //     Scheme = obj;
     // }
 
-    protected override async Task OnInitializedAsync()
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     var surveyStringData = await localStorage.GetItemAsStringAsync(localStorageKey);
+    //     if (surveyStringData is not null)
+    //     {
+    //         var obj = JsonConvert.DeserializeObject(surveyStringData);
+    //         Scheme = obj;
+    //     }
+    // }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        var surveyStringData = await localStorage.GetItemAsStringAsync(localStorageKey);
-        if (surveyStringData is not null)
+        if (firstRender)
         {
-            var obj = JsonConvert.DeserializeObject(surveyStringData);
-            Scheme = obj;
+            var surveyStringData = await localStorage.GetItemAsStringAsync(localStorageKey);
+            if (surveyStringData is not null)
+            {
+                var obj = JsonConvert.DeserializeObject(surveyStringData);
+                Scheme = obj;
+                StateHasChanged();
+            }
         }
     }
-
 
     private void OnSurveyComplete(object data)
     {
