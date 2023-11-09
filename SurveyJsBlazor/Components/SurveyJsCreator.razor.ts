@@ -6,8 +6,8 @@ import "/_content/SurveyJsBlazor/libs/survey-knockout-ui/survey-knockout-ui.min.
 
 import "/_content/SurveyJsBlazor/libs/survey-creator-core/survey-creator-core.js";
 import "/_content/SurveyJsBlazor/libs/survey-creator-knockout/survey-creator-knockout.js";
-import { IDotNetObject } from "../wwwroot/scripts/dot-net-object.type";
-import { IHashId } from "../wwwroot/scripts/hash-id";
+import {IDotNetObject} from "../wwwroot/scripts/dot-net-object.type";
+import {IHashId} from "../wwwroot/scripts/hash-id";
 
 declare const SurveyCreator: any;
 
@@ -26,14 +26,14 @@ Object.freeze(Methods);
 
 SurveyJsBlazor.addQuestionProperty();
 
-export function render({ dotNetObject, hashId, creatorOptions, jsonScheme }: IRender) {
+export function render({dotNetObject, hashId, creatorOptions, jsonScheme}: IRender) {
     if (!creatorOptions) {
         creatorOptions = {};
     }
 
     const creator = new SurveyCreator.SurveyCreator(creatorOptions);
 
-    creator.saveSurveyFunc = async (saveNo, callback) => {
+    creator.saveSurveyFunc = async (saveNo: any, callback: any) => {
         await dotNetObject.invokeMethodAsync(Methods.SaveSurveyFuncHandle, creator.text);
 
         callback(saveNo, true);

@@ -3,8 +3,8 @@ import SurveyJsBlazor from "/_content/SurveyJsBlazor/scripts/survey-js-blazor.js
 import "/_content/SurveyJsBlazor/libs/knockout/knockout-latest.js";
 import "/_content/SurveyJsBlazor/libs/survey-core/survey.core.min.js";
 import "/_content/SurveyJsBlazor/libs/survey-knockout-ui/survey-knockout-ui.min.js";
-import { DotNetObjectType, IDotNetObject } from "../wwwroot/scripts/dot-net-object.type";
-import { IHashId } from "../wwwroot/scripts/hash-id";
+import {DotNetObjectType, IDotNetObject} from "../wwwroot/scripts/dot-net-object.type";
+import {IHashId} from "../wwwroot/scripts/hash-id";
 
 declare const Survey: any;
 declare const ko: any;
@@ -36,10 +36,10 @@ SurveyJsBlazor.addQuestionProperty();
  * Render SurveyJS Form.
  * @param param
  */
-export function render({ dotNetObject, hashId, jsonScheme }: IRenderModel) {
+export function render({dotNetObject, hashId, jsonScheme}: IRenderModel) {
     const survey = new Survey.Model(jsonScheme);
 
-    survey.onCompleting.add((sender) => {
+    survey.onCompleting.add((sender: any) => {
         const totalScore = calculateTotalScore(survey, sender.data);
         const maxScore = calculateMaxScore(sender.getAllQuestions());
 
@@ -48,19 +48,17 @@ export function render({ dotNetObject, hashId, jsonScheme }: IRenderModel) {
         sender.setValue("totalScore", totalScore);
     });
 
-    survey.onComplete.add((sender) => {
-        onSurveyComplete(dotNetObject, sender);
-    });
+    survey.onComplete.add((sender: any) => onSurveyComplete(dotNetObject, sender));
 
-    const viewModel: IViewModel = { model: survey };
+    const viewModel: IViewModel = {model: survey};
 
     const surveyElement = document.querySelector(`survey[id="${hashId}"]`);
-    
+
     ko.applyBindings(viewModel, surveyElement);
 }
 
 /**
- * Get survey  
+ * Get survey
  * @param hashId
  * @returns IKoViewModel
  */
@@ -69,14 +67,14 @@ function getViewModel(hashId: number): IKoViewModel {
 
     const viewModel = ko.dataFor(surveyElement);
 
-    return { viewModel: viewModel, element: surveyElement };
+    return {viewModel: viewModel, element: surveyElement};
 }
- 
- /**
-  * Dispose SurveyJs Form.
-  * @param param IHashId
-  */
-export function dispose({ hashId }: IHashId) {
+
+/**
+ * Dispose SurveyJs Form.
+ * @param param IHashId
+ */
+export function dispose({hashId}: IHashId) {
     const survey = getViewModel(hashId);
 
     if (survey.element && survey.viewModel) {
@@ -93,7 +91,7 @@ export function dispose({ hashId }: IHashId) {
  * Clear answer.
  * @param param
  */
-export function clear({ hashId }: IHashId) {
+export function clear({hashId}: IHashId) {
     const survey = getViewModel(hashId);
     survey.viewModel.model.clear();
 }
@@ -107,9 +105,9 @@ async function onSurveyComplete(dotNetObject: DotNetObjectType, sender: any) {
     await dotNetObject.invokeMethodAsync(Methods.OnCompleteHandle, sender.data);
 }
 
-function calculateMaxScore(questions) {
-    var maxScore = 0;
-    questions.forEach((question) => {
+function calculateMaxScore(questions: any) {
+    let maxScore = 0;
+    questions.forEach((question: any) => {
         if (!!question.score) {
             maxScore += question.score;
         }
@@ -117,8 +115,8 @@ function calculateMaxScore(questions) {
     return maxScore;
 }
 
-function calculateTotalScore(survey, data) {
-    var totalScore = 0;
+function calculateTotalScore(survey: any, data: any) {
+    let totalScore = 0;
     Object.keys(data).forEach((qName) => {
         const question = survey.getQuestionByValueName(qName);
         if (question.isAnswerCorrect()) {
