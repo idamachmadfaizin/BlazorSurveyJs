@@ -1,13 +1,13 @@
+/// <reference path="../wwwroot/libs/survey-core/survey.core.d.ts" />
+
 import SurveyJsBlazor from "/_content/SurveyJsBlazor/scripts/survey-js-blazor.js";
 
-import "/_content/SurveyJsBlazor/libs/knockout/knockout-latest.js";
+import "/_content/SurveyJsBlazor/libs/knockout/build/output/knockout-latest.js";
 import "/_content/SurveyJsBlazor/libs/survey-core/survey.core.min.js";
-import "/_content/SurveyJsBlazor/libs/survey-knockout-ui/survey-knockout-ui.min.js";
-import {DotNetObjectType, IDotNetObject} from "../wwwroot/scripts/dot-net-object.type";
-import {IHashId} from "../wwwroot/scripts/hash-id";
+import  "/_content/SurveyJsBlazor/libs/survey-knockout-ui/survey-knockout-ui.min.js";
 
-declare const Survey: any;
-declare const ko: any;
+import { DotNetObjectType, IDotNetObject } from "../wwwroot/scripts/dot-net-object.type";
+import { IHashId } from "../wwwroot/scripts/hash-id";
 
 type IViewModel = {
     model: any;
@@ -36,8 +36,8 @@ SurveyJsBlazor.addQuestionProperty();
  * Render SurveyJS Form.
  * @param param
  */
-export function render({dotNetObject, hashId, jsonScheme}: IRenderModel) {
-    const survey = new Survey.Model(jsonScheme);
+export function render({ dotNetObject, hashId, jsonScheme }: IRenderModel) {
+    const survey = new window.Survey.Model(jsonScheme);
 
     survey.onCompleting.add((sender: any) => {
         const totalScore = calculateTotalScore(survey, sender.data);
@@ -53,8 +53,8 @@ export function render({dotNetObject, hashId, jsonScheme}: IRenderModel) {
     const viewModel: IViewModel = {model: survey};
 
     const surveyElement = document.querySelector(`survey[id="${hashId}"]`);
-
-    ko.applyBindings(viewModel, surveyElement);
+    
+    window.ko.applyBindings(viewModel, surveyElement);
 }
 
 /**
@@ -63,9 +63,9 @@ export function render({dotNetObject, hashId, jsonScheme}: IRenderModel) {
  * @returns IKoViewModel
  */
 function getViewModel(hashId: number): IKoViewModel {
-    const surveyElement = document.querySelector(`survey[id="${hashId}"]`);
+    const surveyElement = document.querySelector(`survey[id="${hashId}"]`)!;
 
-    const viewModel = ko.dataFor(surveyElement);
+    const viewModel = window.ko.dataFor(surveyElement);
 
     return {viewModel: viewModel, element: surveyElement};
 }
@@ -82,7 +82,7 @@ export function dispose({hashId}: IHashId) {
             survey.viewModel.model.dispose();
         }
 
-        ko.cleanNode(survey.element);
+        window.ko.cleanNode(survey.element);
         survey.element.innerHTML = '';
     }
 }

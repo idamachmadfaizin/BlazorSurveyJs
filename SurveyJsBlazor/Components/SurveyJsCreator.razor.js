@@ -1,5 +1,6 @@
+/// <reference path="../wwwroot/libs/survey-core/survey.core.d.ts" />
 import SurveyJsBlazor from "/_content/SurveyJsBlazor/scripts/survey-js-blazor.js";
-import "/_content/SurveyJsBlazor/libs/knockout/knockout-latest.js";
+import "/_content/SurveyJsBlazor/libs/knockout/build/output/knockout-latest.js";
 import "/_content/SurveyJsBlazor/libs/survey-core/survey.core.min.js";
 import "/_content/SurveyJsBlazor/libs/survey-knockout-ui/survey-knockout-ui.min.js";
 import "/_content/SurveyJsBlazor/libs/survey-creator-core/survey-creator-core.js";

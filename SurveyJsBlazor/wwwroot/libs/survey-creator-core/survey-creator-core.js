@@ -1,5 +1,5 @@
 /*!
- * SurveyJS Creator v1.9.113
+ * SurveyJS Creator v1.9.116
  * (c) 2015-2023 Devsoft Baltic OÜ - http://surveyjs.io/
  * Github: https://github.com/surveyjs/survey-creator
  * License: https://surveyjs.io/Licenses#SurveyCreator
@@ -131,7 +131,7 @@ License: MIT
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
- * surveyjs - Survey JavaScript library v1.9.113
+ * surveyjs - Survey JavaScript library v1.9.116
  * Copyright (c) 2015-2023 Devsoft Baltic OÜ  - http://surveyjs.io/
  * License: MIT (http://www.opensource.org/licenses/mit-license.php)
  */
@@ -4612,7 +4612,7 @@ var SurveyElementAdornerBase = /** @class */ (function (_super) {
         _this.actionContainer.dotsItem.popupModel.horizontalPosition = "center";
         var actions = [];
         _this.buildActions(actions);
-        _this.setSurveyElement(surveyElement);
+        _this.setSurveyElement(surveyElement, false);
         if (_this.surveyElement) {
             _this.creator.sidebar.onPropertyChanged.add(_this.sidebarFlyoutModeChangedFunc);
             _this.creator.onElementMenuItemsChanged(_this.surveyElement, actions);
@@ -4632,11 +4632,14 @@ var SurveyElementAdornerBase = /** @class */ (function (_super) {
             surveyElement.onPropertyChanged.add(this.selectedPropPageFunc);
         }
     };
-    SurveyElementAdornerBase.prototype.setSurveyElement = function (surveyElement) {
+    SurveyElementAdornerBase.prototype.setSurveyElement = function (surveyElement, updateActions) {
+        if (updateActions === void 0) { updateActions = true; }
         this.detachElement(this.surveyElement);
         this.surveyElement = surveyElement;
         this.attachElement(this.surveyElement);
-        this.updateActionsProperties();
+        if (updateActions) {
+            this.updateActionsProperties();
+        }
     };
     SurveyElementAdornerBase.prototype.checkActionProperties = function () {
         if (this.creator.isElementSelected(this.surveyElement)) {
@@ -6511,7 +6514,7 @@ var QuestionImageAdornerViewModel = /** @class */ (function (_super) {
         var surveyModel = new survey_core__WEBPACK_IMPORTED_MODULE_1__["SurveyModel"]();
         this.filePresentationModel.setSurveyImpl(surveyModel);
         this.filePresentationModel.forceIsInputReadOnly = !this.creator.isCanModifyProperty(this.question, "imageLink");
-        this.filePresentationModel.dragAreaPlaceholder = this.placeholderText;
+        this.filePresentationModel.filePlaceholder = this.placeholderText;
         this.filePresentationModel.chooseButtonCaption = this.chooseImageText;
         this.filePresentationModel.acceptedTypes = "image/*";
         this.filePresentationModel.storeDataAsText = false;
@@ -6966,7 +6969,10 @@ var QuestionAdornerViewModel = /** @class */ (function (_super) {
         var question = this.creator.survey.getQuestionByName(name);
         if (!question)
             return null;
-        return { question: question, text: this.creator.getLocString("ed.carryForwardChoicesCopied"), onClick: function () { _this.creator.selectElement(question); } };
+        return {
+            question: question, text: this.creator.getLocString("ed.carryForwardChoicesCopied"),
+            onClick: function () { _this.creator.selectElement(question); }
+        };
     };
     QuestionAdornerViewModel.prototype.dispose = function () {
         this.surveyElement.unRegisterFunctionOnPropertyValueChanged("isRequired", "isRequiredAdorner");
@@ -6987,7 +6993,7 @@ var QuestionAdornerViewModel = /** @class */ (function (_super) {
         if (!this.surveyElement.isInteractiveDesignElement) {
             return;
         }
-        this.updateActionsProperties();
+        //this.updateActionsProperties();
         Object(_utils_utils__WEBPACK_IMPORTED_MODULE_4__["toggleHovered"])(event, element);
     };
     QuestionAdornerViewModel.prototype.updateElementAllowOptions = function (options, operationsAllow) {
@@ -7099,8 +7105,18 @@ var QuestionAdornerViewModel = /** @class */ (function (_super) {
             availableTypes.push({ id: item, title: _editorLocalization__WEBPACK_IMPORTED_MODULE_2__["editorLocalization"].getPropertyValueInEditor(prop.name, item) });
         });
         var newAction = this.createDropdownModel("convertInputType", availableTypes, true, 1, questionSubType, function (item) {
-            _this.surveyElement.setPropertyValue(propName, item.id);
-            newAction.title = item.title;
+            var newValue = _this.getUpdatedPropertyValue(propName, item.id);
+            _this.surveyElement.setPropertyValue(propName, newValue);
+            var title = item.title;
+            if (newValue !== item.id) {
+                var popup = newAction.popupModel;
+                var list = popup.contentComponentData.model;
+                var newItem = list.getActionById(newValue);
+                if (newItem) {
+                    title = newItem.title;
+                }
+            }
+            newAction.title = title;
         });
         newAction.disableShrink = true;
         this.surveyElement.registerFunctionOnPropertyValueChanged(propName, function () {
@@ -7159,7 +7175,7 @@ var QuestionAdornerViewModel = /** @class */ (function (_super) {
             iconSize: 16,
             action: function () {
                 if (_this.creator.isCanModifyProperty(_this.surveyElement, "isRequired")) {
-                    _this.isRequired = !_this.isRequired;
+                    _this.isRequired = _this.getUpdatedPropertyValue("isRequired", !_this.isRequired);
                 }
             }
         });
@@ -7168,6 +7184,17 @@ var QuestionAdornerViewModel = /** @class */ (function (_super) {
             return _this.isRequired ? _this.creator.getLocString("pe.removeRequiredMark") : _this.creator.getLocString("pe.markRequired");
         });
         return requiredAction;
+    };
+    QuestionAdornerViewModel.prototype.getUpdatedPropertyValue = function (propName, newValue) {
+        var options = {
+            obj: this.element,
+            propertyName: propName,
+            value: this.element[propName],
+            newValue: newValue,
+            doValidation: false
+        };
+        this.creator.onValueChangingCallback(options);
+        return options.newValue;
     };
     QuestionAdornerViewModel.prototype.buildActions = function (items) {
         _super.prototype.buildActions.call(this, items);
@@ -8229,14 +8256,19 @@ var StringItemsNavigatorBase = /** @class */ (function () {
             return new StringItemsNavigatorSelectBase(question);
         return null;
     };
-    StringItemsNavigatorBase.prototype.addNewItems = function (items, startIndex, itemsToAdd) {
+    StringItemsNavigatorBase.prototype.addNewItems = function (creator, items, startIndex, itemsToAdd) {
         var _this = this;
-        var createNewItem = function (val) {
+        var newItems = items.slice();
+        var createNewItem = function (text) {
+            var val = creator.inplaceEditForValues ? text : Object(_utils_utils__WEBPACK_IMPORTED_MODULE_3__["getNextItemValue"])(creator.getChoicesItemBaseTitle(), newItems);
             if (_this.question.createItemValue)
-                return _this.question.createItemValue(val);
-            return new survey_core__WEBPACK_IMPORTED_MODULE_1__["ItemValue"](val);
+                return _this.question.createItemValue(val, text);
+            return new survey_core__WEBPACK_IMPORTED_MODULE_1__["ItemValue"](val, text);
         };
-        var newItems = items.slice(0, startIndex).concat(itemsToAdd.map(function (text) { return createNewItem(text); })).concat(items.slice(startIndex + 1));
+        newItems.splice(startIndex, 1);
+        itemsToAdd.forEach(function (item, offset) {
+            newItems.splice(startIndex + offset, 0, createNewItem(item));
+        });
         this.question[this.getItemsPropertyName(items)] = newItems;
     };
     StringItemsNavigatorBase.prototype.setEventsForItem = function (creator, items, item) {
@@ -8278,7 +8310,7 @@ var StringItemsNavigatorBase = /** @class */ (function () {
                 return;
             options.cancel = true;
             var itemIndex = items.indexOf(item);
-            _this.addNewItems(items, itemIndex, lines);
+            _this.addNewItems(creator, items, itemIndex, lines);
             var focusedItemIndex = itemIndex + lines.length;
             if (focusedItemIndex >= items.length)
                 focusedItemIndex = items.length - 1;
@@ -8360,7 +8392,7 @@ var StringItemsNavigatorMultipleText = /** @class */ (function (_super) {
     StringItemsNavigatorMultipleText.prototype.getItemsPropertyName = function (items) {
         return "items";
     };
-    StringItemsNavigatorMultipleText.prototype.addNewItems = function (items, startIndex, itemsToAdd) {
+    StringItemsNavigatorMultipleText.prototype.addNewItems = function (creator, items, startIndex, itemsToAdd) {
         var newItems = items.slice(0, startIndex).concat(itemsToAdd.map(function (text) { return new survey_core__WEBPACK_IMPORTED_MODULE_1__["MultipleTextItemModel"](text); })).concat(items.slice(startIndex + 1));
         this.question[this.getItemsPropertyName(items)] = newItems;
     };
@@ -8402,13 +8434,13 @@ var StringItemsNavigatorMatrixDropdown = /** @class */ (function (_super) {
             return item.locTitle;
         return item.locText;
     };
-    StringItemsNavigatorMatrixDropdown.prototype.addNewItems = function (items, startIndex, itemsToAdd) {
+    StringItemsNavigatorMatrixDropdown.prototype.addNewItems = function (creator, items, startIndex, itemsToAdd) {
         if (items == this.question.columns) {
             var newItems = items.slice(0, startIndex).concat(itemsToAdd.map(function (text) { return new survey_core__WEBPACK_IMPORTED_MODULE_1__["MatrixDropdownColumn"](text); })).concat(items.slice(startIndex + 1));
             this.question[this.getItemsPropertyName(items)] = newItems;
         }
         else {
-            _super.prototype.addNewItems.call(this, items, startIndex, itemsToAdd);
+            _super.prototype.addNewItems.call(this, creator, items, startIndex, itemsToAdd);
         }
     };
     return StringItemsNavigatorMatrixDropdown;
@@ -10573,6 +10605,7 @@ var LogicItemEditor = /** @class */ (function (_super) {
         }).filter(function (action) { return !!action; });
     };
     LogicItemEditor.prototype.onUpdateQuestionCssClasses = function (options) {
+        var _a;
         var cssClasses = options.cssClasses;
         var question = options.question;
         cssClasses.answered = "svc-logic-question--answered";
@@ -10593,11 +10626,11 @@ var LogicItemEditor = /** @class */ (function (_super) {
             cssClasses.error.root = "svc-logic-operator__error";
             cssClasses.onError = "svc-logic-operator--error";
         }
-        if (question.name === "setValue" || question.isContentElement) {
+        if (question.isContentElement || this.isSetValueInternalQuestion(question)) {
             Object(_utils_utils__WEBPACK_IMPORTED_MODULE_8__["assignDefaultV2Classes"])(cssClasses, question.getType());
             cssClasses.mainRoot += " svc-logic-question-value sd-element--with-frame";
         }
-        var parentName = question.parent.name;
+        var parentName = (_a = question.parent) === null || _a === void 0 ? void 0 : _a.name;
         if (selectorsNames.indexOf(question.name) < 0 && (parentName === "triggerEditorPanel" || parentName === "setValueIfPanel")) {
             var qType = question.getType();
             Object(_utils_utils__WEBPACK_IMPORTED_MODULE_8__["assignDefaultV2Classes"])(cssClasses, qType);
@@ -10623,14 +10656,31 @@ var LogicItemEditor = /** @class */ (function (_super) {
             cssClasses.buttonRemoveText = "svc-logic-paneldynamic__button-remove-text";
         }
     };
+    LogicItemEditor.prototype.isSetValueInternalQuestion = function (question) {
+        if (this.isSetValueInternalQuestionCore(question))
+            return true;
+        if (this.isSetValueInternalQuestionCore(question.parentQuestion))
+            return true;
+        var parent = question.parent;
+        return parent && this.isSetValueInternalQuestionCore(parent.parentQuestion);
+    };
+    LogicItemEditor.prototype.isSetValueInternalQuestionCore = function (question) {
+        var setValueName = "setValue";
+        return (question === null || question === void 0 ? void 0 : question.name) === setValueName;
+    };
     LogicItemEditor.prototype.onUpdatePanelCssClasses = function (options) {
-        var name = options.panel.name;
+        var panel = options.panel;
+        var cssClasses = options.cssClasses;
+        var name = panel.name;
         if (name === "triggerEditorPanel" || name === "setValueIfPanel") {
-            options.cssClasses.panel.container += " svc-logic_trigger-editor";
+            cssClasses.panel.container += " svc-logic_trigger-editor";
         }
         if (name === "triggerQuestionsPanel") {
-            options.panel.allowRootStyle = false;
-            options.cssClasses.panel.container += " svc-logic_trigger-questions";
+            panel.allowRootStyle = false;
+            cssClasses.panel.container += " svc-logic_trigger-questions";
+        }
+        if (this.isSetValueInternalQuestionCore(panel.parentQuestion)) {
+            Object(_utils_utils__WEBPACK_IMPORTED_MODULE_8__["assignDefaultV2Classes"])(cssClasses, panel.getType());
         }
     };
     LogicItemEditor.prototype.onValueChanged = function (options) {
@@ -14405,6 +14455,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _theme_custom_questions_element_settings__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./theme-custom-questions/element-settings */ "./src/components/tabs/theme-custom-questions/element-settings.ts");
 /* harmony import */ var _plugins_undo_redo_undo_redo_manager__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../../plugins/undo-redo/undo-redo-manager */ "./src/plugins/undo-redo/undo-redo-manager.ts");
 /* harmony import */ var _themes__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./themes */ "./src/components/tabs/themes.ts");
+/* harmony import */ var _theme_custom_questions__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./theme-custom-questions */ "./src/components/tabs/theme-custom-questions/index.ts");
+
 
 
 
@@ -14443,6 +14495,7 @@ var ThemeBuilder = /** @class */ (function (_super) {
         _this.autoSaveTimerId = null;
         _this.simulator = new _simulator__WEBPACK_IMPORTED_MODULE_1__["SurveySimulatorModel"]();
         _this.themeName = ThemeBuilder.DefaultTheme.themeName || "default";
+        Object(_theme_custom_questions__WEBPACK_IMPORTED_MODULE_12__["updateCustomQuestionJSONs"])();
         _this.themeEditorSurveyValue = _this.createThemeEditorSurvey();
         _this.backgroundImage = _this.surveyProvider.theme.backgroundImage !== undefined ? _this.surveyProvider.theme.backgroundImage : surveyProvider.survey.backgroundImage;
         _this.backgroundImageFit = _this.surveyProvider.theme.backgroundImageFit !== undefined ? _this.surveyProvider.theme.backgroundImageFit : surveyProvider.survey.backgroundImageFit;
@@ -14551,14 +14604,21 @@ var ThemeBuilder = /** @class */ (function (_super) {
             this.backgroundImageFit = theme.backgroundImageFit || this.backgroundImageFit;
             this.backgroundImageAttachment = theme.backgroundImageAttachment || this.backgroundImageAttachment;
             var effectiveThemeCssVariables = {};
-            Object(_utils_utils__WEBPACK_IMPORTED_MODULE_6__["assign"])(effectiveThemeCssVariables, ThemeBuilder.DefaultTheme.cssVariables || {}, this.findSuitableTheme(this.themeName).cssVariables || {});
+            var suitableTheme = this.findSuitableTheme(this.themeName);
+            Object(_utils_utils__WEBPACK_IMPORTED_MODULE_6__["assign"])(effectiveThemeCssVariables, ThemeBuilder.DefaultTheme.cssVariables || {}, suitableTheme.cssVariables || {});
             Object(_utils_utils__WEBPACK_IMPORTED_MODULE_6__["assign"])(effectiveThemeCssVariables, theme.cssVariables || {}, this.themeCssVariablesChanges);
+            this.trimCssVariables(effectiveThemeCssVariables);
             var effectiveTheme = {
-                backgroundImage: this.backgroundImage,
-                backgroundImageFit: this.backgroundImageFit,
-                backgroundImageAttachment: this.backgroundImageAttachment,
-                backgroundOpacity: this.backgroundOpacity / 100,
+                backgroundImage: this.backgroundImage || suitableTheme.backgroundImage || "",
+                backgroundImageFit: this.backgroundImageFit || suitableTheme.backgroundImageFit,
+                backgroundImageAttachment: this.backgroundImageAttachment || suitableTheme.backgroundImageAttachment,
+                backgroundOpacity: (this.backgroundOpacity / 100) || suitableTheme.backgroundOpacity,
             };
+            var headerSettings = {};
+            Object(_utils_utils__WEBPACK_IMPORTED_MODULE_6__["assign"])(headerSettings, suitableTheme.header || {});
+            if (Object.keys(headerSettings).length > 0) {
+                effectiveTheme.header = headerSettings;
+            }
             Object(_utils_utils__WEBPACK_IMPORTED_MODULE_6__["assign"])(effectiveTheme, theme, { cssVariables: effectiveThemeCssVariables, themeName: this.themeName, colorPalette: this.themePalette, isPanelless: this.themeMode === "lightweight" });
             this.surveyProvider.theme = effectiveTheme;
             this.initializeColorCalculator();
@@ -14843,10 +14903,14 @@ var ThemeBuilder = /** @class */ (function (_super) {
         if (headerSettings["headerView"] === "basic") {
             this.survey.logoPosition = headerSettings["logoPosition"];
             this.surveyProvider.survey.logoPosition = headerSettings["logoPosition"];
+            Object(_theme_custom_questions_font_settings__WEBPACK_IMPORTED_MODULE_8__["fontsettingsToCssVariable"])(options.question.panels[0].getElementByName("surveyTitle"), this.themeCssVariablesChanges);
+            Object(_theme_custom_questions_font_settings__WEBPACK_IMPORTED_MODULE_8__["fontsettingsToCssVariable"])(options.question.panels[0].getElementByName("surveyDescription"), this.themeCssVariablesChanges);
         }
         else {
             this.currentTheme.header = this.getCoverJson(headerSettings);
-            this.setCoverCssVariables(headerSettings);
+            this.setHeaderBackgroundColorCssVariable(headerSettings);
+            Object(_theme_custom_questions_font_settings__WEBPACK_IMPORTED_MODULE_8__["fontsettingsToCssVariable"])(options.question.panels[0].getElementByName("headerTitle"), this.themeCssVariablesChanges);
+            Object(_theme_custom_questions_font_settings__WEBPACK_IMPORTED_MODULE_8__["fontsettingsToCssVariable"])(options.question.panels[0].getElementByName("headerDescription"), this.themeCssVariablesChanges);
         }
         this.themeModified(options);
     };
@@ -14941,7 +15005,8 @@ var ThemeBuilder = /** @class */ (function (_super) {
             _this.updateDependentQuestionValues(options);
             var newCssVariables = {};
             Object(_utils_utils__WEBPACK_IMPORTED_MODULE_6__["assign"])(newCssVariables, _this.currentTheme.cssVariables, _this.themeCssVariablesChanges);
-            _this.setCssVariablesIntoCurrentTheme(newCssVariables);
+            _this.trimCssVariables(newCssVariables);
+            _this.currentTheme.cssVariables = newCssVariables;
             _this.updateSimulatorTheme();
             _this.blockThemeChangedNotifications -= 1;
             if (!!_this.undoRedoManager && _this.blockThemeChangedNotifications == 0) {
@@ -14956,6 +15021,27 @@ var ThemeBuilder = /** @class */ (function (_super) {
         themeEditorSurvey.getAllQuestions().forEach(function (q) { return q.allowRootStyle = false; });
         themeEditorSurvey.onQuestionCreated.add(function (_, opt) {
             opt.question.allowRootStyle = false;
+        });
+        themeEditorSurvey.onGetPanelFooterActions.add(function (sender, opt) {
+            if (opt.question && opt.question.name == "headerViewContainer") {
+                opt.actions = [];
+            }
+        });
+        themeEditorSurvey.onUpdatePanelCssClasses.add(function (sender, options) {
+            var _a, _b;
+            if (options.panel.hasParent) {
+                var parent_1 = ((_a = options.panel.parent) !== null && _a !== void 0 ? _a : options.panel.parentQuestion);
+                if (!parent_1 || parent_1.hasParent && !(parent_1.name === "headerViewContainer" || ((_b = parent_1.parentQuestion) === null || _b === void 0 ? void 0 : _b.name) === "headerViewContainer")) {
+                    options.cssClasses.panel.container = "spg-panel-group";
+                    options.cssClasses.panel.content = "spg-panel-group__content";
+                    options.cssClasses.panel.title = "spg-panel-group__title";
+                }
+                else {
+                    options.cssClasses.panel.container = "spg-nested-panel";
+                    options.cssClasses.panel.content = "spg-nested-panel__content";
+                    options.cssClasses.panel.title = "spg-nested-panel__title";
+                }
+            }
         });
         return themeEditorSurvey;
     };
@@ -14978,21 +15064,15 @@ var ThemeBuilder = /** @class */ (function (_super) {
         result["backgroundImageOpacity"] = headerSettings["backgroundImageOpacity"] / 100;
         return result;
     };
-    ThemeBuilder.prototype.setCoverCssVariables = function (headerSettings) {
-        var coverBackgroundColorValue = "trasparent";
-        if (headerSettings["backgroundColorSwitch"] === "accentColor") {
-            coverBackgroundColorValue = this.currentTheme.cssVariables["--sjs-primary-backcolor"];
+    ThemeBuilder.prototype.setHeaderBackgroundColorCssVariable = function (headerSettings) {
+        var headerBackgroundColorValue = undefined;
+        if (headerSettings["backgroundColorSwitch"] === "none") {
+            headerBackgroundColorValue = "trasparent";
         }
         else if (headerSettings["backgroundColorSwitch"] === "custom") {
-            coverBackgroundColorValue = headerSettings.backgroundColor;
+            headerBackgroundColorValue = headerSettings.backgroundColor;
         }
-        this.themeCssVariablesChanges["--sjs-cover-backcolor"] = coverBackgroundColorValue;
-        if (!!headerSettings["titleForecolor"]) {
-            this.themeCssVariablesChanges["--sjs-cover-title-forecolor"] = headerSettings.titleForecolor;
-        }
-        if (!!headerSettings["descriptionForecolor"]) {
-            this.themeCssVariablesChanges["--sjs-cover-description-forecolor"] = headerSettings.descriptionForecolor;
-        }
+        this.themeCssVariablesChanges["--sjs-header-backcolor"] = headerBackgroundColorValue;
     };
     ThemeBuilder.prototype.loadThemeIntoPropertyGrid = function () {
         this.blockChanges = true;
@@ -15010,10 +15090,10 @@ var ThemeBuilder = /** @class */ (function (_super) {
         }
     };
     ThemeBuilder.prototype.getBackgroundColorSwitchByValue = function (backgroundColor) {
-        if (!backgroundColor || backgroundColor === "trasparent")
-            return "none";
-        if (backgroundColor === this.currentTheme.cssVariables["--sjs-primary-backcolor"])
+        if (!backgroundColor)
             return "accentColor";
+        if (backgroundColor === "trasparent")
+            return "none";
         return "custom";
     };
     ThemeBuilder.prototype.updateVisibilityOfPropertyGridGroups = function () {
@@ -15021,7 +15101,11 @@ var ThemeBuilder = /** @class */ (function (_super) {
         page.getElementByName("groupHeader").visible = this.surveyProvider.isMobileView ? false : _creator_settings__WEBPACK_IMPORTED_MODULE_7__["settings"].theme.allowEditHeaderSettings;
         page.getElementByName("groupAdvanced").visible = !this.surveyProvider.isMobileView;
     };
-    ThemeBuilder.prototype.setCoverPropertiesFromSurvey = function (panel) {
+    ThemeBuilder.prototype.setCoverPropertiesFromSurvey = function (panel, themeCssVariables) {
+        panel.getQuestionByName("headerTitle").readOnly = !this.survey.hasTitle;
+        Object(_theme_custom_questions_font_settings__WEBPACK_IMPORTED_MODULE_8__["fontsettingsFromCssVariable"])(panel.getQuestionByName("headerTitle"), themeCssVariables);
+        panel.getQuestionByName("headerDescription").readOnly = !this.survey.hasDescription;
+        Object(_theme_custom_questions_font_settings__WEBPACK_IMPORTED_MODULE_8__["fontsettingsFromCssVariable"])(panel.getQuestionByName("headerDescription"), themeCssVariables);
         panel.getQuestionByName("headerView").value = this.survey.headerView;
         panel.getQuestionByName("logoPosition").value = this.survey.logoPosition;
         panel.getQuestionByName("logoPositionX").readOnly = !this.survey.logo;
@@ -15044,7 +15128,15 @@ var ThemeBuilder = /** @class */ (function (_super) {
         var panel = headerViewContainerQuestion.panels[0];
         panel.getQuestionByName("backgroundColor").choices = this.getPredefinedColorsItemValues();
         if (!!this.survey) {
-            this.setCoverPropertiesFromSurvey(panel);
+            this.setCoverPropertiesFromSurvey(panel, themeCssVariables);
+            panel.getQuestionByName("surveyTitle").readOnly = !this.survey.hasTitle;
+            Object(_theme_custom_questions_font_settings__WEBPACK_IMPORTED_MODULE_8__["fontsettingsFromCssVariable"])(panel.getQuestionByName("surveyTitle"), themeCssVariables);
+            panel.getQuestionByName("surveyDescription").readOnly = !this.survey.hasDescription;
+            Object(_theme_custom_questions_font_settings__WEBPACK_IMPORTED_MODULE_8__["fontsettingsFromCssVariable"])(panel.getQuestionByName("surveyDescription"), themeCssVariables);
+            Object(_theme_custom_questions_font_settings__WEBPACK_IMPORTED_MODULE_8__["fontsettingsFromCssVariable"])(panel.getElementByName("surveyTitle"), this.themeCssVariablesChanges);
+            Object(_theme_custom_questions_font_settings__WEBPACK_IMPORTED_MODULE_8__["fontsettingsFromCssVariable"])(panel.getElementByName("surveyDescription"), this.themeCssVariablesChanges);
+            Object(_theme_custom_questions_font_settings__WEBPACK_IMPORTED_MODULE_8__["fontsettingsFromCssVariable"])(panel.getElementByName("headerTitle"), this.themeCssVariablesChanges);
+            Object(_theme_custom_questions_font_settings__WEBPACK_IMPORTED_MODULE_8__["fontsettingsFromCssVariable"])(panel.getElementByName("headerDescription"), this.themeCssVariablesChanges);
         }
         if (!!this.currentTheme.header) {
             Object.keys(this.currentTheme.header).forEach(function (key) {
@@ -15056,20 +15148,12 @@ var ThemeBuilder = /** @class */ (function (_super) {
                     question.value = _this.currentTheme.header[key];
                 }
             });
-            this.setCoverColorsFromThemeVariables(panel.getQuestionByName("titleForecolor"), themeCssVariables["--sjs-cover-title-forecolor"] || themeCssVariables["--sjs-general-dim-forecolor"]);
-            this.setCoverColorsFromThemeVariables(panel.getQuestionByName("descriptionForecolor"), themeCssVariables["--sjs-cover-description-forecolor"] || themeCssVariables["--sjs-general-dim-forecolor-light"]);
-            this.setCoverColorsFromThemeVariables(panel.getQuestionByName("backgroundColor"), themeCssVariables["--sjs-cover-backcolor"]);
-            var backgroundColorValue = themeCssVariables["--sjs-cover-backcolor"];
+            this.setCoverColorsFromThemeVariables(panel.getQuestionByName("backgroundColor"), themeCssVariables["--sjs-header-backcolor"]);
+            var backgroundColorValue = themeCssVariables["--sjs-header-backcolor"];
             if (!!backgroundColorValue) {
                 panel.getQuestionByName("backgroundColorSwitch").value = this.getBackgroundColorSwitchByValue(backgroundColorValue);
             }
         }
-    };
-    ThemeBuilder.prototype.updatePropertyGridEditorAvailablesFromSurveyElement = function () {
-        var pageElements = this.survey.isSinglePage ? this.survey.pages[0].elements : this.survey.pages;
-        this.themeEditorSurvey.getQuestionByName("surveyTitle").readOnly = !this.survey.hasTitle;
-        this.themeEditorSurvey.getQuestionByName("pageTitle").readOnly = !pageElements.some(function (p) { return !!p.title; });
-        this.themeEditorSurvey.getQuestionByName("pageDescription").readOnly = !pageElements.some(function (p) { return !!p.description; });
     };
     ThemeBuilder.prototype.updatePropertyGridEditorsAvailability = function () {
         var isCustomTheme = _themes__WEBPACK_IMPORTED_MODULE_11__["PredefinedThemes"].indexOf(this.themeName) === -1;
@@ -15087,23 +15171,24 @@ var ThemeBuilder = /** @class */ (function (_super) {
             }
         });
         if (!!this.survey) {
-            this.updatePropertyGridEditorAvailablesFromSurveyElement();
+            var pageElements = this.survey.isSinglePage ? this.survey.pages[0].elements : this.survey.pages;
+            this.themeEditorSurvey.getQuestionByName("pageTitle").readOnly = !pageElements.some(function (p) { return !!p.title; });
+            this.themeEditorSurvey.getQuestionByName("pageDescription").readOnly = !pageElements.some(function (p) { return !!p.description; });
         }
     };
     ThemeBuilder.prototype.updatePropertyGridEditors = function (themeEditorSurvey) {
         var _this = this;
         var newCssVariables = {};
         Object(_utils_utils__WEBPACK_IMPORTED_MODULE_6__["assign"])(newCssVariables, this.currentTheme.cssVariables);
-        themeEditorSurvey.getQuestionByName("backgroundImage").value = this.backgroundImage;
-        themeEditorSurvey.getQuestionByName("backgroundImageFit").value = this.backgroundImageFit;
-        themeEditorSurvey.getQuestionByName("backgroundImageAttachment").value = this.backgroundImageAttachment;
-        themeEditorSurvey.getQuestionByName("backgroundOpacity").value = this.backgroundOpacity;
+        themeEditorSurvey.getQuestionByName("backgroundImage").value = this.currentTheme.backgroundImage;
+        themeEditorSurvey.getQuestionByName("backgroundImageFit").value = this.currentTheme.backgroundImageFit;
+        themeEditorSurvey.getQuestionByName("backgroundImageAttachment").value = this.currentTheme.backgroundImageAttachment;
+        themeEditorSurvey.getQuestionByName("backgroundOpacity").value = this.currentTheme.backgroundOpacity * 100;
         themeEditorSurvey.getQuestionByName("generalPrimaryColor").value = themeEditorSurvey.getQuestionByName("--sjs-primary-backcolor").value;
         themeEditorSurvey.getQuestionByName("generalBackcolorDimColor").value = themeEditorSurvey.getQuestionByName("--sjs-general-backcolor-dim").value;
         this.updateHeaderViewContainerEditors(newCssVariables);
         Object(_theme_custom_questions_element_settings__WEBPACK_IMPORTED_MODULE_9__["elementSettingsFromCssVariable"])(themeEditorSurvey.getQuestionByName("questionPanel"), newCssVariables, newCssVariables["--sjs-general-backcolor"], newCssVariables["--sjs-general-backcolor-dark"]);
         Object(_theme_custom_questions_element_settings__WEBPACK_IMPORTED_MODULE_9__["elementSettingsFromCssVariable"])(themeEditorSurvey.getQuestionByName("editorPanel"), newCssVariables, newCssVariables["--sjs-general-backcolor-dim-light"], newCssVariables["--sjs-general-backcolor-dim-dark"]);
-        Object(_theme_custom_questions_font_settings__WEBPACK_IMPORTED_MODULE_8__["fontsettingsFromCssVariable"])(themeEditorSurvey.getQuestionByName("surveyTitle"), newCssVariables);
         Object(_theme_custom_questions_font_settings__WEBPACK_IMPORTED_MODULE_8__["fontsettingsFromCssVariable"])(themeEditorSurvey.getQuestionByName("pageTitle"), newCssVariables, newCssVariables["--sjs-general-dim-forecolor"]);
         Object(_theme_custom_questions_font_settings__WEBPACK_IMPORTED_MODULE_8__["fontsettingsFromCssVariable"])(themeEditorSurvey.getQuestionByName("pageDescription"), newCssVariables, newCssVariables["--sjs-general-dim-forecolor-light"]);
         Object(_theme_custom_questions_font_settings__WEBPACK_IMPORTED_MODULE_8__["fontsettingsFromCssVariable"])(themeEditorSurvey.getQuestionByName("questionTitle"), newCssVariables, newCssVariables["--sjs-general-forecolor"]);
@@ -15124,13 +15209,12 @@ var ThemeBuilder = /** @class */ (function (_super) {
             }
         });
     };
-    ThemeBuilder.prototype.setCssVariablesIntoCurrentTheme = function (newCssVariables) {
+    ThemeBuilder.prototype.trimCssVariables = function (newCssVariables) {
         Object.keys(newCssVariables).forEach(function (key) {
             if (newCssVariables[key] === undefined || newCssVariables[key] === null) {
                 delete newCssVariables[key];
             }
         });
-        this.currentTheme.cssVariables = newCssVariables;
     };
     ThemeBuilder.prototype.updateSimulatorTheme = function () {
         this.survey.applyTheme(this.currentTheme);
@@ -15139,7 +15223,7 @@ var ThemeBuilder = /** @class */ (function (_super) {
         /**
          * A function that is called [auto-save](https://surveyjs.io/survey-creator/documentation/api-reference/survey-creator#isAutoSave) is triggered to save a theme JSON object.
          *
-         * For more information, refer to the [Save and Load Custom Themes](/survey-creator/documentation/theme-editor#save-and-load-custom-themes) help topic.
+         * For more information, refer to the [Save and Load Custom Themes](https://surveyjs.io/survey-creator/documentation/theme-editor#save-and-load-custom-themes) help topic.
          */
         get: function () {
             return this._saveThemeFuncValue;
@@ -15187,6 +15271,20 @@ var ThemeBuilder = /** @class */ (function (_super) {
             this.processAutoSave();
         }
     };
+    ThemeBuilder.prototype.getDefaultTitleSetting = function (isAdvanced) {
+        var result = { family: _creator_settings__WEBPACK_IMPORTED_MODULE_7__["settings"].theme.fontFamily, weight: "700", size: 32 };
+        if (isAdvanced) {
+            result["color"] = "rgba(0, 0, 0, 0.91)";
+        }
+        return result;
+    };
+    ThemeBuilder.prototype.getDefaultDescriptionSetting = function (isAdvanced) {
+        var result = { family: _creator_settings__WEBPACK_IMPORTED_MODULE_7__["settings"].theme.fontFamily, weight: "400", size: 16 };
+        if (isAdvanced) {
+            result["color"] = "rgba(0, 0, 0, 0.45)";
+        }
+        return result;
+    };
     ThemeBuilder.prototype.getThemeEditorSurveyJSON = function () {
         var themeEditorSurveyJSON = {
             "clearInvisibleValues": "none",
@@ -15201,23 +15299,28 @@ var ThemeBuilder = /** @class */ (function (_super) {
                             type: "panel",
                             elements: [
                                 {
-                                    type: "dropdown",
-                                    name: "themeName",
-                                    title: Object(_editorLocalization__WEBPACK_IMPORTED_MODULE_3__["getLocString"])("theme.themeName"),
-                                    descriptionLocation: "hidden",
-                                    choices: this._availableThemes.map(function (theme) { return ({ value: theme, text: Object(_editorLocalization__WEBPACK_IMPORTED_MODULE_3__["getLocString"])("theme.names." + theme) }); }),
-                                    defaultValue: ThemeBuilder.DefaultTheme.themeName || "default",
-                                    allowClear: false
-                                },
-                                {
-                                    type: "buttongroup",
-                                    name: "themePalette",
-                                    titleLocation: "hidden",
-                                    choices: [
-                                        { value: "light", text: Object(_editorLocalization__WEBPACK_IMPORTED_MODULE_3__["getLocString"])("theme.themePaletteLight") },
-                                        { value: "dark", text: Object(_editorLocalization__WEBPACK_IMPORTED_MODULE_3__["getLocString"])("theme.themePaletteDark") }
-                                    ],
-                                    defaultValue: "light"
+                                    type: "panel",
+                                    elements: [
+                                        {
+                                            type: "dropdown",
+                                            name: "themeName",
+                                            title: Object(_editorLocalization__WEBPACK_IMPORTED_MODULE_3__["getLocString"])("theme.themeName"),
+                                            descriptionLocation: "hidden",
+                                            choices: this._availableThemes.map(function (theme) { return ({ value: theme, text: Object(_editorLocalization__WEBPACK_IMPORTED_MODULE_3__["getLocString"])("theme.names." + theme) }); }),
+                                            defaultValue: ThemeBuilder.DefaultTheme.themeName || "default",
+                                            allowClear: false
+                                        },
+                                        {
+                                            type: "buttongroup",
+                                            name: "themePalette",
+                                            titleLocation: "hidden",
+                                            choices: [
+                                                { value: "light", text: Object(_editorLocalization__WEBPACK_IMPORTED_MODULE_3__["getLocString"])("theme.themePaletteLight") },
+                                                { value: "dark", text: Object(_editorLocalization__WEBPACK_IMPORTED_MODULE_3__["getLocString"])("theme.themePaletteDark") }
+                                            ],
+                                            defaultValue: "light"
+                                        },
+                                    ]
                                 },
                                 {
                                     type: "buttongroup",
@@ -15253,7 +15356,7 @@ var ThemeBuilder = /** @class */ (function (_super) {
                                             "headerView": "basic",
                                             "logoPosition": "right",
                                             "inheritWidthFrom": "survey",
-                                            "backgroundColorSwitch": "none",
+                                            "backgroundColorSwitch": "accentColor",
                                             "backgroundImageFit": "cover",
                                             "backgroundImageOpacity": 100,
                                             "overlapEnabled": false,
@@ -15264,7 +15367,11 @@ var ThemeBuilder = /** @class */ (function (_super) {
                                             "descriptionPositionX": "left",
                                             "descriptionPositionY": "bottom",
                                             "textAreaWidth": 512,
-                                            "height": 256
+                                            "height": 256,
+                                            surveyTitle: this.getDefaultTitleSetting(),
+                                            surveyDescription: this.getDefaultDescriptionSetting(),
+                                            headerTitle: this.getDefaultTitleSetting(true),
+                                            headerDescription: this.getDefaultDescriptionSetting(true)
                                         }
                                     ],
                                     "templateElements": [
@@ -15290,6 +15397,22 @@ var ThemeBuilder = /** @class */ (function (_super) {
                                                         { value: "left", text: Object(_editorLocalization__WEBPACK_IMPORTED_MODULE_3__["getLocString"])("theme.horizontalAlignmentLeft") },
                                                         { value: "right", text: Object(_editorLocalization__WEBPACK_IMPORTED_MODULE_3__["getLocString"])("theme.horizontalAlignmentRight") }
                                                     ],
+                                                },
+                                                {
+                                                    type: "fontSettings",
+                                                    name: "surveyTitle",
+                                                    title: Object(_editorLocalization__WEBPACK_IMPORTED_MODULE_3__["getLocString"])("theme.surveyTitle"),
+                                                    visibleIf: "{panel.headerView} = 'basic'",
+                                                    descriptionLocation: "hidden",
+                                                    defaultValue: this.getDefaultTitleSetting(),
+                                                },
+                                                {
+                                                    type: "fontSettings",
+                                                    name: "surveyDescription",
+                                                    title: Object(_editorLocalization__WEBPACK_IMPORTED_MODULE_3__["getLocString"])("theme.surveyDescription"),
+                                                    visibleIf: "{panel.headerView} = 'basic'",
+                                                    descriptionLocation: "hidden",
+                                                    defaultValue: this.getDefaultDescriptionSetting()
                                                 },
                                                 {
                                                     type: "spinedit",
@@ -15326,21 +15449,26 @@ var ThemeBuilder = /** @class */ (function (_super) {
                                             visibleIf: "{panel.headerView} = 'advanced'",
                                             elements: [
                                                 {
-                                                    type: "buttongroup",
-                                                    name: "backgroundColorSwitch",
-                                                    title: Object(_editorLocalization__WEBPACK_IMPORTED_MODULE_3__["getLocString"])("theme.coverBackgroundColorSwitch"),
-                                                    choices: [
-                                                        { value: "none", text: Object(_editorLocalization__WEBPACK_IMPORTED_MODULE_3__["getLocString"])("theme.coverBackgroundColorNone") },
-                                                        { value: "accentColor", text: Object(_editorLocalization__WEBPACK_IMPORTED_MODULE_3__["getLocString"])("theme.coverBackgroundColorAccentColor") },
-                                                        { value: "custom", text: Object(_editorLocalization__WEBPACK_IMPORTED_MODULE_3__["getLocString"])("theme.coverBackgroundColorCustom") },
-                                                    ],
-                                                },
-                                                {
-                                                    type: "color",
-                                                    name: "backgroundColor",
-                                                    enableIf: "{panel.backgroundColorSwitch} = 'custom'",
-                                                    titleLocation: "hidden",
-                                                    descriptionLocation: "hidden",
+                                                    type: "panel",
+                                                    elements: [
+                                                        {
+                                                            type: "buttongroup",
+                                                            name: "backgroundColorSwitch",
+                                                            title: Object(_editorLocalization__WEBPACK_IMPORTED_MODULE_3__["getLocString"])("theme.coverBackgroundColorSwitch"),
+                                                            choices: [
+                                                                { value: "none", text: Object(_editorLocalization__WEBPACK_IMPORTED_MODULE_3__["getLocString"])("theme.coverBackgroundColorNone") },
+                                                                { value: "accentColor", text: Object(_editorLocalization__WEBPACK_IMPORTED_MODULE_3__["getLocString"])("theme.coverBackgroundColorAccentColor") },
+                                                                { value: "custom", text: Object(_editorLocalization__WEBPACK_IMPORTED_MODULE_3__["getLocString"])("theme.coverBackgroundColorCustom") },
+                                                            ],
+                                                        },
+                                                        {
+                                                            type: "color",
+                                                            name: "backgroundColor",
+                                                            enableIf: "{panel.backgroundColorSwitch} = 'custom'",
+                                                            titleLocation: "hidden",
+                                                            descriptionLocation: "hidden",
+                                                        },
+                                                    ]
                                                 },
                                                 {
                                                     type: "panel",
@@ -15381,16 +15509,18 @@ var ThemeBuilder = /** @class */ (function (_super) {
                                                     ]
                                                 },
                                                 {
-                                                    type: "color",
-                                                    name: "titleForecolor",
-                                                    title: Object(_editorLocalization__WEBPACK_IMPORTED_MODULE_3__["getLocString"])("theme.coverTitleForecolor"),
+                                                    type: "fontSettings",
+                                                    name: "headerTitle",
+                                                    title: Object(_editorLocalization__WEBPACK_IMPORTED_MODULE_3__["getLocString"])("theme.surveyTitle"),
                                                     descriptionLocation: "hidden",
+                                                    defaultValue: this.getDefaultTitleSetting(true)
                                                 },
                                                 {
-                                                    type: "colorsettings",
-                                                    name: "descriptionForecolor",
-                                                    title: Object(_editorLocalization__WEBPACK_IMPORTED_MODULE_3__["getLocString"])("theme.coverDescriptionForecolor"),
+                                                    type: "fontSettings",
+                                                    name: "headerDescription",
+                                                    title: Object(_editorLocalization__WEBPACK_IMPORTED_MODULE_3__["getLocString"])("theme.surveyDescription"),
                                                     descriptionLocation: "hidden",
+                                                    defaultValue: this.getDefaultDescriptionSetting(true)
                                                 },
                                                 {
                                                     type: "boolean",
@@ -15406,12 +15536,27 @@ var ThemeBuilder = /** @class */ (function (_super) {
                                             questionTitleLocation: "top",
                                             visibleIf: "{panel.headerView} = 'advanced'",
                                             elements: [
-                                                this.getHorizontalAlignment("logoPositionX", Object(_editorLocalization__WEBPACK_IMPORTED_MODULE_3__["getLocString"])("theme.logoPosition"), "right"),
-                                                this.getVerticalAlignment("logoPositionY", "top"),
-                                                this.getHorizontalAlignment("titlePositionX", Object(_editorLocalization__WEBPACK_IMPORTED_MODULE_3__["getLocString"])("theme.coverTitlePosition"), "left"),
-                                                this.getVerticalAlignment("titlePositionY", "bottom"),
-                                                this.getHorizontalAlignment("descriptionPositionX", Object(_editorLocalization__WEBPACK_IMPORTED_MODULE_3__["getLocString"])("theme.coverDescriptionPosition"), "left"),
-                                                this.getVerticalAlignment("descriptionPositionY", "bottom"),
+                                                {
+                                                    type: "panel",
+                                                    elements: [
+                                                        this.getHorizontalAlignment("logoPositionX", Object(_editorLocalization__WEBPACK_IMPORTED_MODULE_3__["getLocString"])("theme.logoPosition"), "right"),
+                                                        this.getVerticalAlignment("logoPositionY", "top"),
+                                                    ]
+                                                },
+                                                {
+                                                    type: "panel",
+                                                    elements: [
+                                                        this.getHorizontalAlignment("titlePositionX", Object(_editorLocalization__WEBPACK_IMPORTED_MODULE_3__["getLocString"])("theme.coverTitlePosition"), "left"),
+                                                        this.getVerticalAlignment("titlePositionY", "bottom"),
+                                                    ]
+                                                },
+                                                {
+                                                    type: "panel",
+                                                    elements: [
+                                                        this.getHorizontalAlignment("descriptionPositionX", Object(_editorLocalization__WEBPACK_IMPORTED_MODULE_3__["getLocString"])("theme.coverDescriptionPosition"), "left"),
+                                                        this.getVerticalAlignment("descriptionPositionY", "bottom"),
+                                                    ]
+                                                }
                                             ]
                                         }
                                     ]
@@ -15531,7 +15676,7 @@ var ThemeBuilder = /** @class */ (function (_super) {
                             elements: [
                                 {
                                     type: "dropdown",
-                                    name: "--font-family",
+                                    name: "--sjs-font-family",
                                     title: Object(_editorLocalization__WEBPACK_IMPORTED_MODULE_3__["getLocString"])("theme.fontFamily"),
                                     descriptionLocation: "hidden",
                                     choices: [].concat(_theme_custom_questions_font_settings__WEBPACK_IMPORTED_MODULE_8__["DefaultFonts"]),
@@ -15644,16 +15789,6 @@ var ThemeBuilder = /** @class */ (function (_super) {
                             type: "panel",
                             elements: [
                                 {
-                                    type: "fontSettings",
-                                    name: "surveyTitle",
-                                    title: Object(_editorLocalization__WEBPACK_IMPORTED_MODULE_3__["getLocString"])("theme.surveyTitle"),
-                                    descriptionLocation: "hidden",
-                                    defaultValue: {
-                                        family: _creator_settings__WEBPACK_IMPORTED_MODULE_7__["settings"].theme.fontFamily,
-                                        weight: "700",
-                                        size: 32
-                                    }
-                                }, {
                                     type: "fontSettings",
                                     name: "pageTitle",
                                     title: Object(_editorLocalization__WEBPACK_IMPORTED_MODULE_3__["getLocString"])("theme.pageTitle"),
@@ -15945,11 +16080,12 @@ var ThemeBuilder = /** @class */ (function (_super) {
 /*!**************************************************************************!*\
   !*** ./src/components/tabs/theme-custom-questions/boxshadow-settings.ts ***!
   \**************************************************************************/
-/*! exports provided: createBoxShadow, parseBoxShadow */
+/*! exports provided: updateBoxShadowSettingsJSON, createBoxShadow, parseBoxShadow */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "updateBoxShadowSettingsJSON", function() { return updateBoxShadowSettingsJSON; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createBoxShadow", function() { return createBoxShadow; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "parseBoxShadow", function() { return parseBoxShadow; });
 /* harmony import */ var _editorLocalization__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../editorLocalization */ "./src/editorLocalization.ts");
@@ -15957,10 +16093,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var survey_core__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(survey_core__WEBPACK_IMPORTED_MODULE_1__);
 
 
-survey_core__WEBPACK_IMPORTED_MODULE_1__["ComponentCollection"].Instance.add({
-    name: "boxshadowsettings",
-    showInToolbox: false,
-    questionJSON: {
+function getQuestionJSON() {
+    return {
         "type": "paneldynamic",
         "minPanelCount": 1,
         "panelAddText": Object(_editorLocalization__WEBPACK_IMPORTED_MODULE_0__["getLocString"])("theme.boxShadowAddRule"),
@@ -16009,13 +16143,22 @@ survey_core__WEBPACK_IMPORTED_MODULE_1__["ComponentCollection"].Instance.add({
                 "choices": [{ text: Object(_editorLocalization__WEBPACK_IMPORTED_MODULE_0__["getLocString"])("theme.boxShadowDrop"), value: false }, { text: Object(_editorLocalization__WEBPACK_IMPORTED_MODULE_0__["getLocString"])("theme.boxShadowInner"), value: true }]
             }
         ]
-    },
+    };
+}
+survey_core__WEBPACK_IMPORTED_MODULE_1__["ComponentCollection"].Instance.add({
+    name: "boxshadowsettings",
+    showInToolbox: false,
+    questionJSON: getQuestionJSON(),
     onCreated: function (question) {
         question.valueFromDataCallback = function (value) { return typeof value == "string" ? parseBoxShadow(value) : value; };
         question.valueToDataCallback = function (value) { return !!value ? (typeof value == "string" ? value : createBoxShadow(Array.isArray(value) ? value : [value])) : ""; };
         question.contentQuestion.panels.forEach(function (p) { return p.questions.forEach(function (q) { return q.allowRootStyle = false; }); });
     },
 });
+function updateBoxShadowSettingsJSON() {
+    var config = survey_core__WEBPACK_IMPORTED_MODULE_1__["ComponentCollection"].Instance.getCustomQuestionByName("boxshadowsettings");
+    config.json.questionJSON = getQuestionJSON();
+}
 function createBoxShadow(value) {
     return value.map((function (val) { var _a, _b, _c, _d, _e; return "" + (val.isInset == true ? "inset " : "") + ((_a = val.x) !== null && _a !== void 0 ? _a : 0) + "px " + ((_b = val.y) !== null && _b !== void 0 ? _b : 0) + "px " + ((_c = val.blur) !== null && _c !== void 0 ? _c : 0) + "px " + ((_d = val.spread) !== null && _d !== void 0 ? _d : 0) + "px " + ((_e = val.color) !== null && _e !== void 0 ? _e : "#000000"); })).join(", ");
 }
@@ -16047,11 +16190,12 @@ function parseBoxShadow(value) {
 /*!**********************************************************************!*\
   !*** ./src/components/tabs/theme-custom-questions/color-settings.ts ***!
   \**********************************************************************/
-/*! exports provided: createColor */
+/*! exports provided: updateColorSettingsJSON, createColor */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "updateColorSettingsJSON", function() { return updateColorSettingsJSON; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createColor", function() { return createColor; });
 /* harmony import */ var survey_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! survey-core */ "survey-core");
 /* harmony import */ var survey_core__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(survey_core__WEBPACK_IMPORTED_MODULE_0__);
@@ -16060,10 +16204,8 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-survey_core__WEBPACK_IMPORTED_MODULE_0__["ComponentCollection"].Instance.add({
-    name: "colorsettings",
-    showInToolbox: false,
-    elementsJSON: [
+function getElementsJSON() {
+    return [
         {
             name: "color",
             type: "color",
@@ -16079,7 +16221,12 @@ survey_core__WEBPACK_IMPORTED_MODULE_0__["ComponentCollection"].Instance.add({
             unit: "%",
             titleLocation: "left"
         }
-    ],
+    ];
+}
+survey_core__WEBPACK_IMPORTED_MODULE_0__["ComponentCollection"].Instance.add({
+    name: "colorsettings",
+    showInToolbox: false,
+    elementsJSON: getElementsJSON(),
     onInit: function () {
         survey_core__WEBPACK_IMPORTED_MODULE_0__["Serializer"].addProperties("colorsettings", [{
                 name: "choices:itemvalue[]",
@@ -16111,6 +16258,10 @@ survey_core__WEBPACK_IMPORTED_MODULE_0__["ComponentCollection"].Instance.add({
         question.contentPanel.questions.forEach(function (q) { return q.allowRootStyle = false; });
     }
 });
+function updateColorSettingsJSON() {
+    var config = survey_core__WEBPACK_IMPORTED_MODULE_0__["ComponentCollection"].Instance.getCustomQuestionByName("colorsettings");
+    config.json.elementsJSON = getElementsJSON();
+}
 function syncPropertiesFromCompositeToColor(question, propertyName, newValue) {
     var colorQuestion = question.contentPanel.questions[0];
     if (propertyName == "colorTitleLocation") {
@@ -16134,11 +16285,12 @@ function createColor(value) {
 /*!************************************************************************!*\
   !*** ./src/components/tabs/theme-custom-questions/element-settings.ts ***!
   \************************************************************************/
-/*! exports provided: elementSettingsToCssVariable, elementSettingsFromCssVariable */
+/*! exports provided: updateElementSettingsJSON, elementSettingsToCssVariable, elementSettingsFromCssVariable */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "updateElementSettingsJSON", function() { return updateElementSettingsJSON; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "elementSettingsToCssVariable", function() { return elementSettingsToCssVariable; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "elementSettingsFromCssVariable", function() { return elementSettingsFromCssVariable; });
 /* harmony import */ var survey_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! survey-core */ "survey-core");
@@ -16146,10 +16298,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _editorLocalization__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../editorLocalization */ "./src/editorLocalization.ts");
 
 
-survey_core__WEBPACK_IMPORTED_MODULE_0__["ComponentCollection"].Instance.add({
-    name: "elementsettings",
-    showInToolbox: false,
-    elementsJSON: [
+function getElementsJSON() {
+    return [
         {
             type: "colorsettings",
             name: "backcolor",
@@ -16181,7 +16331,12 @@ survey_core__WEBPACK_IMPORTED_MODULE_0__["ComponentCollection"].Instance.add({
             expression: "iif({composite.corner} notempty, {composite.corner} + 'px', '')",
             visible: false
         }
-    ],
+    ];
+}
+survey_core__WEBPACK_IMPORTED_MODULE_0__["ComponentCollection"].Instance.add({
+    name: "elementsettings",
+    showInToolbox: false,
+    elementsJSON: getElementsJSON(),
     onInit: function () {
     },
     onCreated: function (question) {
@@ -16189,12 +16344,16 @@ survey_core__WEBPACK_IMPORTED_MODULE_0__["ComponentCollection"].Instance.add({
     onValueChanged: function (question, name, newValue) {
     },
 });
+function updateElementSettingsJSON() {
+    var config = survey_core__WEBPACK_IMPORTED_MODULE_0__["ComponentCollection"].Instance.getCustomQuestionByName("elementsettings");
+    config.json.elementsJSON = getElementsJSON();
+}
 function elementSettingsToCssVariable(question, themeCssVariables) {
     Object.keys(question.value).forEach(function (key) {
         if (key === "corner")
             return;
         var propertyName = "--sjs-" + question.name.toLocaleLowerCase() + "-" + key;
-        if (question.value[key] !== question.defaultValue[key]) {
+        if (!question.defaultValue || question.value[key] !== question.defaultValue[key]) {
             themeCssVariables[propertyName] = question.value[key];
         }
         else {
@@ -16227,12 +16386,13 @@ function elementSettingsFromCssVariable(question, themeCssVariables, defaultBack
 /*!*********************************************************************!*\
   !*** ./src/components/tabs/theme-custom-questions/font-settings.ts ***!
   \*********************************************************************/
-/*! exports provided: DefaultFonts, fontsettingsToCssVariable, fontsettingsFromCssVariable */
+/*! exports provided: DefaultFonts, updateFontSettingsJSON, fontsettingsToCssVariable, fontsettingsFromCssVariable */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DefaultFonts", function() { return DefaultFonts; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "updateFontSettingsJSON", function() { return updateFontSettingsJSON; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "fontsettingsToCssVariable", function() { return fontsettingsToCssVariable; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "fontsettingsFromCssVariable", function() { return fontsettingsFromCssVariable; });
 /* harmony import */ var survey_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! survey-core */ "survey-core");
@@ -16252,10 +16412,8 @@ var DefaultFonts = [
     "Trebuchet MS, sans-serif",
     "Verdana, sans-serif",
 ];
-survey_core__WEBPACK_IMPORTED_MODULE_0__["ComponentCollection"].Instance.add({
-    name: "fontsettings",
-    showInToolbox: false,
-    elementsJSON: [
+function getElementsJSON() {
+    return [
         {
             type: "dropdown",
             name: "family",
@@ -16302,24 +16460,33 @@ survey_core__WEBPACK_IMPORTED_MODULE_0__["ComponentCollection"].Instance.add({
             unit: "px",
             min: 0,
         }
-    ],
+    ];
+}
+survey_core__WEBPACK_IMPORTED_MODULE_0__["ComponentCollection"].Instance.add({
+    name: "fontsettings",
+    showInToolbox: false,
+    elementsJSON: getElementsJSON(),
     onInit: function () {
     },
     onCreated: function (question) {
         var color = question.contentPanel.getQuestionByName("color");
-        color.visible = question.name !== "surveyTitle";
+        color.visible = question.name !== "surveyTitle" && question.name !== "surveyDescription";
         var placeholderColor = question.contentPanel.getQuestionByName("placeholdercolor");
         placeholderColor.visible = question.name === "editorFont";
     },
     onValueChanged: function (question, name, newValue) {
     },
 });
+function updateFontSettingsJSON() {
+    var config = survey_core__WEBPACK_IMPORTED_MODULE_0__["ComponentCollection"].Instance.getCustomQuestionByName("fontsettings");
+    config.json.elementsJSON = getElementsJSON();
+}
 function fontsettingsToCssVariable(question, themeCssVariables) {
     Object.keys(question.value).forEach(function (key) {
         var _a;
         var innerQ = question.contentPanel.getQuestionByName(key);
         var propertyName = "--sjs-font-" + question.name.toLocaleLowerCase() + "-" + key;
-        if (question.value[key] !== question.defaultValue[key]) {
+        if (!question.defaultValue || question.value[key] !== question.defaultValue[key]) {
             themeCssVariables[propertyName] = question.value[key] + (((_a = innerQ.unit) === null || _a === void 0 ? void 0 : _a.toString()) || "");
         }
         else {
@@ -16342,6 +16509,34 @@ function fontsettingsFromCssVariable(question, themeCssVariables, defaultColorVa
             compositeQuestion.contentPanel.getQuestionByName("placeholdercolor").value = defaultPlaceholderColorVariable;
         }
     }
+}
+
+
+/***/ }),
+
+/***/ "./src/components/tabs/theme-custom-questions/index.ts":
+/*!*************************************************************!*\
+  !*** ./src/components/tabs/theme-custom-questions/index.ts ***!
+  \*************************************************************/
+/*! exports provided: updateCustomQuestionJSONs */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "updateCustomQuestionJSONs", function() { return updateCustomQuestionJSONs; });
+/* harmony import */ var _boxshadow_settings__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./boxshadow-settings */ "./src/components/tabs/theme-custom-questions/boxshadow-settings.ts");
+/* harmony import */ var _color_settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./color-settings */ "./src/components/tabs/theme-custom-questions/color-settings.ts");
+/* harmony import */ var _element_settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./element-settings */ "./src/components/tabs/theme-custom-questions/element-settings.ts");
+/* harmony import */ var _font_settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./font-settings */ "./src/components/tabs/theme-custom-questions/font-settings.ts");
+
+
+
+
+function updateCustomQuestionJSONs() {
+    Object(_boxshadow_settings__WEBPACK_IMPORTED_MODULE_0__["updateBoxShadowSettingsJSON"])();
+    Object(_font_settings__WEBPACK_IMPORTED_MODULE_3__["updateFontSettingsJSON"])();
+    Object(_color_settings__WEBPACK_IMPORTED_MODULE_1__["updateColorSettingsJSON"])();
+    Object(_element_settings__WEBPACK_IMPORTED_MODULE_2__["updateElementSettingsJSON"])();
 }
 
 
@@ -16466,9 +16661,11 @@ var ThemeTabPlugin = /** @class */ (function () {
             }
         });
         this.model.onThemeSelected.add(function (sender, options) {
+            _this.saveThemeAction.enabled = true;
             _this.onThemeSelected.fire(_this, options);
         });
         this.model.onThemeModified.add(function (sender, options) {
+            _this.saveThemeAction.enabled = true;
             _this.onThemeModified.fire(_this, options);
         });
         this.model.onCanModifyTheme.add(function (sender, options) {
@@ -16568,6 +16765,23 @@ var ThemeTabPlugin = /** @class */ (function () {
         });
         items.push(this.undoAction);
         items.push(this.redoAction);
+        this.saveThemeAction = new survey_core__WEBPACK_IMPORTED_MODULE_0__["Action"]({
+            id: "svd-save",
+            iconName: "icon-save",
+            action: function () {
+                _this.creator.doSaveTheme();
+                _this.saveThemeAction.enabled = false;
+            },
+            active: false,
+            enabled: false,
+            visible: new survey_core__WEBPACK_IMPORTED_MODULE_0__["ComputedUpdater"](function () {
+                return Object(_utils_utils__WEBPACK_IMPORTED_MODULE_5__["notShortCircuitAnd"])(_this.creator.activeTab === "theme", _this.creator.showSaveButton);
+            }),
+            locTitleName: "ed.saveTheme",
+            locTooltipName: "ed.saveThemeTooltip",
+            showTitle: false
+        });
+        items.push(this.saveThemeAction);
         this.resetTheme = new survey_core__WEBPACK_IMPORTED_MODULE_0__["Action"]({
             id: "resetTheme",
             iconName: "icon-reset",
@@ -16576,7 +16790,11 @@ var ThemeTabPlugin = /** @class */ (function () {
             mode: "small",
             visible: this.createVisibleUpdater(),
             action: function () {
-                _this.model.resetTheme();
+                survey_core__WEBPACK_IMPORTED_MODULE_0__["settings"].confirmActionAsync(Object(_editorLocalization__WEBPACK_IMPORTED_MODULE_1__["getLocString"])("ed.themeResetConfirmation"), function (confirm) {
+                    if (confirm) {
+                        _this.model.resetTheme();
+                    }
+                }, Object(_editorLocalization__WEBPACK_IMPORTED_MODULE_1__["getLocString"])("ed.themeResetConfirmationOk"));
             }
         });
         items.push(this.resetTheme);
@@ -19289,14 +19507,22 @@ var CreatorBase = /** @class */ (function (_super) {
          */
         _this.onElementDeleting = new CreatorEvent();
         /**
-         * The event is called on setting a readOnly property of the property editor. By default the property.readOnly property is used.
-         * You may changed it and make the property editor read only or enabled for a particular object.
-         *- sender the survey creator object that fires the event
-         *- options.obj the survey object, Survey, Page, Panel or Question
-         *- options.property the object property (Survey.JsonObjectProperty object). It has name, className, type, visible, readOnly and other properties.
-         *- options.readOnly a boolean value. It has value equals to options.readOnly property by default. You may change it.
-         *- options.parentObj the parent object. It is null for non-nested properties. It is not null for itemvalue or column objects. The parent object is a question (dropdown, radigroup, checkbox, matrices and so on).
-         *- options.parentProperty the parent property (Survey.JsonObjectProperty object). It is null for non-nested properties. It is not null for itemvalue or column objects. The parent object is choices, columns, rows, triggers and so on.
+         * An event that is raised when Survey Creator sets the read-only status for a survey element property. Use this event to change the read-only status for individual properties.
+         *
+         * Parameters:
+         *
+         * - `sender`: `CreatorBase`\
+         * A Survey Creator instance that raised the event.
+         * - `options.property`: `JsonObjectProperty`\
+         * A property whose read-only status you can change.
+         * - `options.parentProperty`: `JsonObjectProperty`\
+         * A property that nests `options.property` (`choices` for an item value, `columns` for a matrix column, `rows` for a matrix row etc.). `options.parentProperty` has a value only for nested properties.
+         * - `options.obj`: [`Survey.Base`](https://surveyjs.io/form-library/documentation/api-reference/base)\
+         * A survey element (question, panel, page, or the survey itself) for which you can change the read-only status.
+         * - `options.parentObj`: `any`\
+         * A survey element that contains `options.parentProperty`. `options.parentObj` has a value only for nested properties.
+         * - `options.readOnly`: `boolean`\
+         * A Boolean value that specifies the property's read-only status.
          */
         _this.onGetPropertyReadOnly = new CreatorEvent();
         /**
@@ -19309,14 +19535,16 @@ var CreatorBase = /** @class */ (function (_super) {
         /**
          * An event that is raised when Survey Creator obtains a survey element name to display it in the UI.
          *
-         * Handle this event to replace survey element names in the UI with custom display texts.
-         * If you only want to replace the names with survey element titles, enable the [`showObjectTitles`](https://surveyjs.io/survey-creator/documentation/surveycreator#showObjectTitles) property instead of handling this event.
+         * Handle this event to replace survey element names in the UI with custom display texts. If you only want to replace the names with survey element titles, enable the [`showObjectTitles`](https://surveyjs.io/survey-creator/documentation/surveycreator#showObjectTitles) property instead of handling this event.
          *
-         * The event handler accepts the following arguments:
+         * Parameters:
          *
-         * - `sender`- A Survey Creator instance that raised the event.
-         * - `options.obj` - The instance of a survey element (survey, page, question, or panel) whose name has been requested.
-         * - `options.area` - A Survey Creator UI element that requests the display name.
+         * - `sender`: `CreatorBase`\
+         * A Survey Creator instance that raised the event.
+         * - `options.element`: [`Survey.Base`](https://surveyjs.io/form-library/documentation/api-reference/base)\
+         * A survey element (survey, page, question, or panel) whose name has been requested.
+         * - `options.area`: `string`\
+         * A Survey Creator UI element that requests the display name. Contains one of the following values:
          *   - `"page-selector"` - Page selector on the design surface
          *   - `"condition-editor"` - Condition pop-up window or drop-down menus that allow users to select questions in the Logic tab
          *   - `"logic-tab:question-filter"` - Question filter in the Logic tab
@@ -19327,15 +19555,8 @@ var CreatorBase = /** @class */ (function (_super) {
          *   - `"property-grid-header:element-list"` - Survey element list in the header of the Property Grid
          *   - `"property-grid-header:selected-element"` - Selected survey element in the header of the Property Grid
          *   - `"translation-tab"` - Translation tab
-         * - `options.displayName` - Modify this property to set a custom display text for the survey element.
-         * - `options.reason` - Obsolete. Use the `options.area` property instead.
-         *   - `"condition"` - Use the `"condition-editor"` value of `options.area` instead.
-         *   - `"survey-tester"` - Use the `"preview-tab:page-list"` value of `options.area` instead.
-         *   - `"survey-tester-selected"` - Use the `"preview-tab:selected-page"` value of `options.area` instead.
-         *   - `"survey-translation"` - Use the `"translation-tab"` value of `options.area` instead.
-         *   - `"property-editor"` - Use the `"property-grid:property-editor"` value of `options.area` instead.
-         *   - `"property-grid"` - Use the `"property-grid-header:element-list"` value of `options.area` instead.
-         *   - `"property-grid-title"` - Use the `"property-grid-header:selected-element"` value of `options.area` instead.
+         * - `options.displayName`: `string`\
+         * A survey element's display text. Modify this property to set a custom display text for the survey element.
          */
         _this.onGetObjectDisplayName = new CreatorEvent();
         /**
@@ -19508,40 +19729,59 @@ var CreatorBase = /** @class */ (function (_super) {
          *- sender the survey creator object that fires the event
          *- options.element a new created survey element. It can be question, panel or page
          *- options.name a new suggested name, that is unique for the current survey. You can suggest your own name. If it is unique, creator will assign it to the element.
-         *- options.isUnique a boolean property, set this property to false, if you want to ask Creator to generate another name
          */
         _this.onGenerateNewName = new CreatorEvent();
         /**
-         * Use this event to show a custom error in the Question Editor on pressing Apply or OK buttons, if the values are not set correctly. The error will be displayed under the property editor.
-         *- sender the survey creator object that fires the event
-         *- options.obj the survey object which property is edited in the Property Editor.
-         *- options.propertyName  the name of the edited property.
-         *- options.value the property value.
-         *- options.error the error you want to display. Set the empty string (the default value) or null if there is no errors.
+         * An event that is raised when Survey Creator validates a modified value of a survey element property. Use this event to display a custom error message when the value is incorrect.
+         *
+         * Parameters:
+         *
+         * - `sender`: `CreatorBase`\
+         * A Survey Creator instance that raised the event.
+         * - `options.obj`: [`Survey.Base`](https://surveyjs.io/form-library/documentation/api-reference/base)\
+         * A survey element (survey, page, panel, question) whose property is being validated.
+         * - `options.propertyName`: `string`\
+         * The name of a property being validated.
+         * - `options.value`: `any`\
+         * The property value.
+         * - `options.error`: `string`\
+         * An error message you want to display. If `options.value` is valid, this parameter contains an empty string.
          * @see onPropertyValueChanging
+         * @see onSurveyPropertyValueChanged
          */
         _this.onPropertyValidationCustomError = new CreatorEvent();
         /**
-         * An event that is raised each time a user modifies a survey object property. Use this event to validate or correct a property value while the user enters it.
+         * An event that is raised each time a user modifies a survey element property. Use this event to validate or correct a property value while the user changes it.
          *
-         * The event handler accepts the following arguments:
+         * Parameters:
          *
-         * - `sender`- A Survey Creator instance that raised the event.
-         * - `options.obj` - A survey object instance (question or panel) whose property is being edited.
-         * - `options.propertyName` - The name of the property.
-         * - `options.value` - An old property value.
-         * - `options.newValue` - A new property value. Specify this field if you want to override the entered value.
+         * - `sender`: `CreatorBase`\
+         * A Survey Creator instance that raised the event.
+         * - `options.obj`: [`Survey.Base`](https://surveyjs.io/form-library/documentation/api-reference/base)\
+         * A survey element (question, panel, page, or the survey itself) whose property is being edited.
+         * - `options.propertyName`: `string`\
+         * The name of a property being modified.
+         * - `options.value`: `any`\
+         * An old property value.
+         * - `options.newValue`: `any`\
+         * A new property value. Modify this parameter if you want to override the property value.
          * @see onPropertyValidationCustomError
          * @see onSurveyPropertyValueChanged
          */
         _this.onPropertyValueChanging = new CreatorEvent();
         /**
-         * An event that is raised after a property in a survey object has changed.
+         * An event that is raised after a survey element property has changed.
          *
-         * - `sender`- A Survey Creator instance that raised the event.
-         * - `options.obj` - A survey object instance (question or panel) whose property has changed.
-         * - `options.propertyName` - The name of the property.
-         * - `options.value` - A new property value.
+         * Parameters:
+         *
+         * - `sender`: `CreatorBase`\
+         * A Survey Creator instance that raised the event.
+         * - `options.obj`: [`Survey.Base`](https://surveyjs.io/form-library/documentation/api-reference/base)\
+         * A survey element (question, panel, page, or the survey itself) whose property is has changed.
+         * - `options.propertyName`: `string`\
+         * The name of the modified property.
+         * - `options.value`: `any`\
+         * A new property value.
          * @see onPropertyValidationCustomError
          * @see onPropertyValueChanging
          */
@@ -19570,13 +19810,13 @@ var CreatorBase = /** @class */ (function (_super) {
          *
          * - `sender`: `CreatorBase`\
          * A Survey Creator instance that raised the event.
-         * - `options.questionName`: `String`\
+         * - `options.questionName`: `string`\
          * The name of a question for which conditions are displayed.
-         * - `options.questionName`: `String`\
+         * - `options.questionName`: `string`\
          * The name of a question for which conditions are displayed.
          * - `options.operator`: `"empty"` | `"notempty"` | `"equal"` | `"notequal"` | `"contains"` | `"notcontains"` | `"anyof"` | `"allof"` | `"greater"` | `"less"` | `"greaterorequal"` | `"lessorequal"`\
          * A condition opeator for which the event is raised.
-         * - `options.show`: `Boolean`\
+         * - `options.show`: `boolean`\
          * A Boolean property that you can set to `false` if you want to hide the condition operator.
          *
          */
@@ -19705,12 +19945,12 @@ var CreatorBase = /** @class */ (function (_super) {
          *
          * - `sender`: `CreatorBase`\
          * A Survey Creator instance that raised the event.
-         * - `options.actions`: [`IAction[]`](/form-library/documentation/api-reference/iaction)\
+         * - `options.actions`: [`IAction[]`](https://surveyjs.io/form-library/documentation/api-reference/iaction)\
          * An array of actions. You can add, modify, or remove actions from this array.
-         * - `options.page`: [`PageModel`](/form-library/documentation/api-reference/page-model)\
+         * - `options.page`: [`PageModel`](https://surveyjs.io/form-library/documentation/api-reference/page-model)\
          * A page for which the event is raised.
          * - `options.addNewQuestion(type)`: Method\
-         * Adds a new question of a specified [`type`](/form-library/documentation/api-reference/question#getType) to the page.
+         * Adds a new question of a specified [`type`](https://surveyjs.io/form-library/documentation/api-reference/question#getType) to the page.
          * @see onDefineElementMenuItems
          */
         _this.onGetPageActions = new CreatorEvent();
@@ -19752,7 +19992,7 @@ var CreatorBase = /** @class */ (function (_super) {
          */
         _this.onNotify = new CreatorEvent();
         /**
-         * An event that is raised before a survey element (a question, panel, page, or the survey itself) is focused. Use this event to move focus to a different survey element.
+         * An event that is raised before a survey element (question, panel, page, or the survey itself) is focused. Use this event to move focus to a different survey element.
          *
          * Parameters:
          *
@@ -19797,60 +20037,71 @@ var CreatorBase = /** @class */ (function (_super) {
          */
         _this.onUploadFile = new CreatorEvent();
         /**
-         * Use this event to modify the list of the strings available in the Translation tab.
+         * An event that is raised when the Translation tab displays a property for translation. Use this event to control the property visibility.
          *
-         * The event handler accepts the following arguments:
+         * Parameters:
          *
-         * - `sender` - A Survey Creator instance that raised the event.
-         * - `options.obj` - A survey object instance (survey, page, panel, question) whose string translations are being edited in the Translation tab.
-         * - `options.propertyName` - The name of a property being translated.
-         * - `options.visible` - A Boolean value that specifies the property visibility. Set it to `false` to hide the property.
+         * - `sender`: `CreatorBase`\
+         * A Survey Creator instance that raised the event.
+         * - `options.obj`: [`Survey.Base`](https://surveyjs.io/form-library/documentation/api-reference/base)\
+         * A survey element (survey, page, panel, question) whose string translations are edited in the Translation tab.
+         * - `options.propertyName`: `string`\
+         * The name of a property being translated.
+         * - `options.visible`: `boolean`\
+         * A Boolean value that specifies the property visibility. Set it to `false` to hide the property.
          */
         _this.onTranslationStringVisibility = new CreatorEvent();
-        /**
-         * Use this event to define is the locale initially selected (default value) and ready for translaion or it is unselected.
-         *
-         * The event handler accepts the following arguments:
-         *
-         * - `sender` - A Survey Creator instance that raised the event.
-         * - `options.locale` - the locale name, like 'en', 'de' and so on.
-         * - `options.isSelected` - it is true by default. Set it to false to make the translation unselected.
-         */
         _this.onTranslationLocaleInitiallySelected = new CreatorEvent();
         /**
-         * Use this event to modify the imported localizable text. To block importing a particular localization text, set the options.text into undefined.
+         * An event that is raised before a translated string is imported from a CSV file. Use this event to modify the string to be imported or cancel the import.
          *
-         * The event handler accepts the following arguments:
+         * Parameters:
          *
-         * - `sender` - A Survey Creator instance that raised the event.
-         * - `options.locale` - the locale name, like 'en', 'de' and so on.
-         * - `options.name` - The full name of the localizable string, it can be: "survey.page1.question2.title"
-         * - `options.text` - The imported text for the locale for this item. Set it to undefined or empty string to block importing for this item
+         * - `sender`: `CreatorBase`\
+         * A Survey Creator instance that raised the event.
+         * - `options.locale`: `string`\
+         * The current locale identifier (`"en"`, `"de"`, etc.). Contains an empty string if the default locale is used.
+         * - `options.name`: `string`\
+         * A full name of the translated string. It is composed of names of all parent elements, for example: `"mySurvey.page1.question2.title"`.
+         * - `options.text`: `string`\
+         * A text string to be imported. You can modify this property to import a different string or set this property to `undefined` to cancel the import.
+         * @see onTranslationExportItem
+         * @see onTranslationImported
          */
         _this.onTranslationImportItem = new CreatorEvent();
         /**
-        * The event is called when the translation from csv file is imported.
-        * @see translation
-        * @see showTranslationTab
-        */
+         * An event that is raised after all translated strings are imported from a CSV file.
+         *
+         * Parameters:
+         *
+         * - `sender`: `CreatorBase`\
+         * A Survey Creator instance that raised the event.
+         * @see onTranslationImportItem
+         * @see onTranslationExportItem
+         */
         _this.onTranslationImported = new CreatorEvent();
         /**
-         * Use this event to modify a translated string before it is exported to CSV.
+         * An event that is raised before a translated string is exported to a CSV file. Use this event to modify the string to be exported.
          *
-         * The event handler accepts the following arguments:
+         * Parameters:
          *
-         * - `sender` - A Survey Creator instance that raised the event.
-         * - `options.obj` - A survey object instance (survey, page, panel, question) whose string translations are being exported to CSV.
-         * - `options.locale` - The current locale identifier (`"en"`, `"de"`, etc.). Contains an empty string if the default locale is used.
-         * - `options.name` - A full name of the translated string. It is composed of names of all parent elements, for example: `"mySurvey.page1.question2.title"`.
-         * - `options.locString` - A `LocalizableString` instance. Call the `options.locString.getLocaleText(locale)` method if you need to get a text string for a specific locale.
-         * - `options.text` - A text string to be exported. The string is taken from the current locale. Redefine this property if you want to export a different string.
+         * - `sender`: `CreatorBase`\
+         * A Survey Creator instance that raised the event.
+         * - `options.obj`: [`Survey.Base`](https://surveyjs.io/form-library/documentation/api-reference/base)\
+         * A survey element (survey, page, panel, question) whose string translations are being exported to CSV.
+         * - `options.locale`: `string`\
+         * The current locale identifier (`"en"`, `"de"`, etc.). Contains an empty string if the default locale is used.
+         * - `options.name`: `string`\
+         * A full name of the translated string. It is composed of names of all parent elements, for example: `"mySurvey.page1.question2.title"`.
+         * - `options.locString`: `LocalizableString`\
+         * A `LocalizableString` instance. Call the `options.locString.getLocaleText(locale)` method if you need to get a text string for a specific locale.
+         * - `options.text`: `string`\
+         * A text string to be exported. The string is taken from the current locale. You can modify this property to export a different string.
+         * @see onTranslationImportItem
          */
         _this.onTranslationExportItem = new CreatorEvent();
         /**
          * An event that allows you to integrate a machine translation service, such as Google Translate or Microsoft Translator, into Survey Creator.
-         *
-         * Within the event handler, you need to pass translation strings and locale information to the translation service API. The service should return an array of translated strings that you need to pass to the `options.callback` function. If the translation failed, pass an empty array or call this function without arguments.
          *
          * Parameters:
          *
@@ -19865,6 +20116,50 @@ var CreatorBase = /** @class */ (function (_super) {
          * - `options.callback: (strings: Array<string>)`: `Function`\
          * A callback function that accepts translated strings. If the translation failed, pass an empty array or call this function without arguments.
          *
+         * Within the event handler, you need to pass translation strings and locale information to the translation service API. The service should return an array of translated strings that you need to pass to the `options.callback` function. The following code shows how to integrate the Microsoft Translator service into Survey Creator:
+         *
+         * ```js
+         * import { SurveyCreatorModel } from "survey-creator-core";
+         * const creatorOptions = { ... };
+         * const creator = new SurveyCreatorModel(creatorOptions);
+         *
+         * const apiKey = "<your-microsoft-translator-api-key>";
+         * const resourceRegion = "<your-azure-region>";
+         * const endpoint = "https://api.cognitive.microsofttranslator.com/";
+         * creator.onMachineTranslate.add((_, options) => {
+         *   // Prepare strings for Microsoft Translator as an array of objects: [{ Text: "text to translate" }]
+         *   const data = [];
+         *   options.strings.forEach(str => { data.push({ Text: str }); });
+         *   // Include required locales in the URL
+         *   const params = "api-version=3.0&from=" + options.fromLocale + "&to=" + options.toLocale;
+         *   const url = endpoint + "/translate?" + params;
+         *   fetch(url, {
+         *     method: "POST",
+         *     headers: {
+         *       "Content-Type": "application/json",
+         *       "Ocp-Apim-Subscription-Key": apiKey,
+         *       "Ocp-Apim-Subscription-Region": resourceRegion,
+         *       "X-ClientTraceId": crypto.randomUUID()
+         *     },
+         *     body: JSON.stringify(data)
+         *   }).then(response => response.json())
+         *     .then(data => {
+         *       // Convert data received from Microsoft Translator to a flat array
+         *       const translatedStrings = [];
+         *       for (let i = 0; i < data.length; i++) {
+         *         translatedStrings.push(data[i].translations[0].text);
+         *       }
+         *       // Pass translated strings to Survey Creator
+         *       options.callback(translatedStrings);
+         *
+         *     }).catch(error => {
+         *       // If translation was unsuccessful:
+         *       options.callback();
+         *       alert("Could not translate strings to the " + options.toLocale + " locale");
+         *     });
+         * });
+         * ```
+         *
          * > Survey Creator does not include a machine translation service out of the box. Our component only provides a UI for calling the service API.
          */
         _this.onMachineTranslate = new CreatorEvent();
@@ -19876,12 +20171,12 @@ var CreatorBase = /** @class */ (function (_super) {
          * - `sender`: `CreatorBase`\
          * A Survey Creator instance that raised the event.
          * - `options.obj`: `any`\
-         * A survey object instance (survey, page, panel, question) whose string translation is being changed.
-         * - `options.locale`: `String`\
+         * A survey element instance (survey, page, panel, question) whose string translation is being changed.
+         * - `options.locale`: `string`\
          * The current locale identifier (`"en"`, `"de"`, etc.). Contains an empty string if the default locale is used.
          * - `options.locString`: `LocalizableString`\
          * An object that you can use to manipulate a localization string. Call the `options.locString.getLocaleText(locale)` method if you need to get a text string for a specific locale.
-         * - `options.newText`: `String`\
+         * - `options.newText`: `string`\
          * A new value for the string translation.
          *
          * Refer to the following help topics for more information on localization:
@@ -19926,10 +20221,9 @@ var CreatorBase = /** @class */ (function (_super) {
          */
         _this.maxLogicItemsInCondition = -1;
         /**
-         * Specifies whether UI elements display survey, page, and question titles instead of their names.
+         * Specifies whether drop-down menus and other UI elements display survey, page, and question titles instead of their names.
          *
          * Default value: `false`
-         *
          * @see onGetObjectDisplayName
          */
         _this.showObjectTitles = false;
@@ -19945,6 +20239,8 @@ var CreatorBase = /** @class */ (function (_super) {
          * Specifies whether to display question titles instead of names when users edit logical expressions.
          *
          * Default value: `false`
+         * @see showObjectTitles
+         * @see onGetObjectDisplayName
          */
         _this.showTitlesInExpressions = false;
         /**
@@ -19988,7 +20284,7 @@ var CreatorBase = /** @class */ (function (_super) {
          */
         _this.maximumRateValues = _creator_settings__WEBPACK_IMPORTED_MODULE_2__["settings"].propertyGrid.maximumRateValues;
         /**
-         * Limits the number of nested panels within a [Panel](/form-library/documentation/api-reference/panel-model) element.
+         * Limits the number of nested panels within a [Panel](https://surveyjs.io/form-library/documentation/api-reference/panel-model) element.
          *
          * Default value: -1 (unlimited)
          */
@@ -20038,7 +20334,7 @@ var CreatorBase = /** @class */ (function (_super) {
          * A Survey Creator instance that raised the event.
          * - `options.tabName`: `"designer"` | `"test"` | `"theme"` | `"editor"` | `"logic"` | `"translation"`\
          * A tab that is going to become active.
-         * - `options.allow`: `Boolean`\
+         * - `options.allow`: `boolean`\
          * Specifies whether the active tab can be switched. Set this property to `false` if you want to cancel the switch.
          * @see makeNewViewActive
          */
@@ -20090,15 +20386,15 @@ var CreatorBase = /** @class */ (function (_super) {
          */
         _this.onBeforeRedo = new CreatorEvent();
         /**
-         * An event that is raised before a new page is added to the survey.
+         * An event that is raised before a new page is added to the survey. Handle this event if you do not want to add the page.
          *
          * Parameters:
          *
          * - `sender`: `CreatorBase`\
          * A Survey Creator instance that raised the event.
          * - `options.page`: [`PageModel`](https://surveyjs.io/form-library/documentation/api-reference/page-model)\
-         * An added page.
-         * - `options.allow`: `Boolean`\
+         * A page to be added.
+         * - `options.allow`: `boolean`\
          * Set this property to `false` if you do not want to add the page.
          */
         _this.onPageAdding = new CreatorEvent();
@@ -20250,12 +20546,11 @@ var CreatorBase = /** @class */ (function (_super) {
     });
     Object.defineProperty(CreatorBase.prototype, "haveCommercialLicense", {
         get: function () {
-            if (!!survey_core__WEBPACK_IMPORTED_MODULE_1__["hasLicense"] && Object(survey_core__WEBPACK_IMPORTED_MODULE_1__["hasLicense"])(1))
-                return true;
-            return this.getPropertyValue("haveCommercialLicense", false);
+            return !!survey_core__WEBPACK_IMPORTED_MODULE_1__["hasLicense"] && Object(survey_core__WEBPACK_IMPORTED_MODULE_1__["hasLicense"])(1);
         },
         set: function (val) {
-            this.setPropertyValue("haveCommercialLicense", val);
+            // eslint-disable-next-line no-console
+            console.warn("As of v1.9.101, the haveCommercialLicense property is not supported. To activate your license, use the setLicenseKey(key) method as shown on the following page: https://surveyjs.io/remove-alert-banner");
         },
         enumerable: false,
         configurable: true
@@ -20424,7 +20719,7 @@ var CreatorBase = /** @class */ (function (_super) {
         /**
          * A function that is called each time users click the [Save button](https://surveyjs.io/survey-creator/documentation/api-reference/survey-creator#showSaveButton) or [auto-save](https://surveyjs.io/survey-creator/documentation/api-reference/survey-creator#isAutoSave) is triggered to save a theme JSON object.
          *
-         * For more information, refer to the [Save and Load Custom Themes](/survey-creator/documentation/theme-editor#save-and-load-custom-themes) help topic.
+         * For more information, refer to the [Save and Load Custom Themes](https://surveyjs.io/survey-creator/documentation/theme-editor#save-and-load-custom-themes) help topic.
          * @see showThemeTab
          * @see saveSurveyFunc
          */
@@ -21342,8 +21637,9 @@ var CreatorBase = /** @class */ (function (_super) {
     };
     Object.defineProperty(CreatorBase.prototype, "text", {
         /**
-         * The Survey JSON as a text. Use it to get Survey JSON or change it.
-         * @see JSON
+         * A survey JSON schema as a string.
+         *
+         * This property allows you to get or set the JSON schema of a survey being configured. Alternatively, you can use the [`JSON`](#JSON) property.
          */
         get: function () {
             if (!!this.getSurveyJSONTextCallback) {
@@ -21493,8 +21789,9 @@ var CreatorBase = /** @class */ (function (_super) {
     };
     Object.defineProperty(CreatorBase.prototype, "JSON", {
         /**
-         * The Survey JSON. Use it to get Survey JSON or change it.
-         * @see text
+         * A survey JSON schema.
+         *
+         * This property allows you to get or set the JSON schema of a survey being configured. Alternatively, you can use the [`text`](#text) property.
          */
         get: function () {
             var json = this.survey.toJSON();
@@ -21679,6 +21976,12 @@ var CreatorBase = /** @class */ (function (_super) {
         var index = !!question["parent"]
             ? question["parent"].elements.indexOf(question) + 1
             : -1;
+        if (index > -1) {
+            var elements = question.parent.elements;
+            if (index < elements.length && elements[index].startWithNewLine === false) {
+                newElement.startWithNewLine = false;
+            }
+        }
         this.doClickQuestionCore(newElement, "ELEMENT_COPIED", index, question["parent"]);
         return newElement;
     };
@@ -21697,6 +22000,16 @@ var CreatorBase = /** @class */ (function (_super) {
         enumerable: false,
         configurable: true
     });
+    /**
+     * Refreshes the Designer tab.
+     *
+     * `refreshDesigner()` is useful if the Designer tab UI depends on an external variable. Call this method each time this variable changes to update the UI.
+     */
+    CreatorBase.prototype.refreshDesigner = function () {
+        if (this.activeTab !== "designer")
+            return;
+        this.changeText(this.text);
+    };
     CreatorBase.prototype.deleteCurrentObject = function () {
         this.deleteCurrentElement();
     };
@@ -21772,17 +22085,13 @@ var CreatorBase = /** @class */ (function (_super) {
         return this.survey.pages[index];
     };
     CreatorBase.prototype.deleteObject = function (obj) {
-        var options = {
-            element: obj,
-            elementType: _survey_helper__WEBPACK_IMPORTED_MODULE_9__["SurveyHelper"].getObjectType(obj),
-            allowing: true
-        };
-        this.onElementDeleting.fire(this, options);
-        if (!options.allowing)
+        if (!this.checkOnElementDeleting(obj))
             return;
         this.deleteObjectCore(obj);
     };
     CreatorBase.prototype.updateConditionsOnRemove = function (obj) {
+        if (!_creator_settings__WEBPACK_IMPORTED_MODULE_2__["settings"].logic.updateExpressionsOnDeleting.question)
+            return;
         var objType = _survey_helper__WEBPACK_IMPORTED_MODULE_9__["SurveyHelper"].getObjectType(obj);
         var questions;
         if (objType == _survey_helper__WEBPACK_IMPORTED_MODULE_9__["ObjType"].Question) {
@@ -21798,6 +22107,15 @@ var CreatorBase = /** @class */ (function (_super) {
             logic.removeQuestion(questions[i].getValueName());
         }
     };
+    CreatorBase.prototype.checkOnElementDeleting = function (obj) {
+        var options = {
+            element: obj,
+            elementType: _survey_helper__WEBPACK_IMPORTED_MODULE_9__["SurveyHelper"].getObjectType(obj),
+            allowing: true
+        };
+        this.onElementDeleting.fire(this, options);
+        return options.allowing;
+    };
     CreatorBase.prototype.isElementSelected = function (element) {
         if (!element || element.isDisposed)
             return false;
@@ -21806,7 +22124,7 @@ var CreatorBase = /** @class */ (function (_super) {
     CreatorBase.prototype.selectElement = function (element, propertyName, focus, startEdit) {
         if (focus === void 0) { focus = true; }
         if (startEdit === void 0) { startEdit = false; }
-        if (!!element && (element.isDisposed || ((element.isQuestion || element.isPanel) && !element.parent)))
+        if (!!element && (element.isDisposed || !element.getSurvey() || ((element.isQuestion || element.isPanel) && !element.parent)))
             return;
         var oldValue = this.selectedElement;
         if (oldValue !== element) {
@@ -22158,22 +22476,33 @@ var CreatorBase = /** @class */ (function (_super) {
         return hasError ? this.getLocString("pe.propertyNameIsNotUnique") : null;
     };
     CreatorBase.prototype.generateUniqueName = function (el, newName) {
-        var options = { element: el, name: newName, isUnique: true };
+        var options = { element: el, name: newName, isDone: true };
+        var list = [];
         do {
-            if (!options.isUnique) {
-                options.name = _survey_helper__WEBPACK_IMPORTED_MODULE_9__["SurveyHelper"].generateNewName(options.name);
+            this.generateUniqueNameCore(options);
+            if (!options.isDone && list.indexOf(options.name) > -1) {
+                options.name = this.checkForUniqueName(el, options.name);
+                break;
             }
-            while (!this.isNameUnique(el, options.name, false)) {
-                options.name = _survey_helper__WEBPACK_IMPORTED_MODULE_9__["SurveyHelper"].generateNewName(options.name);
-            }
-            options.isUnique = true;
-            var oldName = options.name;
-            this.onGenerateNewName.fire(this, options);
-            if (oldName != options.name) {
-                options.isUnique = this.isNameUnique(el, options.name);
-            }
-        } while (!options.isUnique);
+            list.push(options.name);
+        } while (!options.isDone);
         return options.name;
+    };
+    CreatorBase.prototype.generateUniqueNameCore = function (options) {
+        options.name = this.checkForUniqueName(options.element, options.name);
+        var evnOptions = { element: options.element, name: options.name };
+        this.onGenerateNewName.fire(this, evnOptions);
+        if (options.name !== evnOptions.name) {
+            options.name = evnOptions.name;
+            options.name = this.checkForUniqueName(options.element, options.name);
+            options.isDone = options.name === evnOptions.name;
+        }
+    };
+    CreatorBase.prototype.checkForUniqueName = function (el, newName) {
+        while (!this.isNameUnique(el, newName, false)) {
+            newName = _survey_helper__WEBPACK_IMPORTED_MODULE_9__["SurveyHelper"].generateNewName(newName);
+        }
+        return newName;
     };
     CreatorBase.prototype.isNameUnique = function (el, newName, includeNewItems) {
         if (includeNewItems === void 0) { includeNewItems = true; }
@@ -22229,6 +22558,9 @@ var CreatorBase = /** @class */ (function (_super) {
         return this.canDeleteItem(object, item, allowDelete);
     };
     CreatorBase.prototype.onCollectionItemDeletingCallback = function (obj, property, collection, item) {
+        var _a;
+        if (((_a = item) === null || _a === void 0 ? void 0 : _a.isPage) && !this.checkOnElementDeleting(item))
+            return false;
         if (this.onCollectionItemDeleting.isEmpty)
             return true;
         var options = {
@@ -23124,7 +23456,7 @@ var settings = {
     theme: {
         exportFileName: "survey_theme.json",
         fontFamily: "Open Sans",
-        allowEditHeaderSettings: false,
+        allowEditHeaderSettings: true,
     },
     operators: {
         empty: [],
@@ -23170,6 +23502,12 @@ var settings = {
             questionName: true,
             columnName: true,
             choiceValue: true
+        },
+        /**
+         * Set these properties to false if you don't want to update expressions on deleting question
+         */
+        updateExpressionsOnDeleting: {
+            question: true
         }
     },
     /**
@@ -24528,7 +24866,7 @@ var __spreadArray = function (to, from) {
 /*!******************************!*\
   !*** ./src/entries/index.ts ***!
   \******************************/
-/*! exports provided: Version, enStrings, editorLocalization, defaultStrings, localization, QuestionConvertMode, settings, EmptySurveyCreatorOptions, CreatorAction, TabbedMenuItem, TabbedMenuContainer, ToolbarActionContainer, CreatorEvent, CreatorBase, SurveyCreatorModel, StylesManager, initializeDesignTimeSurveyModel, editableStringRendererName, getElementWrapperComponentName, getQuestionContentWrapperComponentName, getElementWrapperComponentData, getItemValueWrapperComponentName, getItemValueWrapperComponentData, isStringEditable, isTextInput, registerAdorner, removeAdorners, CreatorResponsivityManager, AceJsonEditorModel, TabJsonEditorAcePlugin, JsonEditorBaseModel, TabJsonEditorBasePlugin, TextareaJsonEditorModel, TabJsonEditorTextareaPlugin, TestSurveyTabViewModel, TabTestPlugin, createColor, createBoxShadow, parseBoxShadow, DefaultFonts, fontsettingsToCssVariable, fontsettingsFromCssVariable, elementSettingsToCssVariable, elementSettingsFromCssVariable, Themes, PredefinedThemes, getThemeFullName, PredefinedColors, findSuitableTheme, ThemeBuilder, ThemeTabPlugin, initLogicOperator, LogicEvent, SurveyLogic, TranslationItemBase, TranslationItemString, TranslationItem, TranslationGroup, Translation, TranslationEditor, createImportCSVAction, createExportCSVAction, translationCss, TabTranslationPlugin, initialSettingsAllowShowEmptyTitleInDesignMode, TabDesignerViewModel, TabDesignerPlugin, SurveyLogicUI, TabLogicPlugin, logicCss, ToolboxToolViewModel, PageNavigatorViewModel, PageAdorner, RowViewModel, QuestionAdornerViewModel, QuestionDropdownAdornerViewModel, QuestionImageAdornerViewModel, QuestionRatingAdornerViewModel, ItemValueWrapperViewModel, ImageItemValueWrapperViewModel, MatrixCellWrapperEditSurvey, MatrixCellWrapperViewModel, SurveySimulatorModel, DEFAULT_MONITOR_DPI, simulatorDevices, SurveyResultsItemModel, SurveyResultsModel, LogoImageViewModel, StringItemsNavigatorBase, StringEditorConnector, StringEditorViewModelBase, QuestionEmbeddedSurveyModel, QuestionLinkValueModel, EditorLocalization, getLocString, SurveyJSON5, QuestionSpinEditorModel, QuestionColorModel, QuestionFileEditorModel, ResetValueAdorner, QuestionTextWithResetModel, QuestionCommentWithResetModel, setSurveyJSONForPropertyGrid, PropertyEditorSetupValue, PropertyGridEditorCollection, PropertyGridTitleActionsCreator, PropertyJSONGenerator, PropertyGridModel, PropertyGridEditor, PropertyGridEditorBoolean, PropertyGridEditorStringBase, PropertyGridEditorString, PropertyGridLinkEditor, PropertyGridEditorColor, PropertyGridEditorNumber, PropertyGridEditorImageSize, PropertyGridEditorText, PropertyGridEditorHtml, PropertyGridEditorStringArray, PropertyGridEditorDropdown, PropertyGridEditorSet, PropertyGridEditorPage, PropertyGridEditorQuestion, PropertyGridEditorQuestionSelectBase, PropertyGridEditorQuestionCarryForward, PropertyGridEditorQuestionValue, PropertyGridEditorExpression, PropertyGridEditorCondition, PropertyGridEditorMatrix, PropertyGridEditorMatrixItemValues, PropertyGridEditorMatrixRateValues, PropertyGridEditorMatrixColumns, PropertyGridEditorMatrixPages, PropertyGridEditorMatrixCalculatedValues, PropertyGridEditorMatrixHtmlConditions, PropertyGridEditorMatrixUrlConditions, PropertyGridEditorMatrixMutlipleTextItems, PropertyGridEditorMatrixMultipleTypes, PropertyGridEditorMatrixValidators, PropertyGridEditorMatrixTriggers, PropertyGridEditorBindings, PropertyGridViewModel, ObjectSelectorItem, ObjectSelector, ObjectSelectorModel, PropertyGridEditorQuestionRestfull, PropertyGridValueEditorBase, PropertyGridCellsEditor, PropertyGridValueEditor, PropertyGridRowValueEditor, PropertyGridPanelValueEditor, PropertyGridTriggerValueEditor, PropertyGridTriggerValueInLogicEditor, propertyGridCss, QuestionConverter, svgBundle, SurveyTextWorkerError, SurveyTextWorkerParserError, SurveyTextWorkerJsonError, SurveyTextWorker, JsonDuplicateNameError, QuestionToolboxCategory, QuestionToolboxItem, QuestionToolbox, SidebarModel, SidebarTabModel, getNextItemValue, getNextItemText, getNextValue, findParentNode, focusFirstControl, getFirstNonTextElement, getNodesFromKoComponentInfo, propertyExists, isPropertyVisible, toggleHovered, clearNewLines, select, copyObject, copyCssClasses, assignDefaultV2Classes, wrapTextByCurlyBraces, capitalize, notShortCircuitAnd, imageMimeTypes, getAcceptedTypesByContentMode, getQuestionFromObj, ingectAlpha, convertRgbaToString, parseRgbaFromString, parseColor, HSBToRGB, RGBToHSB, assign, ColorCalculator, saveToFileHandler, SurveyQuestionEditorDefinition, ObjType, SurveyHelper, ResizeManager, UndoRedoPlugin, undoRedoTransaction, ignoreUndoRedo, UndoRedoManager, Transaction, UndoRedoAction, UndoRedoArrayAction, PagesController */
+/*! exports provided: Version, enStrings, editorLocalization, defaultStrings, localization, QuestionConvertMode, settings, EmptySurveyCreatorOptions, CreatorAction, TabbedMenuItem, TabbedMenuContainer, ToolbarActionContainer, CreatorEvent, CreatorBase, SurveyCreatorModel, StylesManager, initializeDesignTimeSurveyModel, editableStringRendererName, getElementWrapperComponentName, getQuestionContentWrapperComponentName, getElementWrapperComponentData, getItemValueWrapperComponentName, getItemValueWrapperComponentData, isStringEditable, isTextInput, registerAdorner, removeAdorners, CreatorResponsivityManager, AceJsonEditorModel, TabJsonEditorAcePlugin, JsonEditorBaseModel, TabJsonEditorBasePlugin, TextareaJsonEditorModel, TabJsonEditorTextareaPlugin, TestSurveyTabViewModel, TabTestPlugin, updateColorSettingsJSON, createColor, updateBoxShadowSettingsJSON, createBoxShadow, parseBoxShadow, DefaultFonts, updateFontSettingsJSON, fontsettingsToCssVariable, fontsettingsFromCssVariable, updateElementSettingsJSON, elementSettingsToCssVariable, elementSettingsFromCssVariable, Themes, PredefinedThemes, getThemeFullName, PredefinedColors, findSuitableTheme, ThemeBuilder, ThemeTabPlugin, initLogicOperator, LogicEvent, SurveyLogic, TranslationItemBase, TranslationItemString, TranslationItem, TranslationGroup, Translation, TranslationEditor, createImportCSVAction, createExportCSVAction, translationCss, TabTranslationPlugin, initialSettingsAllowShowEmptyTitleInDesignMode, TabDesignerViewModel, TabDesignerPlugin, SurveyLogicUI, TabLogicPlugin, logicCss, ToolboxToolViewModel, PageNavigatorViewModel, PageAdorner, RowViewModel, QuestionAdornerViewModel, QuestionDropdownAdornerViewModel, QuestionImageAdornerViewModel, QuestionRatingAdornerViewModel, ItemValueWrapperViewModel, ImageItemValueWrapperViewModel, MatrixCellWrapperEditSurvey, MatrixCellWrapperViewModel, SurveySimulatorModel, DEFAULT_MONITOR_DPI, simulatorDevices, SurveyResultsItemModel, SurveyResultsModel, LogoImageViewModel, StringItemsNavigatorBase, StringEditorConnector, StringEditorViewModelBase, QuestionEmbeddedSurveyModel, QuestionLinkValueModel, EditorLocalization, getLocString, SurveyJSON5, QuestionSpinEditorModel, QuestionColorModel, QuestionFileEditorModel, ResetValueAdorner, QuestionTextWithResetModel, QuestionCommentWithResetModel, setSurveyJSONForPropertyGrid, PropertyEditorSetupValue, PropertyGridEditorCollection, PropertyGridTitleActionsCreator, PropertyJSONGenerator, PropertyGridModel, PropertyGridEditor, PropertyGridEditorBoolean, PropertyGridEditorStringBase, PropertyGridEditorString, PropertyGridLinkEditor, PropertyGridEditorColor, PropertyGridEditorNumber, PropertyGridEditorImageSize, PropertyGridEditorText, PropertyGridEditorHtml, PropertyGridEditorStringArray, PropertyGridEditorDropdown, PropertyGridEditorSet, PropertyGridEditorPage, PropertyGridEditorQuestion, PropertyGridEditorQuestionSelectBase, PropertyGridEditorQuestionCarryForward, PropertyGridEditorQuestionValue, PropertyGridEditorExpression, PropertyGridEditorCondition, PropertyGridEditorMatrix, PropertyGridEditorMatrixItemValues, PropertyGridEditorMatrixRateValues, PropertyGridEditorMatrixColumns, PropertyGridEditorMatrixPages, PropertyGridEditorMatrixCalculatedValues, PropertyGridEditorMatrixHtmlConditions, PropertyGridEditorMatrixUrlConditions, PropertyGridEditorMatrixMutlipleTextItems, PropertyGridEditorMatrixMultipleTypes, PropertyGridEditorMatrixValidators, PropertyGridEditorMatrixTriggers, PropertyGridEditorBindings, PropertyGridViewModel, ObjectSelectorItem, ObjectSelector, ObjectSelectorModel, PropertyGridEditorQuestionRestfull, PropertyGridValueEditorBase, PropertyGridCellsEditor, PropertyGridValueEditor, PropertyGridRowValueEditor, PropertyGridPanelValueEditor, PropertyGridTriggerValueEditor, PropertyGridTriggerValueInLogicEditor, propertyGridCss, QuestionConverter, svgBundle, SurveyTextWorkerError, SurveyTextWorkerParserError, SurveyTextWorkerJsonError, SurveyTextWorker, JsonDuplicateNameError, QuestionToolboxCategory, QuestionToolboxItem, QuestionToolbox, SidebarModel, SidebarTabModel, getNextItemValue, getNextItemText, getNextValue, findParentNode, focusFirstControl, getFirstNonTextElement, getNodesFromKoComponentInfo, propertyExists, isPropertyVisible, toggleHovered, clearNewLines, select, copyObject, copyCssClasses, assignDefaultV2Classes, wrapTextByCurlyBraces, capitalize, notShortCircuitAnd, imageMimeTypes, getAcceptedTypesByContentMode, getQuestionFromObj, ingectAlpha, convertRgbaToString, parseRgbaFromString, parseColor, HSBToRGB, RGBToHSB, assign, ColorCalculator, saveToFileHandler, SurveyQuestionEditorDefinition, ObjType, SurveyHelper, ResizeManager, UndoRedoPlugin, undoRedoTransaction, ignoreUndoRedo, UndoRedoManager, Transaction, UndoRedoAction, UndoRedoArrayAction, PagesController */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -24615,9 +24953,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "TabTestPlugin", function() { return _components_tabs_test_plugin__WEBPACK_IMPORTED_MODULE_9__["TabTestPlugin"]; });
 
 /* harmony import */ var _components_tabs_theme_custom_questions_color_settings__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../components/tabs/theme-custom-questions/color-settings */ "./src/components/tabs/theme-custom-questions/color-settings.ts");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "updateColorSettingsJSON", function() { return _components_tabs_theme_custom_questions_color_settings__WEBPACK_IMPORTED_MODULE_10__["updateColorSettingsJSON"]; });
+
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "createColor", function() { return _components_tabs_theme_custom_questions_color_settings__WEBPACK_IMPORTED_MODULE_10__["createColor"]; });
 
 /* harmony import */ var _components_tabs_theme_custom_questions_boxshadow_settings__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../components/tabs/theme-custom-questions/boxshadow-settings */ "./src/components/tabs/theme-custom-questions/boxshadow-settings.ts");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "updateBoxShadowSettingsJSON", function() { return _components_tabs_theme_custom_questions_boxshadow_settings__WEBPACK_IMPORTED_MODULE_11__["updateBoxShadowSettingsJSON"]; });
+
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "createBoxShadow", function() { return _components_tabs_theme_custom_questions_boxshadow_settings__WEBPACK_IMPORTED_MODULE_11__["createBoxShadow"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "parseBoxShadow", function() { return _components_tabs_theme_custom_questions_boxshadow_settings__WEBPACK_IMPORTED_MODULE_11__["parseBoxShadow"]; });
@@ -24625,11 +24967,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_tabs_theme_custom_questions_font_settings__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../components/tabs/theme-custom-questions/font-settings */ "./src/components/tabs/theme-custom-questions/font-settings.ts");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "DefaultFonts", function() { return _components_tabs_theme_custom_questions_font_settings__WEBPACK_IMPORTED_MODULE_12__["DefaultFonts"]; });
 
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "updateFontSettingsJSON", function() { return _components_tabs_theme_custom_questions_font_settings__WEBPACK_IMPORTED_MODULE_12__["updateFontSettingsJSON"]; });
+
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "fontsettingsToCssVariable", function() { return _components_tabs_theme_custom_questions_font_settings__WEBPACK_IMPORTED_MODULE_12__["fontsettingsToCssVariable"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "fontsettingsFromCssVariable", function() { return _components_tabs_theme_custom_questions_font_settings__WEBPACK_IMPORTED_MODULE_12__["fontsettingsFromCssVariable"]; });
 
 /* harmony import */ var _components_tabs_theme_custom_questions_element_settings__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../components/tabs/theme-custom-questions/element-settings */ "./src/components/tabs/theme-custom-questions/element-settings.ts");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "updateElementSettingsJSON", function() { return _components_tabs_theme_custom_questions_element_settings__WEBPACK_IMPORTED_MODULE_13__["updateElementSettingsJSON"]; });
+
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "elementSettingsToCssVariable", function() { return _components_tabs_theme_custom_questions_element_settings__WEBPACK_IMPORTED_MODULE_13__["elementSettingsToCssVariable"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "elementSettingsFromCssVariable", function() { return _components_tabs_theme_custom_questions_element_settings__WEBPACK_IMPORTED_MODULE_13__["elementSettingsFromCssVariable"]; });
@@ -25022,7 +25368,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var survey_core__WEBPACK_IMPORTED_MODULE_71__ = __webpack_require__(/*! survey-core */ "survey-core");
 /* harmony import */ var survey_core__WEBPACK_IMPORTED_MODULE_71___default = /*#__PURE__*/__webpack_require__.n(survey_core__WEBPACK_IMPORTED_MODULE_71__);
 var Version;
-Version = "" + "1.9.113";
+Version = "" + "1.9.116";
 //should be loaded before other styles for easier override 
 __webpack_require__(/*! ../utils/context-button.scss */ "./src/utils/context-button.scss");
 
@@ -25112,7 +25458,7 @@ __webpack_require__(/*! ../utils/design.scss */ "./src/utils/design.scss");
 __webpack_require__(/*! ../utils/layout.scss */ "./src/utils/layout.scss");
 
 survey_core__WEBPACK_IMPORTED_MODULE_71__["settings"].supportCreatorV2 = true;
-Object(survey_core__WEBPACK_IMPORTED_MODULE_71__["checkLibraryVersion"])("" + "1.9.113", "survey-creator-core");
+Object(survey_core__WEBPACK_IMPORTED_MODULE_71__["checkLibraryVersion"])("" + "1.9.116", "survey-creator-core");
 
 
 /***/ }),
@@ -27321,6 +27667,8 @@ var enStrings = {
         translation: "Translation",
         saveSurvey: "Save Survey",
         saveSurveyTooltip: "Save Survey",
+        saveTheme: "Save Theme",
+        saveThemeTooltip: "Save Theme",
         designer: "Designer",
         jsonEditor: "JSON Editor",
         jsonHideErrors: "Hide errors",
@@ -27383,6 +27731,8 @@ var enStrings = {
         surveyJsonImportButton: "Import",
         surveyJsonCopyButton: "Copy to clipboard",
         themeResetButton: "Reset theme settings to default",
+        themeResetConfirmation: "Do you really want to reset the theme? All your customizations will be lost.",
+        themeResetConfirmationOk: "Yes, reset the theme",
         bold: "Bold",
         italic: "Italic",
         underline: "Underline",
@@ -27897,6 +28247,18 @@ var enStrings = {
         columnsVisibleIf: "Columns are visible if",
         rowsVisibleIf: "Rows are visible if",
         otherPlaceholder: "Comment area placeholder",
+        signaturepad: {
+            showPlaceholder: "Show the placeholder",
+            placeholder: "Placeholder text",
+            signatureWidth: "Signature area width",
+            signatureHeight: "Signature area height",
+            signatureAutoScaleEnabled: "Auto-scale the signature area",
+            penMinWidth: "Minimum pen width",
+            penMaxWidth: "Maximum pen width",
+        },
+        filePlaceholder: "File placeholder text",
+        photoPlaceholder: "Photo placeholder text",
+        fileOrPhotoPlaceholder: "File or photo placeholder text",
         rateType: "Rate type" // Auto-generated string
     },
     // Property values
@@ -28134,7 +28496,10 @@ var enStrings = {
         choicesbyurl: {
             valueName: " "
         },
-        keyName: "If the specified column contains identical values, the survey throws the \"Non-unique key value\" error."
+        keyName: "If the specified column contains identical values, the survey throws the \"Non-unique key value\" error.",
+        filePlaceholder: "Applies when \"Source type\" is \"Local files\" or when camera is unavailable",
+        photoPlaceholder: "Applies when \"Source type\" is \"Camera\".",
+        fileOrPhotoPlaceholder: "Applies when \"Source type\" is \"Local files or camera\"."
     },
     // Properties
     p: {
@@ -28301,6 +28666,7 @@ var enStrings = {
         scale: "Scale",
         cornerRadius: "Corner radius",
         surveyTitle: "Survey title font",
+        surveyDescription: "Survey description font",
         pageTitle: "Page title font",
         pageDescription: "Page description font",
         boxShadowX: "X",
@@ -29158,6 +29524,7 @@ var propertyGridCss = {
         button: "spg-action-button spg-action-button--text",
         buttonRemove: "spg-action-button--danger",
         buttonAdd: "spg-paneldynamic__add-btn",
+        panelWrapper: "spg-paneldynamic__panel-wrapper",
         progressTop: "spg-paneldynamic__progress spg-paneldynamic__progress--top",
         progressBottom: "spg-paneldynamic__progress spg-paneldynamic__progress--bottom",
         buttonPrev: "spg-paneldynamic__prev-btn",
@@ -34558,16 +34925,24 @@ var SurveyQuestionEditorDefinition = /** @class */ (function () {
         file: {
             properties: [
                 "sourceType",
+                "visible",
+                "isRequired",
+                "readOnly",
+                "showCommentArea",
                 "allowMultiple",
-                "allowImagesPreview",
-                "acceptedTypes",
                 { name: "showPreview" },
+                "allowImagesPreview",
+                "waitForUpload",
+                "needConfirmRemoveFile",
                 { name: "storeDataAsText" },
+                "allowCameraAccess",
+                "acceptedTypes",
                 "maxSize",
                 "imageHeight",
                 "imageWidth",
-                "waitForUpload",
-                "needConfirmRemoveFile"
+                "filePlaceholder",
+                "photoPlaceholder",
+                "fileOrPhotoPlaceholder"
             ]
         },
         html: {
@@ -34967,6 +35342,7 @@ var SurveyQuestionEditorDefinition = /** @class */ (function () {
                 "placeholder",
                 "requiredErrorText",
                 "validators",
+                { name: "defaultValueExpression", tab: "logic" },
                 { name: "minValueExpression", tab: "logic" },
                 { name: "maxValueExpression", tab: "logic" },
             ]
@@ -36029,11 +36405,10 @@ var DragDropSurveyElements = /** @class */ (function (_super) {
     // private isRight: boolean;
     // protected prevIsRight: boolean;
     DragDropSurveyElements.prototype.startDragToolboxItem = function (event, draggedElementJson, toolboxItemModel) {
-        var preventSaveTargetNode = true;
         var draggedElement = this.createElementFromJson(draggedElementJson);
         draggedElement.toolboxItemTitle = toolboxItemModel.title;
         draggedElement.toolboxItemIconName = toolboxItemModel.iconName;
-        this.startDrag(event, draggedElement, null, null, preventSaveTargetNode);
+        this.startDrag(event, draggedElement);
     };
     DragDropSurveyElements.prototype.startDragSurveyElement = function (event, draggedElement, isElementSelected) {
         this.isDraggedElementSelected = isElementSelected;
@@ -36917,6 +37292,28 @@ var SurveyTextWorkerJsonUnknownPropertyErrorFixer = /** @class */ (function (_su
     };
     return SurveyTextWorkerJsonUnknownPropertyErrorFixer;
 }(SurveyTextWorkerJsonErrorFixer));
+var SurveyTextWorkerJsonArrayPropertyErrorFixer = /** @class */ (function (_super) {
+    Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__extends"])(SurveyTextWorkerJsonArrayPropertyErrorFixer, _super);
+    function SurveyTextWorkerJsonArrayPropertyErrorFixer(element, jsonObj, propertyName) {
+        var _this = _super.call(this, element, jsonObj, propertyName) || this;
+        _this.element = element;
+        _this.jsonObj = jsonObj;
+        _this.propertyName = propertyName;
+        return _this;
+    }
+    Object.defineProperty(SurveyTextWorkerJsonArrayPropertyErrorFixer.prototype, "isFixable", {
+        get: function () { return true; },
+        enumerable: false,
+        configurable: true
+    });
+    SurveyTextWorkerJsonArrayPropertyErrorFixer.prototype.updatedJsonObjOnFix = function (json) {
+        var obj = json[this.propertyName];
+        if (obj && !Array.isArray(obj)) {
+            json[this.propertyName] = [obj];
+        }
+    };
+    return SurveyTextWorkerJsonArrayPropertyErrorFixer;
+}(SurveyTextWorkerJsonUnknownPropertyErrorFixer));
 var SurveyTextWorkerJsonDuplicateNameErrorFixer = /** @class */ (function (_super) {
     Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__extends"])(SurveyTextWorkerJsonDuplicateNameErrorFixer, _super);
     function SurveyTextWorkerJsonDuplicateNameErrorFixer() {
@@ -36975,6 +37372,8 @@ var SurveyTextWorkerJsonError = /** @class */ (function (_super) {
     SurveyTextWorkerJsonError.prototype.createFixer = function () {
         if (this.errorType === "unknownproperty")
             return new SurveyTextWorkerJsonUnknownPropertyErrorFixer(this.element, this.jsonObj, this.propertyName);
+        if (this.errorType === "arrayproperty")
+            return new SurveyTextWorkerJsonArrayPropertyErrorFixer(this.element, this.jsonObj, this.propertyName);
         if (this.errorType === "duplicatename")
             return new SurveyTextWorkerJsonDuplicateNameErrorFixer(this.element, this.jsonObj);
         if (this.errorType === "requiredproperty")
@@ -38533,7 +38932,7 @@ function copyObject(dst, src) {
         var source = src[key];
         if (typeof source === "object") {
             source = {};
-            this.copyObject(source, src[key]);
+            copyObject(source, src[key]);
         }
         dst[key] = source;
     }

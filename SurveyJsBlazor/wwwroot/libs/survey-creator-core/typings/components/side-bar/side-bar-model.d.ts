@@ -1,0 +1,35 @@
+import { Base, AdaptiveActionContainer, Action } from "survey-core";
+import { CreatorBase } from "../../creator-base";
+import { SidebarTabModel } from "./side-bar-tab-model";
+export declare class SidebarModel extends Base {
+    private creator;
+    toolbar: AdaptiveActionContainer;
+    private _expandAction;
+    private _collapseAction;
+    private _activeTab;
+    private onSidebarVisibilityChanged;
+    private resizeManager;
+    tabs: Array<SidebarTabModel>;
+    headerText: string;
+    visible: boolean;
+    collapsedManually: boolean;
+    expandedManually: boolean;
+    hasVisibleTabs: boolean;
+    flyoutMode: boolean;
+    activeTab: string;
+    get flyoutPanelMode(): boolean;
+    get closeText(): string;
+    getTabById(id: string): SidebarTabModel;
+    private createActions;
+    private getCurrentHandles;
+    private sidebarLocationChangedHandler;
+    constructor(creator: CreatorBase);
+    getExpandAction(): Action;
+    collapseSidebar(): void;
+    expandSidebar(): void;
+    addTab(id: string, componentName?: string, model?: any, buildActions?: () => Array<Action>): SidebarTabModel;
+    updateHasVisibleTabs(): void;
+    dispose(): void;
+    initResizeManager(container: HTMLDivElement): void;
+    resetResizeManager(): void;
+}

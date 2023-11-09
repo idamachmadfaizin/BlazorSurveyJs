@@ -1,5 +1,5 @@
 /*!
- * SurveyJS Creator v1.9.113
+ * SurveyJS Creator v1.9.116
  * (c) 2015-2023 Devsoft Baltic OÜ - http://surveyjs.io/
  * Github: https://github.com/surveyjs/survey-creator
  * License: https://surveyjs.io/Licenses#SurveyCreator
@@ -1644,7 +1644,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var survey_core__WEBPACK_IMPORTED_MODULE_58__ = __webpack_require__(/*! survey-core */ "survey-core");
 /* harmony import */ var survey_core__WEBPACK_IMPORTED_MODULE_58___default = /*#__PURE__*/__webpack_require__.n(survey_core__WEBPACK_IMPORTED_MODULE_58__);
 var Version;
-Version = "".concat("1.9.113");
+Version = "".concat("1.9.116");
 
 
 
@@ -1711,7 +1711,7 @@ Version = "".concat("1.9.113");
 
 
 
-Object(survey_core__WEBPACK_IMPORTED_MODULE_58__["checkLibraryVersion"])("".concat("1.9.113"), "survey-creator-knockout");
+Object(survey_core__WEBPACK_IMPORTED_MODULE_58__["checkLibraryVersion"])("".concat("1.9.116"), "survey-creator-knockout");
 
 
 /***/ }),
@@ -1989,7 +1989,7 @@ knockout__WEBPACK_IMPORTED_MODULE_0__["components"].register("svc-page-navigator
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<!-- ko if: visible -->\n<div class=\"svc-page-navigator__selector\"\n    data-bind=\"click: togglePageSelector, key2click, attr: { title: pageSelectorCaption }, css: { 'svc-page-navigator__selector--opened': isPopupOpened }\">\n    <sv-svg-icon class=\"svc-page-navigator__navigator-icon\" params=\"iconName: icon, size: 24\"></sv-svg-icon>\n    <sv-popup params=\"model: popupModel, cssClass: 'svc-page-navigator__popup'\"></sv-popup>\n</div>\n<div>\n    <!-- ko foreach: visibleItems -->\n    <svc-page-navigator-item params=\"item: $data\"></svc-page-navigator-item>\n    <!-- /ko -->\n</div>\n<!-- /ko -->";
+module.exports = "<!-- ko if: visible -->\n<div class=\"svc-page-navigator\">\n    <div class=\"svc-page-navigator__selector\"\n        data-bind=\"click: togglePageSelector, key2click, attr: { title: pageSelectorCaption }, css: { 'svc-page-navigator__selector--opened': isPopupOpened }\">\n        <sv-svg-icon class=\"svc-page-navigator__navigator-icon\" params=\"iconName: icon, size: 24\"></sv-svg-icon>\n        <sv-popup params=\"model: popupModel, cssClass: 'svc-page-navigator__popup'\"></sv-popup>\n    </div>\n    <div>\n        <!-- ko foreach: visibleItems -->\n        <svc-page-navigator-item params=\"item: $data\"></svc-page-navigator-item>\n        <!-- /ko -->\n    </div>\n</div>\n<!-- /ko -->";
 
 /***/ }),
 

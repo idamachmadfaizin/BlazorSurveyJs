@@ -1,5 +1,6 @@
+/// <reference path="../wwwroot/libs/survey-core/survey.core.d.ts" />
 import SurveyJsBlazor from "/_content/SurveyJsBlazor/scripts/survey-js-blazor.js";
-import "/_content/SurveyJsBlazor/libs/knockout/knockout-latest.js";
+import "/_content/SurveyJsBlazor/libs/knockout/build/output/knockout-latest.js";
 import "/_content/SurveyJsBlazor/libs/survey-core/survey.core.min.js";
 import "/_content/SurveyJsBlazor/libs/survey-knockout-ui/survey-knockout-ui.min.js";
 /**
@@ -15,7 +16,7 @@ SurveyJsBlazor.addQuestionProperty();
  * @param param
  */
 export function render({ dotNetObject, hashId, jsonScheme }) {
-    const survey = new Survey.Model(jsonScheme);
+    const survey = new window.Survey.Model(jsonScheme);
     survey.onCompleting.add((sender) => {
         const totalScore = calculateTotalScore(survey, sender.data);
         const maxScore = calculateMaxScore(sender.getAllQuestions());
@@ -23,12 +24,10 @@ export function render({ dotNetObject, hashId, jsonScheme }) {
         sender.setValue("maxScore", maxScore);
         sender.setValue("totalScore", totalScore);
     });
-    survey.onComplete.add((sender) => {
-        onSurveyComplete(dotNetObject, sender);
-    });
+    survey.onComplete.add((sender) => onSurveyComplete(dotNetObject, sender));
     const viewModel = { model: survey };
     const surveyElement = document.querySelector(`survey[id="${hashId}"]`);
-    ko.applyBindings(viewModel, surveyElement);
+    window.ko.applyBindings(viewModel, surveyElement);
 }
 /**
  * Get survey
@@ -37,7 +36,7 @@ export function render({ dotNetObject, hashId, jsonScheme }) {
  */
 function getViewModel(hashId) {
     const surveyElement = document.querySelector(`survey[id="${hashId}"]`);
-    const viewModel = ko.dataFor(surveyElement);
+    const viewModel = window.ko.dataFor(surveyElement);
     return { viewModel: viewModel, element: surveyElement };
 }
 /**
@@ -50,7 +49,7 @@ export function dispose({ hashId }) {
         if (!survey.viewModel.model.isDisposed) {
             survey.viewModel.model.dispose();
         }
-        ko.cleanNode(survey.element);
+        window.ko.cleanNode(survey.element);
         survey.element.innerHTML = '';
     }
 }
@@ -71,7 +70,7 @@ async function onSurveyComplete(dotNetObject, sender) {
     await dotNetObject.invokeMethodAsync(Methods.OnCompleteHandle, sender.data);
 }
 function calculateMaxScore(questions) {
-    var maxScore = 0;
+    let maxScore = 0;
     questions.forEach((question) => {
         if (!!question.score) {
             maxScore += question.score;
@@ -80,7 +79,7 @@ function calculateMaxScore(questions) {
     return maxScore;
 }
 function calculateTotalScore(survey, data) {
-    var totalScore = 0;
+    let totalScore = 0;
     Object.keys(data).forEach((qName) => {
         const question = survey.getQuestionByValueName(qName);
         if (question.isAnswerCorrect()) {

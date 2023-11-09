@@ -1,0 +1,35 @@
+import { ActionContainer, DragTypeOverMeEnum, PageModel } from "survey-core";
+import { CreatorBase } from "../creator-base";
+import { IPortableMouseEvent } from "../utils/events";
+import { SurveyElementAdornerBase } from "./action-container-view-model";
+export declare class PageAdorner extends SurveyElementAdornerBase<PageModel> {
+    isSelected: boolean;
+    isPageLive: boolean;
+    onPageSelectedCallback: () => void;
+    questionTypeSelectorModel: any;
+    currentAddQuestionType: string;
+    dragTypeOverMe: DragTypeOverMeEnum;
+    private updateDragTypeOverMe;
+    constructor(creator: CreatorBase, page: PageModel);
+    protected attachElement(surveyElement: PageModel): void;
+    protected detachElement(surveyElement: PageModel): void;
+    protected onElementSelectedChanged(isSelected: boolean): void;
+    private patchPageForDragDrop;
+    dispose(): void;
+    protected calcIsGhostPage(page: PageModel): boolean;
+    get isGhost(): boolean;
+    protected isOperationsAllow(): boolean;
+    protected getPage(): PageModel;
+    get page(): PageModel;
+    private addGhostPage;
+    addNewQuestion(model: PageAdorner, event: IPortableMouseEvent, type?: string): void;
+    select(model: PageAdorner, event: IPortableMouseEvent): void;
+    get css(): string;
+    hover(event: MouseEvent, element: HTMLElement | any): void;
+    hoverStopper(event: MouseEvent, element: HTMLElement | any): void;
+    protected duplicate(): void;
+    protected delete(): void;
+    get addNewQuestionText(): string;
+    private _footerActionsBar;
+    get footerActionsBar(): ActionContainer;
+}

@@ -7,8 +7,11 @@
     "strict": true,
     "target": "ES2017",
     "paths": {
-      "/_content/SurveyJsBlazor/*": [ "./wwwroot/*" ]
-    }
+      "/_content/SurveyJsBlazor/scripts/*": [ "./wwwroot/scripts/*" ]
+    },
+    "types": [
+      "knockout"
+    ]
   },
   "exclude": [
     "node_modules",

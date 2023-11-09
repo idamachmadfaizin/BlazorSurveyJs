@@ -1,0 +1,32 @@
+import { Action } from "survey-core";
+import { CreatorBase, ICreatorPlugin } from "../../creator-base";
+import { Translation } from "./translation";
+export declare class TabTranslationPlugin implements ICreatorPlugin {
+    private creator;
+    private filterStringsAction;
+    private filterPageAction;
+    private mergeLocaleWithDefaultAction;
+    private importCsvAction;
+    private exportCsvAction;
+    private sidebarTab;
+    model: Translation;
+    constructor(creator: CreatorBase);
+    activate(): void;
+    update(): void;
+    deactivate(): boolean;
+    private createMergeLocaleWithDefaultActionTitleUpdater;
+    get selectLanguageOptionsCaption(): string;
+    get showAllStringsText(): string;
+    get showUsedStringsOnlyText(): string;
+    get showAllPagesText(): string;
+    get exportToCSVText(): string;
+    get importFromCSVText(): string;
+    createActions(): Array<Action>;
+    private createFilterPageAction;
+    private createFilterStringsAction;
+    private updateFilterStrigsAction;
+    private updateFilterPageAction;
+    private getFilterPageActionTitle;
+    private getFilterStringsActionTitle;
+    private getPageDisplayText;
+}

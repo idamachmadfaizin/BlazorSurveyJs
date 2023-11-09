@@ -1,13 +1,16 @@
+/// <reference path="../wwwroot/libs/survey-core/survey.core.d.ts" />
+
 import SurveyJsBlazor from "/_content/SurveyJsBlazor/scripts/survey-js-blazor.js";
 
-import "/_content/SurveyJsBlazor/libs/knockout/knockout-latest.js";
+import "/_content/SurveyJsBlazor/libs/knockout/build/output/knockout-latest.js";
 import "/_content/SurveyJsBlazor/libs/survey-core/survey.core.min.js";
 import "/_content/SurveyJsBlazor/libs/survey-knockout-ui/survey-knockout-ui.min.js";
 
 import "/_content/SurveyJsBlazor/libs/survey-creator-core/survey-creator-core.js";
 import "/_content/SurveyJsBlazor/libs/survey-creator-knockout/survey-creator-knockout.js";
-import {IDotNetObject} from "../wwwroot/scripts/dot-net-object.type";
-import {IHashId} from "../wwwroot/scripts/hash-id";
+
+import { IDotNetObject } from "../wwwroot/scripts/dot-net-object.type";
+import { IHashId } from "../wwwroot/scripts/hash-id";
 
 declare const SurveyCreator: any;
 
@@ -26,7 +29,7 @@ Object.freeze(Methods);
 
 SurveyJsBlazor.addQuestionProperty();
 
-export function render({dotNetObject, hashId, creatorOptions, jsonScheme}: IRender) {
+export function render({ dotNetObject, hashId, creatorOptions, jsonScheme }: IRender) {
     if (!creatorOptions) {
         creatorOptions = {};
     }

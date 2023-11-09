@@ -1,17 +1,17 @@
 /*!
- * surveyjs - Survey JavaScript library v1.9.113
+ * surveyjs - Survey JavaScript library v1.9.116
  * Copyright (c) 2015-2023 Devsoft Baltic OÜ  - http://surveyjs.io/
  * License: MIT (http://www.opensource.org/licenses/mit-license.php)
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	root = this || (0, eval)("this");
 	if(typeof exports === 'object' && typeof module === 'object')
-        module.exports = factory();
-    else if(typeof define === 'function' && define.amd)
-        define("survey-core", [], factory);
-    else if(typeof exports === 'object')
-        exports["survey-core"] = factory();
-    else
+		module.exports = factory();
+	else if(typeof define === 'function' && define.amd)
+		define("survey-core", [], factory);
+	else if(typeof exports === 'object')
+		exports["survey-core"] = factory();
+	else
 		root["Survey"] = factory();
 })(this, function() {
 return /******/ (function(modules) { // webpackBootstrap
@@ -1063,6 +1063,8 @@ var Action = /** @class */ (function (_super) {
         this._enabled = val;
     };
     Action.prototype.getEnabled = function () {
+        if (this.enabledIf)
+            return this.enabledIf();
         return this._enabled;
     };
     Action.prototype.setComponent = function (val) {
@@ -2204,9 +2206,9 @@ var Base = /** @class */ (function () {
             Array.isArray(oldValue) &&
             !!this.arraysInfo &&
             (!val || Array.isArray(val))) {
-            if (this.isTwoValueEquals(oldValue, val))
-                return;
-            this.setArrayPropertyDirectly(name, val);
+            if (!this.isTwoValueEquals(oldValue, val)) {
+                this.setArrayPropertyDirectly(name, val);
+            }
         }
         else {
             this.setPropertyValueDirectly(name, val);
@@ -4386,351 +4388,6 @@ var ConsoleWarnings = /** @class */ (function () {
 
 /***/ }),
 
-/***/ "./src/cover.ts":
-/*!**********************!*\
-  !*** ./src/cover.ts ***!
-  \**********************/
-/*! exports provided: CoverCell, Cover */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CoverCell", function() { return CoverCell; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Cover", function() { return Cover; });
-/* harmony import */ var _base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./base */ "./src/base.ts");
-/* harmony import */ var _jsonobject__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./jsonobject */ "./src/jsonobject.ts");
-/* harmony import */ var _utils_cssClassBuilder__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils/cssClassBuilder */ "./src/utils/cssClassBuilder.ts");
-/* harmony import */ var _utils_utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./utils/utils */ "./src/utils/utils.ts");
-var __extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-
-
-
-
-var CoverCell = /** @class */ (function () {
-    function CoverCell(cover, positionX, positionY) {
-        this.cover = cover;
-        this.positionX = positionX;
-        this.positionY = positionY;
-    }
-    CoverCell.prototype.calcRow = function (positionY) {
-        return positionY === "top" ? 1 : (positionY === "middle" ? 2 : 3);
-    };
-    CoverCell.prototype.calcColumn = function (positionX) {
-        return positionX === "left" ? 1 : (positionX === "center" ? 2 : 3);
-    };
-    CoverCell.prototype.calcAlignItems = function (positionX) {
-        return positionX === "left" ? "flex-start" : (positionX === "center" ? "center" : "flex-end");
-    };
-    CoverCell.prototype.calcAlignText = function (positionX) {
-        return positionX === "left" ? "start" : (positionX === "center" ? "center" : "end");
-    };
-    CoverCell.prototype.calcJustifyContent = function (positionY) {
-        return positionY === "top" ? "flex-start" : (positionY === "middle" ? "center" : "flex-end");
-    };
-    Object.defineProperty(CoverCell.prototype, "survey", {
-        get: function () {
-            return this.cover.survey;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(CoverCell.prototype, "css", {
-        get: function () {
-            var result = CoverCell.CLASSNAME + " " + CoverCell.CLASSNAME + "--" + this.positionX + " " + CoverCell.CLASSNAME + "--" + this.positionY;
-            return result;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(CoverCell.prototype, "style", {
-        get: function () {
-            var result = {};
-            result["gridColumn"] = this.calcColumn(this.positionX);
-            result["gridRow"] = this.calcRow(this.positionY);
-            return result;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(CoverCell.prototype, "contentStyle", {
-        get: function () {
-            var result = {};
-            result["textAlign"] = this.calcAlignText(this.positionX);
-            result["alignItems"] = this.calcAlignItems(this.positionX);
-            result["justifyContent"] = this.calcJustifyContent(this.positionY);
-            return result;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(CoverCell.prototype, "showLogo", {
-        get: function () {
-            return this.survey.hasLogo && this.positionX === this.cover.logoPositionX && this.positionY === this.cover.logoPositionY;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(CoverCell.prototype, "showTitle", {
-        get: function () {
-            return this.survey.hasTitle && this.positionX === this.cover.titlePositionX && this.positionY === this.cover.titlePositionY;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(CoverCell.prototype, "showDescription", {
-        get: function () {
-            return this.survey.renderedHasDescription && this.positionX === this.cover.descriptionPositionX && this.positionY === this.cover.descriptionPositionY;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(CoverCell.prototype, "textAreaWidth", {
-        get: function () {
-            if (!this.cover.textAreaWidth) {
-                return "";
-            }
-            return "" + this.cover.textAreaWidth + "px";
-        },
-        enumerable: false,
-        configurable: true
-    });
-    CoverCell.CLASSNAME = "sv-cover__cell";
-    return CoverCell;
-}());
-
-var Cover = /** @class */ (function (_super) {
-    __extends(Cover, _super);
-    function Cover() {
-        var _this = _super.call(this) || this;
-        _this.cells = [];
-        _this.renderBackgroundImage = Object(_utils_utils__WEBPACK_IMPORTED_MODULE_3__["wrapUrlForBackgroundImage"])(_this.backgroundImage);
-        ["top", "middle", "bottom"].forEach(function (positionY) {
-            return ["left", "center", "right"].forEach(function (positionX) { return _this.cells.push(new CoverCell(_this, positionX, positionY)); });
-        });
-        _this.updateCoverClasses();
-        _this.updateContentClasses();
-        _this.updateBackgroundImageClasses();
-        return _this;
-    }
-    Cover.prototype.calcBackgroundSize = function (backgroundImageFit) {
-        if (backgroundImageFit === "fill") {
-            return "100% 100%";
-        }
-        if (backgroundImageFit === "tile") {
-            return "auto";
-        }
-        return backgroundImageFit;
-    };
-    Cover.prototype.updateCoverClasses = function () {
-        this.coverClasses = new _utils_cssClassBuilder__WEBPACK_IMPORTED_MODULE_2__["CssClassBuilder"]()
-            .append("sv-cover")
-            .append("sv-conver__without-background", (!this.backgroundColor || this.backgroundColor === "trasparent") && !this.backgroundImage)
-            .append("sv-conver__overlap", this.overlapEnabled)
-            .toString();
-    };
-    Cover.prototype.updateContentClasses = function () {
-        var surveyWidthMode = !!this.survey && this.survey.calculateWidthMode();
-        this.maxWidth = this.inheritWidthFrom === "survey" && !!surveyWidthMode && surveyWidthMode === "static" && this.survey.renderedWidth;
-        this.contentClasses = new _utils_cssClassBuilder__WEBPACK_IMPORTED_MODULE_2__["CssClassBuilder"]()
-            .append("sv-conver__content")
-            .append("sv-conver__content--static", this.inheritWidthFrom === "survey" && !!surveyWidthMode && surveyWidthMode === "static")
-            .append("sv-conver__content--responsive", this.inheritWidthFrom === "container" || (!!surveyWidthMode && surveyWidthMode === "responsive"))
-            .toString();
-    };
-    Cover.prototype.updateBackgroundImageClasses = function () {
-        this.backgroundImageClasses = new _utils_cssClassBuilder__WEBPACK_IMPORTED_MODULE_2__["CssClassBuilder"]()
-            .append("sv-cover__background-image")
-            .append("sv-cover__background-image--contain", this.backgroundImageFit === "contain")
-            .append("sv-cover__background-image--tile", this.backgroundImageFit === "tile")
-            .toString();
-    };
-    Cover.prototype.fromTheme = function (theme) {
-        _super.prototype.fromJSON.call(this, theme.header);
-        if (!!theme.cssVariables) {
-            this.backgroundColor = theme.cssVariables["--sjs-cover-backcolor"];
-        }
-    };
-    Cover.prototype.getType = function () {
-        return "cover";
-    };
-    Object.defineProperty(Cover.prototype, "renderedHeight", {
-        get: function () {
-            return this.height ? this.height + "px" : undefined;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Cover.prototype, "renderedtextAreaWidth", {
-        get: function () {
-            return this.textAreaWidth ? this.textAreaWidth + "px" : undefined;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Cover.prototype, "survey", {
-        get: function () {
-            return this._survey;
-        },
-        set: function (newValue) {
-            var _this = this;
-            if (this._survey === newValue)
-                return;
-            this._survey = newValue;
-            if (!!newValue) {
-                this.updateContentClasses();
-                this._survey.onPropertyChanged.add(function (sender, options) {
-                    if (options.name == "widthMode" || options.name == "width") {
-                        _this.updateContentClasses();
-                    }
-                });
-            }
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Cover.prototype, "backgroundImageStyle", {
-        get: function () {
-            if (!this.backgroundImage)
-                return null;
-            return {
-                opacity: this.backgroundImageOpacity,
-                backgroundImage: this.renderBackgroundImage,
-                backgroundSize: this.calcBackgroundSize(this.backgroundImageFit),
-            };
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Cover.prototype.propertyValueChanged = function (name, oldValue, newValue) {
-        _super.prototype.propertyValueChanged.call(this, name, oldValue, newValue);
-        if (name === "backgroundColor" || name === "backgroundImage" || name === "overlapEnabled") {
-            this.updateCoverClasses();
-        }
-        if (name === "inheritWidthFrom") {
-            this.updateContentClasses();
-        }
-        if (name === "backgroundImageFit") {
-            this.updateBackgroundImageClasses();
-        }
-    };
-    __decorate([
-        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
-    ], Cover.prototype, "height", void 0);
-    __decorate([
-        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
-    ], Cover.prototype, "inheritWidthFrom", void 0);
-    __decorate([
-        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
-    ], Cover.prototype, "textAreaWidth", void 0);
-    __decorate([
-        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
-    ], Cover.prototype, "textGlowEnabled", void 0);
-    __decorate([
-        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
-    ], Cover.prototype, "overlapEnabled", void 0);
-    __decorate([
-        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
-    ], Cover.prototype, "backgroundColor", void 0);
-    __decorate([
-        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])({
-            onSet: function (newVal, target) {
-                target.renderBackgroundImage = Object(_utils_utils__WEBPACK_IMPORTED_MODULE_3__["wrapUrlForBackgroundImage"])(newVal);
-            }
-        })
-    ], Cover.prototype, "backgroundImage", void 0);
-    __decorate([
-        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
-    ], Cover.prototype, "renderBackgroundImage", void 0);
-    __decorate([
-        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
-    ], Cover.prototype, "backgroundImageFit", void 0);
-    __decorate([
-        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
-    ], Cover.prototype, "backgroundImageOpacity", void 0);
-    __decorate([
-        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
-    ], Cover.prototype, "logoPositionX", void 0);
-    __decorate([
-        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
-    ], Cover.prototype, "logoPositionY", void 0);
-    __decorate([
-        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
-    ], Cover.prototype, "titlePositionX", void 0);
-    __decorate([
-        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
-    ], Cover.prototype, "titlePositionY", void 0);
-    __decorate([
-        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
-    ], Cover.prototype, "descriptionPositionX", void 0);
-    __decorate([
-        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
-    ], Cover.prototype, "descriptionPositionY", void 0);
-    __decorate([
-        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
-    ], Cover.prototype, "logoStyle", void 0);
-    __decorate([
-        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
-    ], Cover.prototype, "titleStyle", void 0);
-    __decorate([
-        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
-    ], Cover.prototype, "descriptionStyle", void 0);
-    __decorate([
-        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
-    ], Cover.prototype, "coverClasses", void 0);
-    __decorate([
-        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
-    ], Cover.prototype, "contentClasses", void 0);
-    __decorate([
-        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
-    ], Cover.prototype, "maxWidth", void 0);
-    __decorate([
-        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
-    ], Cover.prototype, "backgroundImageClasses", void 0);
-    return Cover;
-}(_base__WEBPACK_IMPORTED_MODULE_0__["Base"]));
-
-_jsonobject__WEBPACK_IMPORTED_MODULE_1__["Serializer"].addClass("cover", [
-    { name: "height:number", minValue: 0, default: 256 },
-    { name: "inheritWidthFrom", default: "survey" },
-    { name: "textAreaWidth:number", minValue: 0, default: 512 },
-    { name: "textGlowEnabled:boolean" },
-    { name: "overlapEnabled:boolean" },
-    { name: "backgroundImage:file" },
-    { name: "backgroundImageOpacity:number", minValue: 0, maxValue: 1, default: 1 },
-    { name: "backgroundImageFit", default: "cover", choices: ["cover", "fill", "contain"] },
-    { name: "logoPositionX", default: "right" },
-    { name: "logoPositionY", default: "top" },
-    { name: "titlePositionX", default: "left" },
-    { name: "titlePositionY", default: "bottom" },
-    { name: "descriptionPositionX", default: "left" },
-    { name: "descriptionPositionY", default: "bottom" }
-], function () {
-    return new Cover();
-});
-
-
-/***/ }),
-
 /***/ "./src/defaultCss/cssmodern.ts":
 /*!*************************************!*\
   !*** ./src/defaultCss/cssmodern.ts ***!
@@ -5938,6 +5595,7 @@ var defaultV2Css = {
         root: "sd-input sd-text",
         small: "sd-row__question--small",
         controlDisabled: "sd-input--disabled",
+        constrolWithCharacterCounter: "sd-text__character-counter",
         content: "sd-text__content sd-question__content",
         remainingCharacterCounter: "sd-remaining-character-counter",
         onError: "sd-input--error"
@@ -5949,6 +5607,7 @@ var defaultV2Css = {
         itemLabelOnError: "sd-multipletext__item-container--error",
         itemLabelAllowFocus: "sd-multipletext__item-container--allow-focus",
         itemLabelAnswered: "sd-multipletext__item-container--answered",
+        itemWithCharacterCounter: "sd-multipletext-item__character-counter",
         item: "sd-multipletext__item",
         itemTitle: "sd-multipletext__item-title",
         content: "sd-multipletext__content sd-question__content",
@@ -6046,6 +5705,7 @@ var defaultV2Css = {
         rootScroll: "sd-question--scroll",
         root: "sd-table sd-matrixdropdown",
         noHeader: "sd-table--no-header",
+        hasFooter: "sd-table--has-footer",
         rootVerticalAlignTop: "sd-table--align-top",
         rootVerticalAlignMiddle: "sd-table--align-middle",
         tableWrapper: "sd-table-wrapper",
@@ -6056,6 +5716,9 @@ var defaultV2Css = {
         errorsCellBottom: "sd-table__cell--error-bottom",
         itemCell: "sd-table__cell--item",
         row: "sd-table__row",
+        expandedRow: "sd-table__row--expanded",
+        rowHasPanel: "sd-table__row--has-panel",
+        rowHasEndActions: "sd-table__row--has-end-actions",
         headerCell: "sd-table__cell sd-table__cell--header",
         rowTextCell: "sd-table__cell sd-table__cell--row-text",
         columnTitleCell: "sd-table__cell--column-title",
@@ -6067,6 +5730,8 @@ var defaultV2Css = {
         detailIconId: "icon-expanddetail",
         detailIconExpandedId: "icon-collapsedetail",
         detailPanelCell: "sd-table__cell--detail-panel",
+        detailRowCell: "sd-table__cell--detail",
+        actionsCellPrefix: "sd-table__cell-action",
         actionsCell: "sd-table__cell sd-table__cell--actions",
         actionsCellDrag: "sd-table__cell--drag",
         emptyCell: "sd-table__cell--empty",
@@ -6080,10 +5745,14 @@ var defaultV2Css = {
         empty: "sd-question--empty",
         root: "sd-table sd-matrixdynamic",
         noHeader: "sd-table--no-header",
+        hasFooter: "sd-table--has-footer",
         tableWrapper: "sd-table-wrapper",
         content: "sd-matrixdynamic__content sd-question__content",
         cell: "sd-table__cell",
         row: "sd-table__row",
+        rowHasPanel: "sd-table__row--has-panel",
+        rowHasEndActions: "sd-table__row--has-end-actions",
+        expandedRow: "sd-table__row--expanded",
         itemCell: "sd-table__cell--item",
         headerCell: "sd-table__cell sd-table__cell--header",
         rowTextCell: "sd-table__cell sd-table__cell--row-text",
@@ -6098,6 +5767,8 @@ var defaultV2Css = {
         detailIconId: "icon-expanddetail",
         detailIconExpandedId: "icon-collapsedetail",
         detailPanelCell: "sd-table__cell--detail-panel",
+        detailRowCell: "sd-table__cell--detail",
+        actionsCellPrefix: "sd-table__cell-action",
         actionsCell: "sd-table__cell sd-table__cell--actions",
         actionsCellDrag: "sd-table__cell--drag",
         buttonAdd: "sd-matrixdynamic__add-btn",
@@ -6209,6 +5880,7 @@ var defaultV2Css = {
         removeFileButton: "sd-context-btn--negative sd-file__remove-file-button",
         dragAreaPlaceholder: "sd-file__drag-area-placeholder",
         imageWrapper: "sd-file__image-wrapper",
+        imageWrapperDefaultImage: "sd-file__image-wrapper--default-image",
         single: "sd-file--single",
         singleImage: "sd-file--single-image",
         mobile: "sd-file--mobile",
@@ -6887,7 +6559,7 @@ var DragDropChoices = /** @class */ (function (_super) {
         }
         var draggedElementShortcut = document.createElement("div");
         // draggedElementShortcut.innerText = text;
-        draggedElementShortcut.style.cssText = " \n          cursor: grabbing;\n          position: absolute;\n          z-index: 10000;\n          font-family: var(--font-family, 'Open Sans');\n        ";
+        draggedElementShortcut.style.cssText = " \n          cursor: grabbing;\n          position: absolute;\n          z-index: 10000;\n          font-family: var(--sjs-font-family, var(--font-family, var(--sjs-default-font-family)));\n        ";
         var isDeepClone = true;
         var clone = (draggedElementNode
             .closest("[data-sv-drop-target-item-value]")
@@ -7217,6 +6889,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../utils/utils */ "./src/utils/utils.ts");
 /* harmony import */ var _utils_devices__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils/devices */ "./src/utils/devices.ts");
 /* harmony import */ var _settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../settings */ "./src/settings.ts");
+var __spreadArray = (undefined && undefined.__spreadArray) || function (to, from) {
+    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
+        to[j] = from[i];
+    return to;
+};
 
 
 
@@ -7287,11 +6964,12 @@ var DragDropDOMAdapter = /** @class */ (function () {
             if (_utils_devices__WEBPACK_IMPORTED_MODULE_1__["IsTouch"]) {
                 _this.savedTargetNode.style.cssText = null;
                 _this.savedTargetNode && _this.savedTargetNode.parentElement.removeChild(_this.savedTargetNode);
-                _this.savedTargetNodeParent.appendChild(_this.savedTargetNode);
+                _this.insertNodeToParentAtIndex(_this.savedTargetNodeParent, _this.savedTargetNode, _this.savedTargetNodeIndex);
                 DragDropDOMAdapter.PreventScrolling = false;
             }
             _this.savedTargetNode = null;
             _this.savedTargetNodeParent = null;
+            _this.savedTargetNodeIndex = null;
             _this.returnUserSelectBack();
         };
         this.drop = function () {
@@ -7337,6 +7015,7 @@ var DragDropDOMAdapter = /** @class */ (function () {
                 _this.savedTargetNode.style.cssText =
                     "\n          position: absolute;\n          height: 1px!important;\n          width: 1px!important;\n          overflow: hidden;\n          clip: rect(1px 1px 1px 1px);\n          clip: rect(1px, 1px, 1px, 1px);\n        ";
                 _this.savedTargetNodeParent = _this.savedTargetNode.parentElement;
+                _this.savedTargetNodeIndex = _this.getNodeIndexInParent(_this.savedTargetNode);
                 _this.rootElement.appendChild(_this.savedTargetNode);
             }
             _this.stopLongTap();
@@ -7494,6 +7173,12 @@ var DragDropDOMAdapter = /** @class */ (function () {
         }
         this.doStartDrag(event, draggedElement, parentElement, draggedElementNode);
     };
+    DragDropDOMAdapter.prototype.getNodeIndexInParent = function (node) {
+        return __spreadArray([], node.parentElement.childNodes).indexOf(node);
+    };
+    DragDropDOMAdapter.prototype.insertNodeToParentAtIndex = function (parent, node, index) {
+        parent.insertBefore(node, parent.childNodes[index]);
+    };
     DragDropDOMAdapter.PreventScrolling = false;
     return DragDropDOMAdapter;
 }());
@@ -7556,7 +7241,7 @@ var DragDropMatrixRows = /** @class */ (function (_super) {
         var _this = this;
         var draggedElementShortcut = document.createElement("div");
         // draggedElementShortcut.innerText = text;
-        draggedElementShortcut.style.cssText = " \n          cursor: grabbing;\n          position: absolute;\n          z-index: 10000;\n          font-family: var(--font-family, 'Open Sans');\n        ";
+        draggedElementShortcut.style.cssText = " \n          cursor: grabbing;\n          position: absolute;\n          z-index: 10000;\n          font-family: var(--sjs-font-family, var(--font-family, var(--sjs-default-font-family)));\n        ";
         var isDeepClone = true;
         if (!!draggedElementNode) {
             var row = (draggedElementNode
@@ -7732,7 +7417,7 @@ var DragDropRankingChoices = /** @class */ (function (_super) {
     DragDropRankingChoices.prototype.createDraggedElementShortcut = function (text, draggedElementNode, event) {
         var draggedElementShortcut = document.createElement("div");
         draggedElementShortcut.className = this.shortcutClass + " sv-ranking-shortcut";
-        draggedElementShortcut.style.cssText = " \n          cursor: grabbing;\n          position: absolute;\n          z-index: 10000;\n          border-radius: calc(12.5 * var(--sjs-base-unit, var(--base-unit, 8px)));\n          min-width: 100px;\n          max-width: 400px;\n          box-shadow: var(--sjs-shadow-medium, 0px 2px 6px 0px rgba(0, 0, 0, 0.1)), var(--sjs-shadow-large, 0px 8px 16px 0px rgba(0, 0, 0, 0.1));\n          background-color: var(--sjs-general-backcolor, var(--background, #fff));\n          font-family: var(--font-family, 'Open Sans');\n        ";
+        draggedElementShortcut.style.cssText = " \n          cursor: grabbing;\n          position: absolute;\n          z-index: 10000;\n          border-radius: calc(12.5 * var(--sjs-base-unit, var(--base-unit, 8px)));\n          min-width: 100px;\n          max-width: 400px;\n          box-shadow: var(--sjs-shadow-medium, 0px 2px 6px 0px rgba(0, 0, 0, 0.1)), var(--sjs-shadow-large, 0px 8px 16px 0px rgba(0, 0, 0, 0.1));\n          background-color: var(--sjs-general-backcolor, var(--background, #fff));\n          font-family: var(--sjs-font-family, var(--font-family, var(--sjs-default-font-family)));\n        ";
         var isDeepClone = true;
         var clone = draggedElementNode.cloneNode(isDeepClone);
         draggedElementShortcut.appendChild(clone);
@@ -7866,13 +7551,6 @@ var DragDropRankingSelectToRank = /** @class */ (function (_super) {
     function DragDropRankingSelectToRank() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
-    DragDropRankingSelectToRank.prototype.onStartDrag = function (event) {
-        var target = event.target;
-        var fromContainerNode = target.closest(".sv-ranking__container--from");
-        if (!!fromContainerNode) {
-            fromContainerNode.style.minHeight = fromContainerNode.offsetHeight + "px";
-        }
-    };
     DragDropRankingSelectToRank.prototype.findDropTargetNodeByDragOverNode = function (dragOverNode) {
         if (dragOverNode.dataset.ranking === "from-container" || dragOverNode.dataset.ranking === "to-container") {
             return dragOverNode;
@@ -8477,7 +8155,7 @@ var DropdownListModel = /** @class */ (function (_super) {
         var _a;
         var focusedItem = this.listModel.focusedItem;
         if (!focusedItem && this.question.selectedItem) {
-            if (_itemvalue__WEBPACK_IMPORTED_MODULE_1__["ItemValue"].getItemByValue(this.question.choices, this.question.value)) {
+            if (_itemvalue__WEBPACK_IMPORTED_MODULE_1__["ItemValue"].getItemByValue(this.question.visibleChoices, this.question.value)) {
                 this.listModel.focusedItem = this.question.selectedItem;
             }
         }
@@ -9459,10 +9137,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _notifier__WEBPACK_IMPORTED_MODULE_64__ = __webpack_require__(/*! ../../notifier */ "./src/notifier.ts");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Notifier", function() { return _notifier__WEBPACK_IMPORTED_MODULE_64__["Notifier"]; });
 
-/* harmony import */ var _cover__WEBPACK_IMPORTED_MODULE_65__ = __webpack_require__(/*! ../../cover */ "./src/cover.ts");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Cover", function() { return _cover__WEBPACK_IMPORTED_MODULE_65__["Cover"]; });
+/* harmony import */ var _header__WEBPACK_IMPORTED_MODULE_65__ = __webpack_require__(/*! ../../header */ "./src/header.ts");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Cover", function() { return _header__WEBPACK_IMPORTED_MODULE_65__["Cover"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "CoverCell", function() { return _cover__WEBPACK_IMPORTED_MODULE_65__["CoverCell"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "CoverCell", function() { return _header__WEBPACK_IMPORTED_MODULE_65__["CoverCell"]; });
 
 /* harmony import */ var _dxSurveyService__WEBPACK_IMPORTED_MODULE_66__ = __webpack_require__(/*! ../../dxSurveyService */ "./src/dxSurveyService.ts");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "dxSurveyService", function() { return _dxSurveyService__WEBPACK_IMPORTED_MODULE_66__["dxSurveyService"]; });
@@ -9582,8 +9260,8 @@ __webpack_require__.r(__webpack_exports__);
 //import "../../modern.scss";
 var Version;
 var ReleaseDate;
-Version = "" + "1.9.113";
-ReleaseDate = "" + "2023-10-17";
+Version = "" + "1.9.116";
+ReleaseDate = "" + "2023-11-07";
 function checkLibraryVersion(ver, libraryName) {
     if (Version != ver) {
         var str = "survey-core has version '" + Version + "' and " + libraryName
@@ -14337,6 +14015,15 @@ var UnaryOperand = /** @class */ (function (_super) {
         var uOp = op;
         return uOp.operator == this.operator && this.areOperatorsEquals(this.expression, uOp.expression);
     };
+    UnaryOperand.prototype.hasFunction = function () {
+        return this.expression.hasFunction();
+    };
+    UnaryOperand.prototype.hasAsyncFunction = function () {
+        return this.expression.hasAsyncFunction();
+    };
+    UnaryOperand.prototype.addToAsyncList = function (list) {
+        this.expression.addToAsyncList(list);
+    };
     UnaryOperand.prototype.evaluate = function (processValue) {
         var value = this.expression.evaluate(processValue);
         return this.consumer.call(this, value);
@@ -15450,6 +15137,384 @@ FunctionFactory.Instance.register("propertyValue", propertyValue);
 
 /***/ }),
 
+/***/ "./src/header.ts":
+/*!***********************!*\
+  !*** ./src/header.ts ***!
+  \***********************/
+/*! exports provided: CoverCell, Cover */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CoverCell", function() { return CoverCell; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Cover", function() { return Cover; });
+/* harmony import */ var _base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./base */ "./src/base.ts");
+/* harmony import */ var _jsonobject__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./jsonobject */ "./src/jsonobject.ts");
+/* harmony import */ var _utils_cssClassBuilder__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils/cssClassBuilder */ "./src/utils/cssClassBuilder.ts");
+/* harmony import */ var _utils_utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./utils/utils */ "./src/utils/utils.ts");
+var __extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+
+
+
+
+var CoverCell = /** @class */ (function () {
+    function CoverCell(cover, positionX, positionY) {
+        this.cover = cover;
+        this.positionX = positionX;
+        this.positionY = positionY;
+    }
+    CoverCell.prototype.calcRow = function (positionY) {
+        return positionY === "top" ? 1 : (positionY === "middle" ? 2 : 3);
+    };
+    CoverCell.prototype.calcColumn = function (positionX) {
+        return positionX === "left" ? 1 : (positionX === "center" ? 2 : 3);
+    };
+    CoverCell.prototype.calcAlignItems = function (positionX) {
+        return positionX === "left" ? "flex-start" : (positionX === "center" ? "center" : "flex-end");
+    };
+    CoverCell.prototype.calcAlignText = function (positionX) {
+        return positionX === "left" ? "start" : (positionX === "center" ? "center" : "end");
+    };
+    CoverCell.prototype.calcJustifyContent = function (positionY) {
+        return positionY === "top" ? "flex-start" : (positionY === "middle" ? "center" : "flex-end");
+    };
+    Object.defineProperty(CoverCell.prototype, "survey", {
+        get: function () {
+            return this.cover.survey;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(CoverCell.prototype, "css", {
+        get: function () {
+            var result = CoverCell.CLASSNAME + " " + CoverCell.CLASSNAME + "--" + this.positionX + " " + CoverCell.CLASSNAME + "--" + this.positionY;
+            return result;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(CoverCell.prototype, "style", {
+        get: function () {
+            var result = {};
+            result["gridColumn"] = this.calcColumn(this.positionX);
+            result["gridRow"] = this.calcRow(this.positionY);
+            return result;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(CoverCell.prototype, "contentStyle", {
+        get: function () {
+            var result = {};
+            result["textAlign"] = this.calcAlignText(this.positionX);
+            result["alignItems"] = this.calcAlignItems(this.positionX);
+            result["justifyContent"] = this.calcJustifyContent(this.positionY);
+            return result;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(CoverCell.prototype, "showLogo", {
+        get: function () {
+            return this.survey.hasLogo && this.positionX === this.cover.logoPositionX && this.positionY === this.cover.logoPositionY;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(CoverCell.prototype, "showTitle", {
+        get: function () {
+            return this.survey.hasTitle && this.positionX === this.cover.titlePositionX && this.positionY === this.cover.titlePositionY;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(CoverCell.prototype, "showDescription", {
+        get: function () {
+            return this.survey.renderedHasDescription && this.positionX === this.cover.descriptionPositionX && this.positionY === this.cover.descriptionPositionY;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(CoverCell.prototype, "textAreaWidth", {
+        get: function () {
+            if (!this.cover.textAreaWidth) {
+                return "";
+            }
+            return "" + this.cover.textAreaWidth + "px";
+        },
+        enumerable: false,
+        configurable: true
+    });
+    CoverCell.CLASSNAME = "sv-header__cell";
+    return CoverCell;
+}());
+
+var Cover = /** @class */ (function (_super) {
+    __extends(Cover, _super);
+    function Cover() {
+        var _this = _super.call(this) || this;
+        _this.cells = [];
+        _this.renderBackgroundImage = Object(_utils_utils__WEBPACK_IMPORTED_MODULE_3__["wrapUrlForBackgroundImage"])(_this.backgroundImage);
+        ["top", "middle", "bottom"].forEach(function (positionY) {
+            return ["left", "center", "right"].forEach(function (positionX) { return _this.cells.push(new CoverCell(_this, positionX, positionY)); });
+        });
+        _this.updateHeaderClasses();
+        _this.updateContentClasses();
+        _this.updateBackgroundImageClasses();
+        return _this;
+    }
+    Cover.prototype.calcBackgroundSize = function (backgroundImageFit) {
+        if (backgroundImageFit === "fill") {
+            return "100% 100%";
+        }
+        if (backgroundImageFit === "tile") {
+            return "auto";
+        }
+        return backgroundImageFit;
+    };
+    Cover.prototype.updateHeaderClasses = function () {
+        this.headerClasses = new _utils_cssClassBuilder__WEBPACK_IMPORTED_MODULE_2__["CssClassBuilder"]()
+            .append("sv-header")
+            .append("sv-header__without-background", (this.backgroundColor === "trasparent") && !this.backgroundImage)
+            .append("sv-header__overlap", this.overlapEnabled)
+            .toString();
+    };
+    Cover.prototype.updateContentClasses = function () {
+        var surveyWidthMode = !!this.survey && this.survey.calculateWidthMode();
+        this.maxWidth = this.inheritWidthFrom === "survey" && !!surveyWidthMode && surveyWidthMode === "static" && this.survey.renderedWidth;
+        this.contentClasses = new _utils_cssClassBuilder__WEBPACK_IMPORTED_MODULE_2__["CssClassBuilder"]()
+            .append("sv-header__content")
+            .append("sv-header__content--static", this.inheritWidthFrom === "survey" && !!surveyWidthMode && surveyWidthMode === "static")
+            .append("sv-header__content--responsive", this.inheritWidthFrom === "container" || (!!surveyWidthMode && surveyWidthMode === "responsive"))
+            .toString();
+    };
+    Cover.prototype.updateBackgroundImageClasses = function () {
+        this.backgroundImageClasses = new _utils_cssClassBuilder__WEBPACK_IMPORTED_MODULE_2__["CssClassBuilder"]()
+            .append("sv-header__background-image")
+            .append("sv-header__background-image--contain", this.backgroundImageFit === "contain")
+            .append("sv-header__background-image--tile", this.backgroundImageFit === "tile")
+            .toString();
+    };
+    Cover.prototype.fromTheme = function (theme) {
+        _super.prototype.fromJSON.call(this, theme.header);
+        if (!!theme.cssVariables) {
+            this.backgroundColor = theme.cssVariables["--sjs-header-backcolor"];
+        }
+    };
+    Cover.prototype.getType = function () {
+        return "cover";
+    };
+    Object.defineProperty(Cover.prototype, "renderedHeight", {
+        get: function () {
+            return this.height && (this.survey && !this.survey.isMobile || !this.survey) ? Math.max(this.height, this.actualHeight + 40) + "px" : undefined;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Cover.prototype, "renderedtextAreaWidth", {
+        get: function () {
+            return this.textAreaWidth ? this.textAreaWidth + "px" : undefined;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Cover.prototype, "survey", {
+        get: function () {
+            return this._survey;
+        },
+        set: function (newValue) {
+            var _this = this;
+            if (this._survey === newValue)
+                return;
+            this._survey = newValue;
+            if (!!newValue) {
+                this.updateContentClasses();
+                this._survey.onPropertyChanged.add(function (sender, options) {
+                    if (options.name == "widthMode" || options.name == "width") {
+                        _this.updateContentClasses();
+                    }
+                });
+            }
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Cover.prototype, "backgroundImageStyle", {
+        get: function () {
+            if (!this.backgroundImage)
+                return null;
+            return {
+                opacity: this.backgroundImageOpacity,
+                backgroundImage: this.renderBackgroundImage,
+                backgroundSize: this.calcBackgroundSize(this.backgroundImageFit),
+            };
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Cover.prototype.propertyValueChanged = function (name, oldValue, newValue) {
+        _super.prototype.propertyValueChanged.call(this, name, oldValue, newValue);
+        if (name === "backgroundColor" || name === "backgroundImage" || name === "overlapEnabled") {
+            this.updateHeaderClasses();
+        }
+        if (name === "inheritWidthFrom") {
+            this.updateContentClasses();
+        }
+        if (name === "backgroundImageFit") {
+            this.updateBackgroundImageClasses();
+        }
+    };
+    Cover.prototype.calculateActualHeight = function (logoHeight, titleHeight, descriptionHeight) {
+        var positionsY = ["top", "middle", "bottom"];
+        var logoIndex = positionsY.indexOf(this.logoPositionY);
+        var titleIndex = positionsY.indexOf(this.titlePositionY);
+        var descriptionIndex = positionsY.indexOf(this.descriptionPositionY);
+        var positionsX = ["left", "center", "right"];
+        var logoIndexX = positionsX.indexOf(this.logoPositionX);
+        var titleIndexX = positionsX.indexOf(this.titlePositionX);
+        var descriptionIndexX = positionsX.indexOf(this.descriptionPositionX);
+        var heights = [
+            [0, 0, 0],
+            [0, 0, 0],
+            [0, 0, 0]
+        ];
+        heights[logoIndex][logoIndexX] = logoHeight;
+        heights[titleIndex][titleIndexX] += titleHeight;
+        heights[descriptionIndex][descriptionIndexX] += descriptionHeight;
+        return heights.reduce(function (total, rowArr) { return total + Math.max.apply(Math, rowArr); }, 0);
+    };
+    Cover.prototype.processResponsiveness = function (width) {
+        if (this.survey && this.survey.rootElement) {
+            var logoEl = this.survey.rootElement.querySelectorAll(".sv-header__logo")[0];
+            var titleEl = this.survey.rootElement.querySelectorAll(".sv-header__title")[0];
+            var descriptionEl = this.survey.rootElement.querySelectorAll(".sv-header__description")[0];
+            var logoHeight = logoEl ? logoEl.getBoundingClientRect().height : 0;
+            var titleHeight = titleEl ? titleEl.getBoundingClientRect().height : 0;
+            var descriptionHeight = descriptionEl ? descriptionEl.getBoundingClientRect().height : 0;
+            this.actualHeight = this.calculateActualHeight(logoHeight, titleHeight, descriptionHeight);
+        }
+    };
+    __decorate([
+        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])({ defaultValue: 0 })
+    ], Cover.prototype, "actualHeight", void 0);
+    __decorate([
+        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
+    ], Cover.prototype, "height", void 0);
+    __decorate([
+        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
+    ], Cover.prototype, "inheritWidthFrom", void 0);
+    __decorate([
+        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
+    ], Cover.prototype, "textAreaWidth", void 0);
+    __decorate([
+        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
+    ], Cover.prototype, "textGlowEnabled", void 0);
+    __decorate([
+        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
+    ], Cover.prototype, "overlapEnabled", void 0);
+    __decorate([
+        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
+    ], Cover.prototype, "backgroundColor", void 0);
+    __decorate([
+        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])({
+            onSet: function (newVal, target) {
+                target.renderBackgroundImage = Object(_utils_utils__WEBPACK_IMPORTED_MODULE_3__["wrapUrlForBackgroundImage"])(newVal);
+            }
+        })
+    ], Cover.prototype, "backgroundImage", void 0);
+    __decorate([
+        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
+    ], Cover.prototype, "renderBackgroundImage", void 0);
+    __decorate([
+        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
+    ], Cover.prototype, "backgroundImageFit", void 0);
+    __decorate([
+        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
+    ], Cover.prototype, "backgroundImageOpacity", void 0);
+    __decorate([
+        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
+    ], Cover.prototype, "logoPositionX", void 0);
+    __decorate([
+        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
+    ], Cover.prototype, "logoPositionY", void 0);
+    __decorate([
+        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
+    ], Cover.prototype, "titlePositionX", void 0);
+    __decorate([
+        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
+    ], Cover.prototype, "titlePositionY", void 0);
+    __decorate([
+        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
+    ], Cover.prototype, "descriptionPositionX", void 0);
+    __decorate([
+        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
+    ], Cover.prototype, "descriptionPositionY", void 0);
+    __decorate([
+        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
+    ], Cover.prototype, "logoStyle", void 0);
+    __decorate([
+        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
+    ], Cover.prototype, "titleStyle", void 0);
+    __decorate([
+        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
+    ], Cover.prototype, "descriptionStyle", void 0);
+    __decorate([
+        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
+    ], Cover.prototype, "headerClasses", void 0);
+    __decorate([
+        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
+    ], Cover.prototype, "contentClasses", void 0);
+    __decorate([
+        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
+    ], Cover.prototype, "maxWidth", void 0);
+    __decorate([
+        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
+    ], Cover.prototype, "backgroundImageClasses", void 0);
+    return Cover;
+}(_base__WEBPACK_IMPORTED_MODULE_0__["Base"]));
+
+_jsonobject__WEBPACK_IMPORTED_MODULE_1__["Serializer"].addClass("cover", [
+    { name: "height:number", minValue: 0, default: 256 },
+    { name: "inheritWidthFrom", default: "survey" },
+    { name: "textAreaWidth:number", minValue: 0, default: 512 },
+    { name: "textGlowEnabled:boolean" },
+    { name: "overlapEnabled:boolean" },
+    { name: "backgroundImage:file" },
+    { name: "backgroundImageOpacity:number", minValue: 0, maxValue: 1, default: 1 },
+    { name: "backgroundImageFit", default: "cover", choices: ["cover", "fill", "contain"] },
+    { name: "logoPositionX", default: "right" },
+    { name: "logoPositionY", default: "top" },
+    { name: "titlePositionX", default: "left" },
+    { name: "titlePositionY", default: "bottom" },
+    { name: "descriptionPositionX", default: "left" },
+    { name: "descriptionPositionY", default: "bottom" }
+], function () {
+    return new Cover();
+});
+
+
+/***/ }),
+
 /***/ "./src/helpers.ts":
 /*!************************!*\
   !*** ./src/helpers.ts ***!
@@ -15950,9 +16015,12 @@ var map = {
 	"./chevron.svg": "./src/images/chevron.svg",
 	"./clear_16x16.svg": "./src/images/clear_16x16.svg",
 	"./collapseDetail.svg": "./src/images/collapseDetail.svg",
+	"./drag-n-drop.svg": "./src/images/drag-n-drop.svg",
 	"./expandDetail.svg": "./src/images/expandDetail.svg",
 	"./loading.svg": "./src/images/loading.svg",
 	"./no-image.svg": "./src/images/no-image.svg",
+	"./ranking-arrows.svg": "./src/images/ranking-arrows.svg",
+	"./ranking-dash.svg": "./src/images/ranking-dash.svg",
 	"./rating-star-2.svg": "./src/images/rating-star-2.svg",
 	"./rating-star-small-2.svg": "./src/images/rating-star-small-2.svg",
 	"./rating-star-small.svg": "./src/images/rating-star-small.svg",
@@ -16356,6 +16424,17 @@ module.exports = "<svg viewBox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\
 
 /***/ }),
 
+/***/ "./src/images/drag-n-drop.svg":
+/*!************************************!*\
+  !*** ./src/images/drag-n-drop.svg ***!
+  \************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = "<svg viewBox=\"0 0 10 16\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M6 2C6 0.9 6.9 0 8 0C9.1 0 10 0.9 10 2C10 3.1 9.1 4 8 4C6.9 4 6 3.1 6 2ZM2 0C0.9 0 0 0.9 0 2C0 3.1 0.9 4 2 4C3.1 4 4 3.1 4 2C4 0.9 3.1 0 2 0ZM8 6C6.9 6 6 6.9 6 8C6 9.1 6.9 10 8 10C9.1 10 10 9.1 10 8C10 6.9 9.1 6 8 6ZM2 6C0.9 6 0 6.9 0 8C0 9.1 0.9 10 2 10C3.1 10 4 9.1 4 8C4 6.9 3.1 6 2 6ZM8 12C6.9 12 6 12.9 6 14C6 15.1 6.9 16 8 16C9.1 16 10 15.1 10 14C10 12.9 9.1 12 8 12ZM2 12C0.9 12 0 12.9 0 14C0 15.1 0.9 16 2 16C3.1 16 4 15.1 4 14C4 12.9 3.1 12 2 12Z\"></path></svg>"
+
+/***/ }),
+
 /***/ "./src/images/expandDetail.svg":
 /*!*************************************!*\
   !*** ./src/images/expandDetail.svg ***!
@@ -16386,6 +16465,28 @@ module.exports = "<svg viewBox=\"0 0 48 48\" fill=\"none\" xmlns=\"http://www.w3
 /***/ (function(module, exports) {
 
 module.exports = "<svg viewBox=\"0 0 48 48\"><g opacity=\"0.5\"><path d=\"M14 17.01C14 16.4167 14.1759 15.8366 14.5056 15.3433C14.8352 14.8499 15.3038 14.4654 15.8519 14.2384C16.4001 14.0113 17.0033 13.9519 17.5853 14.0676C18.1672 14.1834 18.7018 14.4691 19.1213 14.8887C19.5409 15.3082 19.8266 15.8428 19.9424 16.4247C20.0581 17.0067 19.9987 17.6099 19.7716 18.1581C19.5446 18.7062 19.1601 19.1748 18.6667 19.5044C18.1734 19.8341 17.5933 20.01 17 20.01C16.2044 20.01 15.4413 19.6939 14.8787 19.1313C14.3161 18.5687 14 17.8056 14 17.01ZM27.09 24.14L20 36.01H36L27.09 24.14ZM36.72 8.14L35.57 10.01H36C36.5304 10.01 37.0391 10.2207 37.4142 10.5958C37.7893 10.9709 38 11.4796 38 12.01V36.01C38 36.5404 37.7893 37.0491 37.4142 37.4242C37.0391 37.7993 36.5304 38.01 36 38.01H18.77L17.57 40.01H36C37.0609 40.01 38.0783 39.5886 38.8284 38.8384C39.5786 38.0883 40 37.0709 40 36.01V12.01C39.9966 11.0765 39.6668 10.1737 39.0678 9.45778C38.4688 8.74188 37.6382 8.25802 36.72 8.09V8.14ZM36.86 4.5L12.86 44.5L11.14 43.5L13.23 40.01H12C10.9391 40.01 9.92172 39.5886 9.17157 38.8384C8.42143 38.0883 8 37.0709 8 36.01V12.01C8 10.9491 8.42143 9.93172 9.17157 9.18157C9.92172 8.43143 10.9391 8.01 12 8.01H32.43L35.14 3.5L36.86 4.5ZM14.43 38.01L15.63 36.01H12L19 27.01L20.56 27.8L31.23 10.01H12C11.4696 10.01 10.9609 10.2207 10.5858 10.5958C10.2107 10.9709 10 11.4796 10 12.01V36.01C10 36.5404 10.2107 37.0491 10.5858 37.4242C10.9609 37.7993 11.4696 38.01 12 38.01H14.43Z\"></path></g></svg>"
+
+/***/ }),
+
+/***/ "./src/images/ranking-arrows.svg":
+/*!***************************************!*\
+  !*** ./src/images/ranking-arrows.svg ***!
+  \***************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = "<svg viewBox=\"0 0 10 24\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M10 5L5 0L0 5H4V9H6V5H10Z\"></path><path d=\"M6 19V15H4V19H0L5 24L10 19H6Z\"></path></svg>"
+
+/***/ }),
+
+/***/ "./src/images/ranking-dash.svg":
+/*!*************************************!*\
+  !*** ./src/images/ranking-dash.svg ***!
+  \*************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 16\"><path d=\"M13 7H3V9H13V7Z\"></path></svg>"
 
 /***/ }),
 
@@ -17153,7 +17254,7 @@ _jsonobject__WEBPACK_IMPORTED_MODULE_1__["Serializer"].addClass("itemvalue", [
 /*!***************************!*\
   !*** ./src/jsonobject.ts ***!
   \***************************/
-/*! exports provided: property, propertyArray, JsonObjectProperty, CustomPropertiesCollection, JsonMetadataClass, JsonMetadata, JsonError, JsonUnknownPropertyError, JsonMissingTypeErrorBase, JsonMissingTypeError, JsonIncorrectTypeError, JsonRequiredPropertyError, JsonObject, Serializer */
+/*! exports provided: property, propertyArray, JsonObjectProperty, CustomPropertiesCollection, JsonMetadataClass, JsonMetadata, JsonError, JsonUnknownPropertyError, JsonMissingTypeErrorBase, JsonMissingTypeError, JsonIncorrectTypeError, JsonRequiredPropertyError, JsonRequiredArrayPropertyError, JsonObject, Serializer */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -17170,6 +17271,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "JsonMissingTypeError", function() { return JsonMissingTypeError; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "JsonIncorrectTypeError", function() { return JsonIncorrectTypeError; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "JsonRequiredPropertyError", function() { return JsonRequiredPropertyError; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "JsonRequiredArrayPropertyError", function() { return JsonRequiredArrayPropertyError; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "JsonObject", function() { return JsonObject; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Serializer", function() { return Serializer; });
 /* harmony import */ var _surveyStrings__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./surveyStrings */ "./src/surveyStrings.ts");
@@ -17201,7 +17303,11 @@ var __spreadArray = (undefined && undefined.__spreadArray) || function (to, from
 function ensureLocString(target, options, key) {
     var locString = target.getLocalizableString(key);
     if (!locString) {
-        locString = target.createLocalizableString(key, target, true);
+        var defaultStr = void 0;
+        if (typeof options.localizable === "object" && options.localizable.defaultStr) {
+            defaultStr = options.localizable.defaultStr;
+        }
+        locString = target.createLocalizableString(key, target, true, defaultStr);
         if (typeof options.localizable === "object" &&
             typeof options.localizable.onGetTextCallback === "function") {
             locString.onGetTextCallback = options.localizable.onGetTextCallback;
@@ -18065,6 +18171,10 @@ var JsonMetadataClass = /** @class */ (function () {
             }
             if (propInfo.baseClassName) {
                 prop.baseClassName = propInfo.baseClassName;
+                prop.isArray = true;
+            }
+            if (prop.isArray === true) {
+                prop.isArray = true;
             }
             if (propInfo.classNamePart) {
                 prop.classNamePart = propInfo.classNamePart;
@@ -18530,7 +18640,7 @@ var JsonMetadata = /** @class */ (function () {
         if (prop.hasChoices) {
             var enumRes = prop.getChoices(null);
             if (Array.isArray(enumRes) && enumRes.length > 0) {
-                res.enum = enumRes;
+                res.enum = this.getChoicesValues(enumRes);
             }
         }
         if (!!refType) {
@@ -18592,6 +18702,18 @@ var JsonMetadata = /** @class */ (function () {
         if (Array.isArray(chemaProps.required)) {
             res.required = chemaProps.required;
         }
+    };
+    JsonMetadata.prototype.getChoicesValues = function (enumRes) {
+        var res = new Array();
+        enumRes.forEach(function (item) {
+            if (typeof item === "object" && item.value !== undefined) {
+                res.push(item.value);
+            }
+            else {
+                res.push(item);
+            }
+        });
+        return res;
     };
     return JsonMetadata;
 }());
@@ -18696,6 +18818,17 @@ var JsonRequiredPropertyError = /** @class */ (function (_super) {
     return JsonRequiredPropertyError;
 }(JsonError));
 
+var JsonRequiredArrayPropertyError = /** @class */ (function (_super) {
+    __extends(JsonRequiredArrayPropertyError, _super);
+    function JsonRequiredArrayPropertyError(propertyName, className) {
+        var _this = _super.call(this, "arrayproperty", "The property '" + propertyName + "' should be an array in '" + className + "'.") || this;
+        _this.propertyName = propertyName;
+        _this.className = className;
+        return _this;
+    }
+    return JsonRequiredArrayPropertyError;
+}(JsonError));
+
 var JsonObject = /** @class */ (function () {
     function JsonObject() {
         this.errors = new Array();
@@ -18751,7 +18884,7 @@ var JsonObject = /** @class */ (function () {
                 }
                 continue;
             }
-            this.valueToObj(jsonObj[key], obj, property);
+            this.valueToObj(jsonObj[key], obj, property, jsonObj);
         }
         if (obj.endLoadingFromJson) {
             obj.endLoadingFromJson();
@@ -18825,13 +18958,18 @@ var JsonObject = /** @class */ (function () {
             }
         }
     };
-    JsonObject.prototype.valueToObj = function (value, obj, property) {
+    JsonObject.prototype.valueToObj = function (value, obj, property, jsonObj) {
         if (value === null || value === undefined)
             return;
         this.removePos(property, value);
         if (property != null && property.hasToUseSetValue) {
             property.setValue(obj, value, this);
             return;
+        }
+        if (property.isArray && !Array.isArray(value) && !!value) {
+            value = [value];
+            var propName = !!jsonObj && property.alternativeName && !!jsonObj[property.alternativeName] ? property.alternativeName : property.name;
+            this.addNewError(new JsonRequiredArrayPropertyError(propName, obj.getType()), !!jsonObj ? jsonObj : value, obj);
         }
         if (this.isValueArray(value)) {
             this.valueToArray(value, obj, property.name, property);
@@ -20064,7 +20202,7 @@ var englishStrings = {
     loadingFile: "Loading...",
     chooseFile: "Choose file(s)...",
     noFileChosen: "No file chosen",
-    fileDragAreaPlaceholder: "Drag and drop a file here or click the button below to select a file to upload.",
+    filePlaceholder: "Drag and drop a file here or click the button below to select a file to upload.",
     confirmDelete: "Do you want to delete the record?",
     keyDuplicationError: "This value should be unique.",
     addColumn: "Add Column",
@@ -20073,6 +20211,8 @@ var englishStrings = {
     emptyRowsText: "There are no rows.",
     addPanel: "Add new",
     removePanel: "Remove",
+    showDetails: "Show Details",
+    hideDetails: "Hide Details",
     choices_Item: "item",
     matrix_column: "Column",
     matrix_row: "Row",
@@ -20093,8 +20233,8 @@ var englishStrings = {
     signaturePlaceHolder: "Sign here",
     chooseFileCaption: "Select File",
     takePhotoCaption: "Take Photo",
-    cameraPlaceHolder: "Click the button below to take a photo using the camera.",
-    fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera.",
+    photoPlaceholder: "Click the button below to take a photo using the camera.",
+    fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera.",
     replaceFileCaption: "Replace file",
     removeFileCaption: "Remove this file",
     booleanCheckedLabel: "Yes",
@@ -20463,9 +20603,11 @@ var QuestionMatrixBaseModel = /** @class */ (function (_super) {
         return true;
     };
     QuestionMatrixBaseModel.prototype.getTableCss = function () {
+        var _a;
         return new _utils_cssClassBuilder__WEBPACK_IMPORTED_MODULE_5__["CssClassBuilder"]()
             .append(this.cssClasses.root)
             .append(this.cssClasses.noHeader, !this.showHeader)
+            .append(this.cssClasses.hasFooter, !!((_a = this.renderedTable) === null || _a === void 0 ? void 0 : _a.showAddRowOnBottom))
             .append(this.cssClasses.rootAlternateRows, this.alternateRows)
             .append(this.cssClasses.rootVerticalAlignTop, (this.verticalAlign === "top"))
             .append(this.cssClasses.rootVerticalAlignMiddle, (this.verticalAlign === "middle")).toString();
@@ -20477,7 +20619,7 @@ var QuestionMatrixBaseModel = /** @class */ (function (_super) {
          * @see width
          */
         get: function () {
-            return this.getPropertyValue("columnMinWidth", "");
+            return this.getPropertyValue("columnMinWidth") || "";
         },
         set: function (val) {
             this.setPropertyValue("columnMinWidth", val);
@@ -20490,7 +20632,7 @@ var QuestionMatrixBaseModel = /** @class */ (function (_super) {
          * A width for the column that displays row titles (first column). Accepts CSS values.
          */
         get: function () {
-            return this.getPropertyValue("rowTitleWidth", "");
+            return this.getPropertyValue("rowTitleWidth") || "";
         },
         set: function (val) {
             this.setPropertyValue("rowTitleWidth", val);
@@ -24727,6 +24869,7 @@ var TriggerExpressionInfo = /** @class */ (function () {
         this.name = name;
         this.canRun = canRun;
         this.doComplete = doComplete;
+        this.runSecondCheck = function (keys) { return false; };
     }
     return TriggerExpressionInfo;
 }());
@@ -24738,6 +24881,7 @@ var Question = /** @class */ (function (_super) {
     function Question(name) {
         var _this = _super.call(this, name) || this;
         _this.customWidgetData = { isNeedRender: true };
+        _this.hasCssErrorCallback = function () { return false; };
         _this.isReadyValue = true;
         _this.dependedQuestions = [];
         /**
@@ -24775,7 +24919,8 @@ var Question = /** @class */ (function (_super) {
             _this.clearValue();
             _this.updateValueWithDefaults();
         });
-        _this.addTriggerInfo("setValueIf", function () { return true; }, function () { return _this.runSetValueExpression(); });
+        var setValueIfInfo = _this.addTriggerInfo("setValueIf", function () { return true; }, function () { return _this.runSetValueExpression(); });
+        setValueIfInfo.runSecondCheck = function (keys) { return _this.checkExpressionIf(keys); };
         _this.registerPropertyChangedHandlers(["width"], function () {
             _this.updateQuestionCss();
             if (!!_this.parent) {
@@ -24795,7 +24940,7 @@ var Question = /** @class */ (function (_super) {
         _this.registerPropertyChangedHandlers(["showCommentArea", "showOtherItem"], function () {
             _this.initCommentFromSurvey();
         });
-        _this.registerFunctionOnPropertiesValueChanged(["no", "readOnly"], function () {
+        _this.registerFunctionOnPropertiesValueChanged(["no", "readOnly", "hasVisibleErrors", "containsErrors"], function () {
             _this.updateQuestionCss();
         });
         _this.registerPropertyChangedHandlers(["isMobile"], function () { _this.onMobileChanged(); });
@@ -25228,33 +25373,50 @@ var Question = /** @class */ (function (_super) {
             requiredAnsweredQuestionCount: !this.isEmpty() && this.isRequired ? 1 : 0,
         };
     };
-    Question.prototype.runSetValueExpression = function () {
+    Question.prototype.ensureSetValueExpressionRunner = function () {
         var _this = this;
+        if (!this.setValueExpressionRunner) {
+            this.setValueExpressionRunner = new _conditions__WEBPACK_IMPORTED_MODULE_6__["ExpressionRunner"](this.setValueExpression);
+            this.setValueExpressionRunner.onRunComplete = function (res) {
+                if (!_this.isTwoValueEquals(_this.value, res)) {
+                    _this.value = res;
+                }
+            };
+        }
+        else {
+            this.setValueExpressionRunner.expression = this.setValueExpression;
+        }
+    };
+    Question.prototype.runSetValueExpression = function () {
         if (!this.setValueExpression) {
             this.clearValue();
         }
         else {
-            if (!this.setValueExpressionRunner) {
-                this.setValueExpressionRunner = new _conditions__WEBPACK_IMPORTED_MODULE_6__["ExpressionRunner"](this.setValueExpression);
-                this.setValueExpressionRunner.onRunComplete = function (res) {
-                    if (!_this.isTwoValueEquals(_this.value, res)) {
-                        _this.value = res;
-                    }
-                };
-            }
-            else {
-                this.setValueExpressionRunner.expression = this.setValueExpression;
-            }
+            this.ensureSetValueExpressionRunner();
             this.setValueExpressionRunner.run(this.getDataFilteredValues(), this.getDataFilteredProperties());
         }
     };
+    Question.prototype.checkExpressionIf = function (keys) {
+        this.ensureSetValueExpressionRunner();
+        if (!this.setValueExpressionRunner)
+            return false;
+        return new _conditionProcessValue__WEBPACK_IMPORTED_MODULE_13__["ProcessValue"]().isAnyKeyChanged(keys, this.setValueExpressionRunner.getVariables());
+    };
     Question.prototype.addTriggerInfo = function (name, canRun, doComplete) {
-        this.triggersInfo.push(new TriggerExpressionInfo(name, canRun, doComplete));
+        var info = new TriggerExpressionInfo(name, canRun, doComplete);
+        this.triggersInfo.push(info);
+        return info;
     };
     Question.prototype.runTriggerInfo = function (info, name, value) {
         var expression = this[info.name];
-        if (!expression || info.isRunning || !info.canRun())
+        var keys = {};
+        keys[name] = value;
+        if (!expression || info.isRunning || !info.canRun()) {
+            if (info.runSecondCheck(keys)) {
+                info.doComplete();
+            }
             return;
+        }
         if (!info.runner) {
             info.runner = new _conditions__WEBPACK_IMPORTED_MODULE_6__["ExpressionRunner"](expression);
             info.runner.onRunComplete = function (res) {
@@ -25267,9 +25429,7 @@ var Question = /** @class */ (function (_super) {
         else {
             info.runner.expression = expression;
         }
-        var keys = {};
-        keys[name] = value;
-        if (!new _conditionProcessValue__WEBPACK_IMPORTED_MODULE_13__["ProcessValue"]().isAnyKeyChanged(keys, info.runner.getVariables()))
+        if (!new _conditionProcessValue__WEBPACK_IMPORTED_MODULE_13__["ProcessValue"]().isAnyKeyChanged(keys, info.runner.getVariables()) && !info.runSecondCheck(keys))
             return;
         info.isRunning = true;
         info.runner.run(this.getDataFilteredValues(), this.getDataFilteredProperties());
@@ -25810,7 +25970,7 @@ var Question = /** @class */ (function (_super) {
         this.setPropertyValue("cssRoot", val);
     };
     Question.prototype.getCssRoot = function (cssClasses) {
-        var hasError = this.errors.length > 0;
+        var hasError = this.hasCssError();
         return new _utils_cssClassBuilder__WEBPACK_IMPORTED_MODULE_10__["CssClassBuilder"]()
             .append(_super.prototype.getCssRoot.call(this, cssClasses))
             .append(this.isFlowLayout && !this.isDesignMode
@@ -25956,6 +26116,9 @@ var Question = /** @class */ (function (_super) {
             .append(cssClasses.error.locationTop, this.showErrorOnTop)
             .append(cssClasses.error.locationBottom, this.showErrorOnBottom)
             .toString();
+    };
+    Question.prototype.hasCssError = function () {
+        return this.errors.length > 0 || this.hasCssErrorCallback();
     };
     Question.prototype.getRootCss = function () {
         return new _utils_cssClassBuilder__WEBPACK_IMPORTED_MODULE_10__["CssClassBuilder"]()
@@ -26497,7 +26660,7 @@ var Question = /** @class */ (function (_super) {
         if (!!this.comment) {
             this.comment = undefined;
         }
-        this.isValueChangedDirectly = false;
+        this.setValueChangedDirectly(false);
     };
     Question.prototype.unbindValue = function () {
         this.clearValue();
@@ -26561,7 +26724,7 @@ var Question = /** @class */ (function (_super) {
     Question.prototype.clearValueIfInvisibleCore = function (reason) {
         if (this.canClearValueAsInvisible(reason)) {
             this.clearValue();
-            this.isValueChangedDirectly = undefined;
+            this.setValueChangedDirectly(undefined);
         }
     };
     Object.defineProperty(Question.prototype, "clearIfInvisible", {
@@ -26724,7 +26887,9 @@ var Question = /** @class */ (function (_super) {
     });
     Object.defineProperty(Question.prototype, "setValueExpression", {
         /**
-         * An expression used to calculate the question value. Applies only when the [`setValueIf`](#setValueIf) expression evaluates to `true`.
+         * An expression used to calculate the question value.
+         *
+         * You can use `setValueExpression` as a standalone property or in conjunction with the [`setValueIf`](#setValueIf) expression, in which case the calculated question value applies only when `setValueIf` evaluates to `true`.
          *
          * [Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions (linkStyle))
          * @see defaultValueExpression
@@ -26911,12 +27076,15 @@ var Question = /** @class */ (function (_super) {
     };
     Question.prototype.setDefaultValue = function () {
         var _this = this;
-        this.defaultValueRunner = this.getDefaultRunner(this.defaultValueRunner, this.defaultValueExpression);
-        this.setValueAndRunExpression(this.defaultValueRunner, this.getUnbindValue(this.defaultValue), function (val) {
+        this.setDefaultValueCore(function (val) {
             if (!_this.isTwoValueEquals(_this.value, val)) {
                 _this.value = val;
             }
         });
+    };
+    Question.prototype.setDefaultValueCore = function (func) {
+        this.defaultValueRunner = this.getDefaultRunner(this.defaultValueRunner, this.defaultValueExpression);
+        this.setValueAndRunExpression(this.defaultValueRunner, this.getUnbindValue(this.defaultValue), function (val) { return func(val); });
     };
     Question.prototype.isValueExpression = function (val) {
         return !!val && typeof val == "string" && val.length > 0 && val[0] == "=";
@@ -27119,9 +27287,6 @@ var Question = /** @class */ (function (_super) {
             }
         }
         this.updateContainsErrors();
-        if (oldHasErrors != errors.length > 0) {
-            this.updateQuestionCss();
-        }
         if (this.isCollapsed && rec && fireCallback && errors.length > 0) {
             this.expand();
         }
@@ -27361,31 +27526,46 @@ var Question = /** @class */ (function (_super) {
     };
     //IQuestion
     Question.prototype.updateValueFromSurvey = function (newValue) {
+        var _this = this;
         newValue = this.getUnbindValue(newValue);
         if (!!this.valueFromDataCallback) {
             newValue = this.valueFromDataCallback(newValue);
         }
         if (!this.checkIsValueCorrect(newValue))
             return;
-        this.isChangingViaDefaultValue = this.isValueEmpty(newValue);
-        this.setQuestionValue(this.valueFromData(newValue));
-        this.isChangingViaDefaultValue = false;
+        var isEmpty = this.isValueEmpty(newValue);
+        if (!isEmpty && this.defaultValueExpression) {
+            this.setDefaultValueCore(function (val) {
+                _this.updateValueFromSurveyCore(newValue, _this.isTwoValueEquals(newValue, val));
+            });
+        }
+        else {
+            this.updateValueFromSurveyCore(newValue, isEmpty);
+        }
         this.updateDependedQuestions();
         this.updateIsAnswered();
+    };
+    Question.prototype.updateValueFromSurveyCore = function (newValue, viaDefaultVal) {
+        this.isChangingViaDefaultValue = viaDefaultVal;
+        this.setQuestionValue(this.valueFromData(newValue));
+        this.isChangingViaDefaultValue = false;
     };
     Question.prototype.updateCommentFromSurvey = function (newValue) {
         this.questionComment = newValue;
     };
     Question.prototype.onChangeQuestionValue = function (newValue) { };
-    Question.prototype.setValueChangedDirectly = function () {
-        this.isValueChangedDirectly = true;
+    Question.prototype.setValueChangedDirectly = function (val) {
+        this.isValueChangedDirectly = val;
+        if (!!this.setValueChangedDirectlyCallback) {
+            this.setValueChangedDirectlyCallback(val);
+        }
     };
     Question.prototype.setQuestionValue = function (newValue, updateIsAnswered) {
         if (updateIsAnswered === void 0) { updateIsAnswered = true; }
         newValue = this.convertToCorrectValue(newValue);
         var isEqual = this.isTwoValueEquals(this.questionValue, newValue);
-        if (!isEqual && !this.isChangingViaDefaultValue) {
-            this.setValueChangedDirectly();
+        if (!isEqual && !this.isChangingViaDefaultValue && !this.isParentChangingViaDefaultValue) {
+            this.setValueChangedDirectly(true);
         }
         this.questionValue = newValue;
         if (!isEqual) {
@@ -27396,6 +27576,14 @@ var Question = /** @class */ (function (_super) {
         if (updateIsAnswered)
             this.updateIsAnswered();
     };
+    Object.defineProperty(Question.prototype, "isParentChangingViaDefaultValue", {
+        get: function () {
+            var _a;
+            return ((_a = this.data) === null || _a === void 0 ? void 0 : _a.isChangingViaDefaultValue) === true;
+        },
+        enumerable: false,
+        configurable: true
+    });
     Question.prototype.onSurveyValueChanged = function (newValue) { };
     Question.prototype.setVisibleIndex = function (val) {
         if (!this.isVisible ||
@@ -27657,7 +27845,7 @@ var Question = /** @class */ (function (_super) {
         get: function () {
             if (this.isNewA11yStructure)
                 return null;
-            return this.errors.length > 0 ? "true" : "false";
+            return this.hasCssError() ? "true" : "false";
         },
         enumerable: false,
         configurable: true
@@ -27687,7 +27875,7 @@ var Question = /** @class */ (function (_super) {
         get: function () {
             if (this.isNewA11yStructure)
                 return null;
-            return this.errors.length > 0 ? this.id + "_errors" : null;
+            return this.hasCssError() ? this.id + "_errors" : null;
         },
         enumerable: false,
         configurable: true
@@ -27710,7 +27898,7 @@ var Question = /** @class */ (function (_super) {
     });
     Object.defineProperty(Question.prototype, "a11y_input_ariaInvalid", {
         get: function () {
-            return this.errors.length > 0 ? "true" : "false";
+            return this.hasCssError() ? "true" : "false";
         },
         enumerable: false,
         configurable: true
@@ -27741,7 +27929,7 @@ var Question = /** @class */ (function (_super) {
     });
     Object.defineProperty(Question.prototype, "a11y_input_ariaDescribedBy", {
         get: function () {
-            return this.errors.length > 0 ? this.id + "_errors" : null;
+            return this.hasCssError() ? this.id + "_errors" : null;
         },
         enumerable: false,
         configurable: true
@@ -27858,7 +28046,7 @@ _jsonobject__WEBPACK_IMPORTED_MODULE_1__["Serializer"].addClass("question", [
     "enableIf:condition",
     "resetValueIf:condition",
     "setValueIf:condition",
-    { name: "setValueExpression:expression", visibleIf: function (obj) { return !!obj.setValueIf; } },
+    "setValueExpression:expression",
     "defaultValue:value",
     {
         name: "defaultValueExpression:expression",
@@ -29111,7 +29299,7 @@ var QuestionSelectBase = /** @class */ (function (_super) {
         configurable: true
     });
     QuestionSelectBase.prototype.updateVisibleChoices = function () {
-        if (this.isLoadingFromJson)
+        if (this.isLoadingFromJson || this.isDisposed)
             return;
         var newValue = new Array();
         var calcValue = this.calcVisibleChoices();
@@ -29120,7 +29308,10 @@ var QuestionSelectBase = /** @class */ (function (_super) {
         for (var i = 0; i < calcValue.length; i++) {
             newValue.push(calcValue[i]);
         }
-        this.setPropertyValue("visibleChoices", newValue);
+        var oldValue = this.visibleChoices;
+        if (!this.isTwoValueEquals(oldValue, newValue) || this.choicesLazyLoadEnabled) {
+            this.setArrayPropertyDirectly("visibleChoices", newValue);
+        }
     };
     QuestionSelectBase.prototype.calcVisibleChoices = function () {
         if (this.canUseFilteredChoices())
@@ -29787,7 +29978,7 @@ var QuestionSelectBase = /** @class */ (function (_super) {
             .append(this.cssClasses.item)
             .append(this.cssClasses.itemInline, !this.hasColumns && this.colCount === 0)
             .append("sv-q-col-" + this.getCurrentColCount(), !this.hasColumns && this.colCount !== 0)
-            .append(this.cssClasses.itemOnError, this.errors.length > 0);
+            .append(this.cssClasses.itemOnError, this.hasCssError());
         var isDisabled = this.isReadOnly || !item.isEnabled;
         var isChecked = this.isItemSelected(item) ||
             (this.isOtherSelected && this.otherItem.value === item.value);
@@ -30497,7 +30688,7 @@ var QuestionBooleanModel = /** @class */ (function (_super) {
     QuestionBooleanModel.prototype.getItemCssValue = function (css) {
         return new _utils_cssClassBuilder__WEBPACK_IMPORTED_MODULE_3__["CssClassBuilder"]()
             .append(css.item)
-            .append(css.itemOnError, this.errors.length > 0)
+            .append(css.itemOnError, this.hasCssError())
             .append(css.itemDisabled, this.isReadOnly)
             .append(css.itemHover, !this.isDesignMode)
             .append(css.itemChecked, !!this.booleanValue)
@@ -31714,7 +31905,7 @@ var QuestionCommentModel = /** @class */ (function (_super) {
          * @see autoGrow
          */
         get: function () {
-            return this.getPropertyValue("allowResize") && (this.survey && this.survey.allowResizeComment);
+            return this.getPropertyValue("allowResize");
         },
         set: function (val) {
             this.setPropertyValue("allowResize", val);
@@ -31722,9 +31913,16 @@ var QuestionCommentModel = /** @class */ (function (_super) {
         enumerable: false,
         configurable: true
     });
+    Object.defineProperty(QuestionCommentModel.prototype, "renderedAllowResize", {
+        get: function () {
+            return this.allowResize && (this.survey && this.survey.allowResizeComment);
+        },
+        enumerable: false,
+        configurable: true
+    });
     Object.defineProperty(QuestionCommentModel.prototype, "resizeStyle", {
         get: function () {
-            return this.allowResize ? "both" : "none";
+            return this.renderedAllowResize ? "both" : "none";
         },
         enumerable: false,
         configurable: true
@@ -31761,6 +31959,11 @@ var QuestionCommentModel = /** @class */ (function (_super) {
             event.preventDefault();
             event.stopPropagation();
         }
+    };
+    QuestionCommentModel.prototype.setQuestionValue = function (newValue, updateIsAnswered) {
+        if (updateIsAnswered === void 0) { updateIsAnswered = true; }
+        _super.prototype.setQuestionValue.call(this, newValue, updateIsAnswered);
+        this.updateElement();
     };
     QuestionCommentModel.prototype.onValueChanged = function () {
         _super.prototype.onValueChanged.call(this);
@@ -32324,6 +32527,8 @@ var QuestionCustomModel = /** @class */ (function (_super) {
             res.onUpdateCssClassesCallback = function (css) {
                 _this.onUpdateQuestionCssClasses(res, css);
             };
+            res.hasCssErrorCallback = function () { return _this.errors.length > 0; };
+            res.setValueChangedDirectlyCallback = function (val) { _this.setValueChangedDirectly(val); };
         }
         return res;
     };
@@ -32390,6 +32595,16 @@ var QuestionCustomModel = /** @class */ (function (_super) {
         if (!!this.contentQuestion)
             return this.getContentQuestionValue();
         return _super.prototype.getValueCore.call(this);
+    };
+    QuestionCustomModel.prototype.setValueChangedDirectly = function (val) {
+        if (this.isSettingValueChanged)
+            return;
+        this.isSettingValueChanged = true;
+        _super.prototype.setValueChangedDirectly.call(this, val);
+        if (!!this.contentQuestion) {
+            this.contentQuestion.setValueChangedDirectly(val);
+        }
+        this.isSettingValueChanged = false;
     };
     QuestionCustomModel.prototype.initElement = function (el) {
         var _this = this;
@@ -32989,7 +33204,7 @@ var QuestionDropdownModel = /** @class */ (function (_super) {
         return new _utils_cssClassBuilder__WEBPACK_IMPORTED_MODULE_3__["CssClassBuilder"]()
             .append(this.cssClasses.control)
             .append(this.cssClasses.controlEmpty, this.isEmpty())
-            .append(this.cssClasses.onError, this.errors.length > 0)
+            .append(this.cssClasses.onError, this.hasCssError())
             .append(this.cssClasses.controlDisabled, this.isReadOnly)
             .append(this.cssClasses.controlInputFieldComponent, !!this.inputFieldComponentName)
             .toString();
@@ -33797,6 +34012,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _actions_action__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./actions/action */ "./src/actions/action.ts");
 /* harmony import */ var _helpers__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./helpers */ "./src/helpers.ts");
 /* harmony import */ var _utils_camera__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./utils/camera */ "./src/utils/camera.ts");
+/* harmony import */ var _settings__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./settings */ "./src/settings.ts");
 var __extends = (undefined && undefined.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
@@ -33818,6 +34034,8 @@ var __decorate = (undefined && undefined.__decorate) || function (decorators, ta
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+
+
 
 
 
@@ -33976,6 +34194,7 @@ var QuestionFileModel = /** @class */ (function (_super) {
             iconSize: "auto",
             title: new _base__WEBPACK_IMPORTED_MODULE_3__["ComputedUpdater"](function () { return _this.takePhotoCaption; }),
             showTitle: new _base__WEBPACK_IMPORTED_MODULE_3__["ComputedUpdater"](function () { return !_this.isAnswered; }),
+            enabledIf: function () { return !_this.isInputReadOnly; },
             action: function () {
                 _this.startVideo();
             }
@@ -33986,6 +34205,7 @@ var QuestionFileModel = /** @class */ (function (_super) {
             iconSize: "auto",
             title: new _base__WEBPACK_IMPORTED_MODULE_3__["ComputedUpdater"](function () { return _this.clearButtonCaption; }),
             showTitle: false,
+            enabledIf: function () { return !_this.isInputReadOnly; },
             innerCss: new _base__WEBPACK_IMPORTED_MODULE_3__["ComputedUpdater"](function () { return _this.cssClasses.removeButton; }),
             action: function () {
                 _this.doClean();
@@ -33994,10 +34214,9 @@ var QuestionFileModel = /** @class */ (function (_super) {
         [_this.closeCameraAction, _this.changeCameraAction, _this.takePictureAction].forEach(function (action) {
             action.cssClasses = {};
         });
-        _this.registerFunctionOnPropertiesValueChanged(["currentMode", "isAnswered"], function () {
-            _this.updateActions();
+        _this.registerFunctionOnPropertiesValueChanged(["sourceType", "currentMode", "isAnswered"], function () {
+            _this.updateActionsVisibility();
         });
-        _this.updateActions();
         _this.actionsContainer.actions = [_this.chooseFileAction, _this.startCameraAction, _this.cleanAction];
         _this.fileNavigator.actions = [_this.prevFileAction, _this.fileIndexAction, _this.nextFileAction];
         return _this;
@@ -34025,8 +34244,7 @@ var QuestionFileModel = /** @class */ (function (_super) {
             var isUploading = this.isUploading;
             var isPlayingVideo = this.isPlayingVideo;
             var isDefaultV2Theme = this.isDefaultV2Theme;
-            var isReadOnly = this.isInputReadOnly;
-            return !isUploading && !isPlayingVideo && !isReadOnly && isDefaultV2Theme;
+            return !isUploading && !isPlayingVideo && isDefaultV2Theme;
         },
         enumerable: false,
         configurable: true
@@ -34062,7 +34280,7 @@ var QuestionFileModel = /** @class */ (function (_super) {
             if (!stream) {
                 _this.stopVideo();
             }
-        }, this.imageWidth, this.imageHeight);
+        }, Object(_utils_utils__WEBPACK_IMPORTED_MODULE_6__["getRenderedSize"])(this.imageWidth), Object(_utils_utils__WEBPACK_IMPORTED_MODULE_6__["getRenderedSize"])(this.imageHeight));
     };
     QuestionFileModel.prototype.stopVideo = function () {
         this.setIsPlayingVideo(false);
@@ -34309,37 +34527,31 @@ var QuestionFileModel = /** @class */ (function (_super) {
     QuestionFileModel.prototype.getConfirmRemoveMessage = function (fileName) {
         return this.confirmRemoveMessage.format(fileName);
     };
-    Object.defineProperty(QuestionFileModel.prototype, "renderedPlaceholder", {
+    Object.defineProperty(QuestionFileModel.prototype, "locRenderedPlaceholder", {
         get: function () {
             var _this = this;
-            if (this.renderedPlaceholderValue === undefined) {
-                this.renderedPlaceholderValue = (new _base__WEBPACK_IMPORTED_MODULE_3__["ComputedUpdater"](function () {
-                    var dragAreaText = _this.dragAreaPlaceholder;
-                    var fileCameraDragAreaPlaceHolder = _this.fileCameraDragAreaPlaceholder;
-                    var cameraPlaceHolder = _this.cameraPlaceholder;
-                    var readOnlyText = _this.noFileChosenCaption;
+            if (this.locRenderedPlaceholderValue === undefined) {
+                this.locRenderedPlaceholderValue = (new _base__WEBPACK_IMPORTED_MODULE_3__["ComputedUpdater"](function () {
                     var isReadOnly = _this.isReadOnly;
-                    var hasFileUI = _this.hasFileUI;
-                    var hasVideoUI = _this.hasVideoUI;
-                    var renderedPlaceholder = "";
+                    var hasFileUI = (!_this.isDesignMode && _this.hasFileUI) || (_this.isDesignMode && _this.sourceType != "camera");
+                    var hasVideoUI = (!_this.isDesignMode && _this.hasVideoUI) || (_this.isDesignMode && _this.sourceType != "file");
+                    var renderedPlaceholder;
                     if (isReadOnly) {
-                        renderedPlaceholder = readOnlyText;
+                        renderedPlaceholder = _this.locNoFileChosenCaption;
+                    }
+                    else if (hasFileUI && hasVideoUI) {
+                        renderedPlaceholder = _this.locFileOrPhotoPlaceholder;
                     }
                     else if (hasFileUI) {
-                        if (hasVideoUI) {
-                            renderedPlaceholder = fileCameraDragAreaPlaceHolder;
-                        }
-                        else {
-                            renderedPlaceholder = dragAreaText;
-                        }
+                        renderedPlaceholder = _this.locFilePlaceholder;
                     }
                     else {
-                        renderedPlaceholder = cameraPlaceHolder;
+                        renderedPlaceholder = _this.locPhotoPlaceholder;
                     }
                     return renderedPlaceholder;
                 }));
             }
-            return this.renderedPlaceholderValue;
+            return this.locRenderedPlaceholderValue;
         },
         enumerable: false,
         configurable: true
@@ -34374,9 +34586,10 @@ var QuestionFileModel = /** @class */ (function (_super) {
             }
         }
     };
-    QuestionFileModel.prototype.updateActions = function () {
-        this.chooseFileAction.visible = this.hasFileUI;
-        this.startCameraAction.visible = this.hasVideoUI;
+    QuestionFileModel.prototype.updateActionsVisibility = function () {
+        var isDesignMode = this.isDesignMode;
+        this.chooseFileAction.visible = (!isDesignMode && this.hasFileUI) || (isDesignMode && this.sourceType !== "camera");
+        this.startCameraAction.visible = (!isDesignMode && this.hasVideoUI) || (isDesignMode && this.sourceType !== "file");
         this.cleanAction.visible = !!this.isAnswered;
     };
     Object.defineProperty(QuestionFileModel.prototype, "inputTitle", {
@@ -34553,7 +34766,9 @@ var QuestionFileModel = /** @class */ (function (_super) {
                 if (_this.survey) {
                     _this.survey.uploadFiles(_this, _this.name, files, function (status, data) {
                         if (status === "error") {
+                            _this.errors.push(new _error__WEBPACK_IMPORTED_MODULE_4__["UploadingFileError"](data, _this));
                             _this.stateChanged("error");
+                            _this.stateChanged("loaded");
                         }
                         if (status === "success") {
                             _this.value = (_this.value || []).concat(data.map(function (r) {
@@ -34706,6 +34921,9 @@ var QuestionFileModel = /** @class */ (function (_super) {
         }
         return questionPlainData;
     };
+    QuestionFileModel.prototype.getImageWrapperCss = function (data) {
+        return new _utils_cssClassBuilder__WEBPACK_IMPORTED_MODULE_5__["CssClassBuilder"]().append(this.cssClasses.imageWrapper).append(this.cssClasses.imageWrapperDefaultImage, this.defaultImage(data)).toString();
+    };
     QuestionFileModel.prototype.getActionsContainerCss = function (css) {
         return new _utils_cssClassBuilder__WEBPACK_IMPORTED_MODULE_5__["CssClassBuilder"]()
             .append(css.actionsContainer)
@@ -34752,7 +34970,7 @@ var QuestionFileModel = /** @class */ (function (_super) {
     QuestionFileModel.prototype.getFileDecoratorCss = function () {
         return new _utils_cssClassBuilder__WEBPACK_IMPORTED_MODULE_5__["CssClassBuilder"]()
             .append(this.cssClasses.fileDecorator)
-            .append(this.cssClasses.onError, this.errors.length > 0)
+            .append(this.cssClasses.onError, this.hasCssError())
             .append(this.cssClasses.fileDecoratorDrag, this.isDragging)
             .toString();
     };
@@ -34793,7 +35011,7 @@ var QuestionFileModel = /** @class */ (function (_super) {
     QuestionFileModel.prototype.endLoadingFromJson = function () {
         _super.prototype.endLoadingFromJson.call(this);
         this.updateCurrentMode();
-        this.updateActions();
+        this.updateActionsVisibility();
         this.loadPreview(this.value);
     };
     QuestionFileModel.prototype.needResponsiveness = function () {
@@ -34936,17 +35154,17 @@ var QuestionFileModel = /** @class */ (function (_super) {
         Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])({ localizable: { defaultStr: "chooseFile" } })
     ], QuestionFileModel.prototype, "chooseFileTitle", void 0);
     __decorate([
-        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])({ localizable: { defaultStr: "fileCameraDragAreaPlaceHolder" } })
-    ], QuestionFileModel.prototype, "fileCameraDragAreaPlaceholder", void 0);
+        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])({ localizable: { defaultStr: "fileOrPhotoPlaceholder" } })
+    ], QuestionFileModel.prototype, "fileOrPhotoPlaceholder", void 0);
     __decorate([
-        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])({ localizable: { defaultStr: "cameraPlaceHolder" } })
-    ], QuestionFileModel.prototype, "cameraPlaceholder", void 0);
+        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])({ localizable: { defaultStr: "photoPlaceholder" } })
+    ], QuestionFileModel.prototype, "photoPlaceholder", void 0);
     __decorate([
-        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])({ localizable: { defaultStr: "fileDragAreaPlaceholder" } })
-    ], QuestionFileModel.prototype, "dragAreaPlaceholder", void 0);
+        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])({ localizable: { defaultStr: "filePlaceholder" } })
+    ], QuestionFileModel.prototype, "filePlaceholder", void 0);
     __decorate([
         Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])()
-    ], QuestionFileModel.prototype, "renderedPlaceholderValue", void 0);
+    ], QuestionFileModel.prototype, "locRenderedPlaceholderValue", void 0);
     return QuestionFileModel;
 }(_question__WEBPACK_IMPORTED_MODULE_0__["Question"]));
 
@@ -34954,7 +35172,14 @@ _jsonobject__WEBPACK_IMPORTED_MODULE_1__["Serializer"].addClass("file", [
     { name: "showCommentArea:switch", layout: "row", visible: true, category: "general" },
     { name: "showPreview:boolean", default: true },
     "allowMultiple:boolean",
-    { name: "allowImagesPreview:boolean", default: true },
+    {
+        name: "allowImagesPreview:boolean",
+        default: true,
+        dependsOn: "showPreview",
+        visibleIf: function (obj) {
+            return !!obj.showPreview;
+        },
+    },
     "imageHeight",
     "imageWidth",
     "acceptedTypes",
@@ -34965,8 +35190,11 @@ _jsonobject__WEBPACK_IMPORTED_MODULE_1__["Serializer"].addClass("file", [
     { name: "correctAnswer", visible: false },
     { name: "validators", visible: false },
     { name: "needConfirmRemoveFile:boolean" },
-    { name: "allowCameraAccess:switch", category: "general" },
-    { name: "sourceType", choices: ["file", "camera", "file-camera"], default: "file", category: "general", visible: true }
+    { name: "sourceType", choices: ["file", "camera", "file-camera"], default: "file", category: "general", visible: true, visibleIf: function () { return _settings__WEBPACK_IMPORTED_MODULE_11__["settings"].supportCreatorV2; } },
+    { name: "fileOrPhotoPlaceholder:text", serializationProperty: "locFileOrPhotoPlaceholder", category: "general", visibleIf: function () { return _settings__WEBPACK_IMPORTED_MODULE_11__["settings"].supportCreatorV2; } },
+    { name: "photoPlaceholder:text", serializationProperty: "locPhotoPlaceholder", category: "general", visibleIf: function () { return _settings__WEBPACK_IMPORTED_MODULE_11__["settings"].supportCreatorV2; } },
+    { name: "filePlaceholder:text", serializationProperty: "locFilePlaceholder", category: "general", visibleIf: function () { return _settings__WEBPACK_IMPORTED_MODULE_11__["settings"].supportCreatorV2; } },
+    { name: "allowCameraAccess:switch", category: "general", visible: false },
 ], function () {
     return new QuestionFileModel("");
 }, "question");
@@ -35540,6 +35768,8 @@ var ImageItemValue = /** @class */ (function (_super) {
         },
         set: function (val) {
             this.setLocalizableStringText("imageLink", val);
+            this.imageNotLoaded = false;
+            this.videoNotLoaded = false;
         },
         enumerable: false,
         configurable: true
@@ -36470,7 +36700,7 @@ var QuestionMatrixModel = /** @class */ (function (_super) {
         return new _utils_cssClassBuilder__WEBPACK_IMPORTED_MODULE_11__["CssClassBuilder"]()
             .append(this.cssClasses.cell, this.hasCellText)
             .append(this.hasCellText ? this.cssClasses.cellText : this.cssClasses.label)
-            .append(this.cssClasses.itemOnError, !this.hasCellText && this.errors.length > 0)
+            .append(this.cssClasses.itemOnError, !this.hasCellText && this.hasCssError())
             .append(this.hasCellText ? this.cssClasses.cellTextSelected : this.cssClasses.itemChecked, isChecked)
             .append(this.hasCellText ? this.cssClasses.cellTextDisabled : this.cssClasses.itemDisabled, isDisabled)
             .append(this.cssClasses.itemHover, allowHover && !this.hasCellText)
@@ -36590,7 +36820,7 @@ var QuestionMatrixModel = /** @class */ (function (_super) {
     };
     QuestionMatrixModel.prototype.onCheckForErrors = function (errors, isOnValueChanged) {
         _super.prototype.onCheckForErrors.call(this, errors, isOnValueChanged);
-        if ((!isOnValueChanged || this.errors.length > 0) &&
+        if ((!isOnValueChanged || this.hasCssError()) &&
             this.hasErrorInRows()) {
             errors.push(new _error__WEBPACK_IMPORTED_MODULE_6__["RequiredInAllRowsError"](null, this));
         }
@@ -38204,7 +38434,7 @@ var QuestionMatrixDropdownModelBase = /** @class */ (function (_super) {
     };
     QuestionMatrixDropdownModelBase.prototype.onStartRowAddingRemoving = function () {
         this.lockResetRenderedTable = true;
-        this.setValueChangedDirectly();
+        this.setValueChangedDirectly(true);
     };
     QuestionMatrixDropdownModelBase.prototype.onEndRowAdding = function () {
         this.lockResetRenderedTable = false;
@@ -39613,7 +39843,7 @@ var QuestionMatrixDropdownModelBase = /** @class */ (function (_super) {
 _jsonobject__WEBPACK_IMPORTED_MODULE_0__["Serializer"].addClass("matrixdropdownbase", [
     {
         name: "columns:matrixdropdowncolumns",
-        className: "matrixdropdowncolumn",
+        className: "matrixdropdowncolumn", isArray: true
     },
     {
         name: "columnLayout",
@@ -40564,7 +40794,7 @@ _jsonobject__WEBPACK_IMPORTED_MODULE_0__["Serializer"].addClass("matrixdropdownc
     "requiredIf:condition",
     "resetValueIf:condition",
     "setValueIf:condition",
-    { name: "setValueExpression:expression", visibleIf: function (obj) { return !!obj.setValueIf; } },
+    "setValueExpression:expression",
     {
         name: "showInMultipleColumns:boolean",
         dependsOn: "cellType",
@@ -40669,6 +40899,7 @@ var QuestionMatrixDropdownRenderedCell = /** @class */ (function () {
         this.isActionsCell = false;
         this.isErrorsCell = false;
         this.isDragHandlerCell = false;
+        this.isDetailRowCell = false;
         this.classNameValue = "";
         this.idValue = QuestionMatrixDropdownRenderedCell.counter++;
     }
@@ -40829,6 +41060,7 @@ var QuestionMatrixDropdownRenderedRow = /** @class */ (function (_super) {
         var _this = _super.call(this) || this;
         _this.cssClasses = cssClasses;
         _this.isDetailRow = isDetailRow;
+        _this.hasEndActions = false;
         _this.isErrorsRow = false;
         _this.cells = [];
         _this.idValue = QuestionMatrixDropdownRenderedRow.counter++;
@@ -40852,9 +41084,13 @@ var QuestionMatrixDropdownRenderedRow = /** @class */ (function (_super) {
     });
     Object.defineProperty(QuestionMatrixDropdownRenderedRow.prototype, "className", {
         get: function () {
+            var _a, _b;
             return new _utils_cssClassBuilder__WEBPACK_IMPORTED_MODULE_5__["CssClassBuilder"]()
                 .append(this.cssClasses.row)
                 .append(this.cssClasses.detailRow, this.isDetailRow)
+                .append(this.cssClasses.rowHasPanel, (_a = this.row) === null || _a === void 0 ? void 0 : _a.hasPanel)
+                .append(this.cssClasses.expandedRow, ((_b = this.row) === null || _b === void 0 ? void 0 : _b.isDetailPanelShowing) && !this.isDetailRow)
+                .append(this.cssClasses.rowHasEndActions, this.hasEndActions)
                 .append(this.cssClasses.ghostRow, this.isGhostRow)
                 .append(this.cssClasses.rowAdditional, this.isAdditionalClasses)
                 .toString();
@@ -41207,7 +41443,7 @@ var QuestionMatrixDropdownRenderedTable = /** @class */ (function (_super) {
             this.footerRow.cells.push(this.createHeaderCell(null));
         }
         if (this.hasActionCellInRows("start")) {
-            this.footerRow.cells.push(this.createHeaderCell(null));
+            this.footerRow.cells.push(this.createHeaderCell(null, "action"));
         }
         if (this.matrix.hasRowText) {
             this.footerRow.cells.push(this.createTextCell(this.matrix.getFooterText()));
@@ -41229,7 +41465,7 @@ var QuestionMatrixDropdownRenderedTable = /** @class */ (function (_super) {
             }
         }
         if (this.hasActionCellInRows("end")) {
-            this.footerRow.cells.push(this.createHeaderCell(null));
+            this.footerRow.cells.push(this.createHeaderCell(null, "action"));
         }
     };
     QuestionMatrixDropdownRenderedTable.prototype.buildRows = function () {
@@ -41299,10 +41535,25 @@ var QuestionMatrixDropdownRenderedTable = /** @class */ (function (_super) {
         return cell;
     };
     QuestionMatrixDropdownRenderedTable.prototype.getActionsCellClassName = function (cell) {
+        var _this = this;
         if (cell === void 0) { cell = null; }
-        return new _utils_cssClassBuilder__WEBPACK_IMPORTED_MODULE_5__["CssClassBuilder"]().append(this.cssClasses.actionsCell).append(this.cssClasses.actionsCellDrag, cell === null || cell === void 0 ? void 0 : cell.isDragHandlerCell).append(this.cssClasses.verticalCell, !this.matrix.isColumnLayoutHorizontal).toString();
+        var classBuilder = new _utils_cssClassBuilder__WEBPACK_IMPORTED_MODULE_5__["CssClassBuilder"]()
+            .append(this.cssClasses.actionsCell)
+            .append(this.cssClasses.actionsCellDrag, cell === null || cell === void 0 ? void 0 : cell.isDragHandlerCell)
+            .append(this.cssClasses.detailRowCell, cell === null || cell === void 0 ? void 0 : cell.isDetailRowCell)
+            .append(this.cssClasses.verticalCell, !this.matrix.isColumnLayoutHorizontal);
+        if (cell.isActionsCell) {
+            var actions = cell.item.value.actions;
+            if (this.cssClasses.actionsCellPrefix) {
+                actions.forEach(function (action) {
+                    classBuilder.append(_this.cssClasses.actionsCellPrefix + "--" + action.id);
+                });
+            }
+        }
+        return classBuilder.toString();
     };
-    QuestionMatrixDropdownRenderedTable.prototype.getRowActionsCell = function (rowIndex, location) {
+    QuestionMatrixDropdownRenderedTable.prototype.getRowActionsCell = function (rowIndex, location, isDetailRow) {
+        if (isDetailRow === void 0) { isDetailRow = false; }
         var rowActions = this.getRowActions(rowIndex, location);
         if (!this.isValueEmpty(rowActions)) {
             var cell = new QuestionMatrixDropdownRenderedCell();
@@ -41315,6 +41566,7 @@ var QuestionMatrixDropdownRenderedTable = /** @class */ (function (_super) {
             cell.item = itemValue;
             cell.isActionsCell = true;
             cell.isDragHandlerCell = false;
+            cell.isDetailRowCell = isDetailRow;
             cell.className = this.getActionsCellClassName(cell);
             cell.row = this.matrix.visibleRows[rowIndex];
             return cell;
@@ -41348,6 +41600,7 @@ var QuestionMatrixDropdownRenderedTable = /** @class */ (function (_super) {
         configurable: true
     });
     QuestionMatrixDropdownRenderedTable.prototype.setDefaultRowActions = function (row, actions) {
+        var _this = this;
         var matrix = this.matrix;
         if (this.hasRemoveRows && this.canRemoveRow(row)) {
             if (!this.showRemoveButtonAsIcon) {
@@ -41378,14 +41631,28 @@ var QuestionMatrixDropdownRenderedTable = /** @class */ (function (_super) {
             }
         }
         if (row.hasPanel) {
-            actions.push(new _actions_action__WEBPACK_IMPORTED_MODULE_3__["Action"]({
-                id: "show-detail",
-                title: this.matrix.getLocalizationString("editText"),
-                showTitle: false,
-                location: "start",
-                component: "sv-matrix-detail-button",
-                data: { row: row, question: this.matrix },
-            }));
+            if (this.matrix.isMobile) {
+                actions.unshift(new _actions_action__WEBPACK_IMPORTED_MODULE_3__["Action"]({
+                    id: "show-detail-mobile",
+                    title: "Show Details",
+                    showTitle: true,
+                    location: "end",
+                    action: function (context) {
+                        context.title = row.isDetailPanelShowing ? _this.matrix.getLocalizationString("showDetails") : _this.matrix.getLocalizationString("hideDetails");
+                        row.showHideDetailPanelClick();
+                    },
+                }));
+            }
+            else {
+                actions.push(new _actions_action__WEBPACK_IMPORTED_MODULE_3__["Action"]({
+                    id: "show-detail",
+                    title: this.matrix.getLocalizationString("editText"),
+                    showTitle: false,
+                    location: "start",
+                    component: "sv-matrix-detail-button",
+                    data: { row: row, question: this.matrix },
+                }));
+            }
         }
     };
     QuestionMatrixDropdownRenderedTable.prototype.createErrorRow = function (row) {
@@ -41453,13 +41720,15 @@ var QuestionMatrixDropdownRenderedTable = /** @class */ (function (_super) {
     QuestionMatrixDropdownRenderedTable.prototype.addRowActionsCell = function (row, renderedRow, location) {
         var rowIndex = this.matrix.visibleRows.indexOf(row);
         if (this.hasActionCellInRows(location)) {
-            var actions = this.getRowActionsCell(rowIndex, location);
+            var actions = this.getRowActionsCell(rowIndex, location, renderedRow.isDetailRow);
             if (!!actions) {
                 renderedRow.cells.push(actions);
+                renderedRow.hasEndActions = true;
             }
             else {
                 var cell = new QuestionMatrixDropdownRenderedCell();
                 cell.isEmpty = true;
+                cell.isDetailRowCell = renderedRow.isDetailRow;
                 renderedRow.cells.push(cell);
             }
         }
@@ -41489,7 +41758,12 @@ var QuestionMatrixDropdownRenderedTable = /** @class */ (function (_super) {
         cell.className = this.cssClasses.detailPanelCell;
         res.cells.push(cell);
         if (!!actionsCell) {
-            res.cells.push(actionsCell);
+            if (this.matrix.isMobile) {
+                this.addRowActionsCell(row, res, "end");
+            }
+            else {
+                res.cells.push(actionsCell);
+            }
         }
         if (typeof this.matrix.onCreateDetailPanelRenderedRowCallback === "function") {
             this.matrix.onCreateDetailPanelRenderedRowCallback(res);
@@ -42932,7 +43206,7 @@ var MultipleTextEditorModel = /** @class */ (function (_super) {
 /**
  * A class that describes an item in a [Multiple Textboxes](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model) question.
  *
- * [View Demo](/form-library/examples/multiple-text-box-question/)
+ * [View Demo](https://surveyjs.io/form-library/examples/multiple-text-box-question/)
  */
 var MultipleTextItemModel = /** @class */ (function (_super) {
     __extends(MultipleTextItemModel, _super);
@@ -43156,6 +43430,19 @@ var MultipleTextItemModel = /** @class */ (function (_super) {
         },
         set: function (val) {
             this.editor.size = val;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(MultipleTextItemModel.prototype, "defaultValueExpression", {
+        /**
+         * An expression used to calculate the [defaultValue](https://surveyjs.io/form-library/documentation/question#defaultValue).
+         */
+        get: function () {
+            return this.editor.defaultValueExpression;
+        },
+        set: function (val) {
+            this.editor.defaultValueExpression = val;
         },
         enumerable: false,
         configurable: true
@@ -43611,6 +43898,10 @@ var QuestionMultipleTextModel = /** @class */ (function (_super) {
             this.items[i].onValueChanged(itemValue);
         }
     };
+    QuestionMultipleTextModel.prototype.runCondition = function (values, properties) {
+        _super.prototype.runCondition.call(this, values, properties);
+        this.items.forEach(function (item) { return item.editor.runCondition(values, properties); });
+    };
     QuestionMultipleTextModel.prototype.getIsRunningValidators = function () {
         if (_super.prototype.getIsRunningValidators.call(this))
             return true;
@@ -43769,6 +44060,7 @@ var QuestionMultipleTextModel = /** @class */ (function (_super) {
             .append(this.cssClasses.itemLabelAnswered, item.editor.isAnswered)
             .append(this.cssClasses.itemLabelAllowFocus, !this.isDesignMode)
             .append(this.cssClasses.itemLabelOnError, item.editor.errors.length > 0)
+            .append(this.cssClasses.itemWithCharacterCounter, !!item.getMaxLength())
             .toString();
     };
     QuestionMultipleTextModel.prototype.getItemCss = function () {
@@ -43874,6 +44166,7 @@ _jsonobject__WEBPACK_IMPORTED_MODULE_4__["Serializer"].addClass("multipletextite
         name: "requiredErrorText:text",
         serializationProperty: "locRequiredErrorText",
     },
+    { name: "defaultValueExpression:expression", visible: false },
     {
         name: "minValueExpression:expression",
         category: "logic",
@@ -43899,7 +44192,7 @@ _jsonobject__WEBPACK_IMPORTED_MODULE_4__["Serializer"].addClass("multipletextite
     return new MultipleTextItemModel("");
 });
 _jsonobject__WEBPACK_IMPORTED_MODULE_4__["Serializer"].addClass("multipletext", [
-    { name: "!items:textitems", className: "multipletextitem" },
+    { name: "!items:textitems", className: "multipletextitem", isArray: true },
     { name: "itemSize:number", minValue: 0 },
     { name: "colCount:number", default: 1, choices: [1, 2, 3, 4, 5] },
     { name: "itemErrorLocation", default: "default", choices: ["default", "top", "bottom"], visible: false }
@@ -44394,7 +44687,7 @@ var QuestionPanelDynamicModel = /** @class */ (function (_super) {
          *
          * If you want to customize individual tab titles, handle `SurveyModel`'s [`onGetDynamicPanelTabTitle`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onGetDynamicPanelTabTitle) event.
          *
-         * [View Demo](/form-library/examples/tabbed-interface-for-duplicate-group-option/ (linkStyle))
+         * [View Demo](https://surveyjs.io/form-library/examples/tabbed-interface-for-duplicate-group-option/ (linkStyle))
          * @see templateTitle
          * @see renderMode
          */
@@ -45181,7 +45474,7 @@ var QuestionPanelDynamicModel = /** @class */ (function (_super) {
          * - `"progressTop"` - Renders each panel as a card and displays a progress bar at the top. [View Demo](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/)
          * - `"progressBottom"` - Renders each panel panel as a card and displays a progress bar at the bottom.
          * - `"progressTopBottom"` - Renders each panel as a card and displays a progress bar at the top and bottom.
-         * - `"tab"` - Renders each panel within a tab. Use the [`templateTabTitle`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#templateTabTitle) to specify a template for tab titles. [View Demo](/form-library/examples/tabbed-interface-for-duplicate-group-option/)
+         * - `"tab"` - Renders each panel within a tab. Use the [`templateTabTitle`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#templateTabTitle) to specify a template for tab titles. [View Demo](https://surveyjs.io/form-library/examples/tabbed-interface-for-duplicate-group-option/)
          */
         get: function () {
             return this.getPropertyValue("renderMode");
@@ -46935,14 +47228,14 @@ var QuestionRankingModel = /** @class */ (function (_super) {
         get: function () {
             return new _utils_cssClassBuilder__WEBPACK_IMPORTED_MODULE_6__["CssClassBuilder"]()
                 .append(this.cssClasses.root)
-                .append(this.cssClasses.rootMobileMod, _utils_devices__WEBPACK_IMPORTED_MODULE_7__["IsMobile"])
+                .append(this.cssClasses.rootMobileMod, this.isMobileMode())
                 .append(this.cssClasses.rootDisabled, this.isReadOnly)
                 .append(this.cssClasses.rootDesignMode, !!this.isDesignMode)
-                .append(this.cssClasses.itemOnError, this.errors.length > 0)
+                .append(this.cssClasses.itemOnError, this.hasCssError())
                 .append(this.cssClasses.rootDragHandleAreaIcon, _src_settings__WEBPACK_IMPORTED_MODULE_9__["settings"].rankingDragHandleArea === "icon")
                 .append(this.cssClasses.rootSelectToRankMod, this.selectToRankEnabled)
-                .append(this.cssClasses.rootSelectToRankAlignHorizontal, this.selectToRankEnabled && this.selectToRankAreasLayout === "horizontal")
-                .append(this.cssClasses.rootSelectToRankAlignVertical, this.selectToRankEnabled && this.selectToRankAreasLayout === "vertical")
+                .append(this.cssClasses.rootSelectToRankAlignHorizontal, this.selectToRankEnabled && this.renderedSelectToRankAreasLayout === "horizontal")
+                .append(this.cssClasses.rootSelectToRankAlignVertical, this.selectToRankEnabled && this.renderedSelectToRankAreasLayout === "vertical")
                 .toString();
         },
         enumerable: false,
@@ -47275,9 +47568,7 @@ var QuestionRankingModel = /** @class */ (function (_super) {
          * @see selectToRankAreasLayout
         */
         get: function () {
-            if (_utils_devices__WEBPACK_IMPORTED_MODULE_7__["IsMobile"])
-                return "vertical";
-            return this.getPropertyValue("selectToRankAreasLayout", "horizontal");
+            return this.getPropertyValue("selectToRankAreasLayout");
         },
         set: function (val) {
             this.setPropertyValue("selectToRankAreasLayout", val);
@@ -47285,12 +47576,45 @@ var QuestionRankingModel = /** @class */ (function (_super) {
         enumerable: false,
         configurable: true
     });
+    Object.defineProperty(QuestionRankingModel.prototype, "renderedSelectToRankAreasLayout", {
+        get: function () {
+            if (this.isMobileMode())
+                return "vertical";
+            return this.selectToRankAreasLayout;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    QuestionRankingModel.prototype.isMobileMode = function () {
+        return _utils_devices__WEBPACK_IMPORTED_MODULE_7__["IsMobile"];
+    };
     Object.defineProperty(QuestionRankingModel.prototype, "useFullItemSizeForShortcut", {
         get: function () {
             return this.getPropertyValue("useFullItemSizeForShortcut");
         },
         set: function (val) {
             this.setPropertyValue("useFullItemSizeForShortcut", val);
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(QuestionRankingModel.prototype, "dragDropSvgIcon", {
+        get: function () {
+            return this.cssClasses.dragDropSvgIconId || "#icon-drag-n-drop";
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(QuestionRankingModel.prototype, "arrowsSvgIcon", {
+        get: function () {
+            return this.cssClasses.arrowsSvgIconId || "#icon-ranking-arrows";
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(QuestionRankingModel.prototype, "dashSvgIcon", {
+        get: function () {
+            return this.cssClasses.dashSvgIconId || "#icon-ranking-dash";
         },
         enumerable: false,
         configurable: true
@@ -47633,7 +47957,7 @@ var QuestionRatingModel = /** @class */ (function (_super) {
          *
          * If you do not specify the `rateValues` property, rate values are generated automatically based upon the [`rateMin`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateMin), [`rateMax`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateMax), [`rateStep`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateStep), and [`rateCount`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateCount) property values.
          *
-         * [View Demo](/form-library/examples/rating-scale/ (linkStyle))
+         * [View Demo](https://surveyjs.io/form-library/examples/rating-scale/ (linkStyle))
          */
         get: function () {
             return this.getPropertyValue("rateValues");
@@ -47651,7 +47975,7 @@ var QuestionRatingModel = /** @class */ (function (_super) {
          *
          * Default value: 1
          *
-         * [View Demo](/form-library/examples/rating-scale/ (linkStyle))
+         * [View Demo](https://surveyjs.io/form-library/examples/rating-scale/ (linkStyle))
          * @see rateMax
          * @see rateStep
          * @see rateCount
@@ -47671,7 +47995,7 @@ var QuestionRatingModel = /** @class */ (function (_super) {
          *
          * Default value: 5
          *
-         * [View Demo](/form-library/examples/rating-scale/ (linkStyle))
+         * [View Demo](https://surveyjs.io/form-library/examples/rating-scale/ (linkStyle))
          * @see rateMin
          * @see rateStep
          * @see rateCount
@@ -47691,7 +48015,7 @@ var QuestionRatingModel = /** @class */ (function (_super) {
          *
          * Default value: 1
          *
-         * [View Demo](/form-library/examples/rating-scale/ (linkStyle))
+         * [View Demo](https://surveyjs.io/form-library/examples/rating-scale/ (linkStyle))
          * @see rateMin
          * @see rateMax
          * @see rateCount
@@ -48135,7 +48459,7 @@ var QuestionRatingModel = /** @class */ (function (_super) {
             .append(itemScaleColoredClass, this.scaleColorMode == "colored")
             .append(itemRateColoredClass, this.rateColorMode == "scale" && isSelected)
             .append(itemUnhighlightedClass, isUnhighlighted)
-            .append(itemitemOnErrorClass, this.errors.length > 0)
+            .append(itemitemOnErrorClass, this.hasCssError())
             .append(itemSmallClass, this.itemSmallMode)
             .append(this.cssClasses.itemFixedSize, hasFixedSize)
             .toString();
@@ -48146,7 +48470,7 @@ var QuestionRatingModel = /** @class */ (function (_super) {
         return new _utils_cssClassBuilder__WEBPACK_IMPORTED_MODULE_6__["CssClassBuilder"]()
             .append(this.cssClasses.control)
             .append(this.cssClasses.controlEmpty, this.isEmpty())
-            .append(this.cssClasses.onError, this.errors.length > 0)
+            .append(this.cssClasses.onError, this.hasCssError())
             .append(this.cssClasses.controlDisabled, this.isReadOnly)
             .toString();
     };
@@ -48518,24 +48842,6 @@ var __decorate = (undefined && undefined.__decorate) || function (decorators, ta
 
 var defaultWidth = 300;
 var defaultHeight = 200;
-function resizeCanvas(canvas) {
-    var context = canvas.getContext("2d");
-    var devicePixelRatio = window.devicePixelRatio || 1;
-    var backingStoreRatio = context.webkitBackingStorePixelRatio ||
-        context.mozBackingStorePixelRatio ||
-        context.msBackingStorePixelRatio ||
-        context.oBackingStorePixelRatio ||
-        context.backingStorePixelRatio ||
-        1;
-    var ratio = devicePixelRatio / backingStoreRatio;
-    var oldWidth = canvas.width;
-    var oldHeight = canvas.height;
-    canvas.width = oldWidth * ratio;
-    canvas.height = oldHeight * ratio;
-    canvas.style.width = oldWidth + "px";
-    canvas.style.height = oldHeight + "px";
-    context.scale(ratio, ratio);
-}
 /**
  * A class that describes the Signature question type.
  *
@@ -48544,7 +48850,13 @@ function resizeCanvas(canvas) {
 var QuestionSignaturePadModel = /** @class */ (function (_super) {
     __extends(QuestionSignaturePadModel, _super);
     function QuestionSignaturePadModel(name) {
-        return _super.call(this, name) || this;
+        var _this = _super.call(this, name) || this;
+        _this.valueIsUpdatingInternally = false;
+        _this.updateValueHandler = function () {
+            _this.scaleCanvas(false, true);
+            _this.refreshCanvas();
+        };
+        return _this;
     }
     QuestionSignaturePadModel.prototype.getPenColorFromTheme = function () {
         var _survey = this.survey;
@@ -48570,7 +48882,9 @@ var QuestionSignaturePadModel = /** @class */ (function (_super) {
             var format = this.dataFormat === "jpeg" ? "image/jpeg" :
                 (this.dataFormat === "svg" ? "image/svg+xml" : "");
             var data = this.signaturePad.toDataURL(format);
+            this.valueIsUpdatingInternally = true;
             this.value = data;
+            this.valueIsUpdatingInternally = false;
         }
     };
     QuestionSignaturePadModel.prototype.getType = function () {
@@ -48592,10 +48906,44 @@ var QuestionSignaturePadModel = /** @class */ (function (_super) {
             this.updateColors(this.signaturePad);
         }
     };
+    QuestionSignaturePadModel.prototype.resizeCanvas = function () {
+        this.canvas.width = this.containerWidth;
+        this.canvas.height = this.containerHeight;
+    };
+    QuestionSignaturePadModel.prototype.scaleCanvas = function (refresh, resize) {
+        if (refresh === void 0) { refresh = true; }
+        if (resize === void 0) { resize = false; }
+        var canvas = this.canvas;
+        var scale = canvas.offsetWidth / this.containerWidth;
+        if (this.scale != scale || resize) {
+            this.scale = scale;
+            canvas.style.width = this.renderedCanvasWidth;
+            this.resizeCanvas();
+            this.signaturePad.minWidth = this.penMinWidth * scale;
+            this.signaturePad.maxWidth = this.penMaxWidth * scale;
+            canvas.getContext("2d").scale(1 / scale, 1 / scale);
+            if (refresh)
+                this.refreshCanvas();
+        }
+    };
+    QuestionSignaturePadModel.prototype.refreshCanvas = function () {
+        var data = this.value;
+        var canvas = this.canvas;
+        if (!data) {
+            canvas.getContext("2d").clearRect(0, 0, canvas.width * this.scale, canvas.height * this.scale);
+            this.signaturePad.clear();
+        }
+        else {
+            this.signaturePad.fromDataURL(data, { width: canvas.width * this.scale, height: canvas.height * this.scale });
+        }
+    };
     QuestionSignaturePadModel.prototype.initSignaturePad = function (el) {
         var _this = this;
         var canvas = el.getElementsByTagName("canvas")[0];
+        this.canvas = canvas;
+        this.resizeCanvas();
         var signaturePad = new signature_pad__WEBPACK_IMPORTED_MODULE_3__["default"](canvas, { backgroundColor: "#ffffff" });
+        this.signaturePad = signaturePad;
         if (this.isInputReadOnly) {
             signaturePad.off();
         }
@@ -48609,6 +48957,7 @@ var QuestionSignaturePadModel = /** @class */ (function (_super) {
         };
         this.updateColors(signaturePad);
         signaturePad.addEventListener("beginStroke", function () {
+            _this.scaleCanvas();
             _this.isDrawingValue = true;
             canvas.focus();
         }, { once: false });
@@ -48616,24 +48965,12 @@ var QuestionSignaturePadModel = /** @class */ (function (_super) {
             _this.isDrawingValue = false;
             _this.updateValue();
         }, { once: false });
-        var updateValueHandler = function () {
-            var data = _this.value;
-            canvas.width = _this.signatureWidth || defaultWidth;
-            canvas.height = _this.signatureHeight || defaultHeight;
-            resizeCanvas(canvas);
-            if (!data) {
-                signaturePad.clear();
-            }
-            else {
-                signaturePad.fromDataURL(data);
-            }
-        };
-        updateValueHandler();
+        this.updateValueHandler();
         this.readOnlyChangedCallback();
-        this.signaturePad = signaturePad;
         var propertyChangedHandler = function (sender, options) {
             if (options.name === "signatureWidth" || options.name === "signatureHeight" || options.name === "value") {
-                updateValueHandler();
+                if (!_this.valueIsUpdatingInternally)
+                    _this.updateValueHandler();
             }
         };
         this.onPropertyChanged.add(propertyChangedHandler);
@@ -48688,6 +49025,27 @@ var QuestionSignaturePadModel = /** @class */ (function (_super) {
         },
         set: function (val) {
             this.setPropertyValue("signatureHeight", val);
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(QuestionSignaturePadModel.prototype, "containerHeight", {
+        get: function () {
+            return this.signatureHeight || defaultHeight;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(QuestionSignaturePadModel.prototype, "containerWidth", {
+        get: function () {
+            return this.signatureWidth || defaultWidth;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(QuestionSignaturePadModel.prototype, "renderedCanvasWidth", {
+        get: function () {
+            return this.signatureAutoScaleEnabled ? "100%" : this.containerWidth + "px";
         },
         enumerable: false,
         configurable: true
@@ -48790,15 +49148,11 @@ var QuestionSignaturePadModel = /** @class */ (function (_super) {
         configurable: true
     });
     QuestionSignaturePadModel.prototype.needShowPlaceholder = function () {
-        return !this.isDrawingValue && this.isEmpty();
+        var showPlaceholder = this.showPlaceholder;
+        var isDrawing = this.isDrawingValue;
+        var isEmpty = this.isEmpty();
+        return showPlaceholder && !isDrawing && isEmpty;
     };
-    Object.defineProperty(QuestionSignaturePadModel.prototype, "placeHolderText", {
-        get: function () {
-            return this.getLocalizationString("signaturePlaceHolder");
-        },
-        enumerable: false,
-        configurable: true
-    });
     QuestionSignaturePadModel.prototype.endLoadingFromJson = function () {
         _super.prototype.endLoadingFromJson.call(this);
         //todo: need to remove this code
@@ -48816,6 +49170,21 @@ var QuestionSignaturePadModel = /** @class */ (function (_super) {
     __decorate([
         Object(_jsonobject__WEBPACK_IMPORTED_MODULE_0__["property"])({ defaultValue: false })
     ], QuestionSignaturePadModel.prototype, "isDrawingValue", void 0);
+    __decorate([
+        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_0__["property"])({ defaultValue: false })
+    ], QuestionSignaturePadModel.prototype, "signatureAutoScaleEnabled", void 0);
+    __decorate([
+        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_0__["property"])({ defaultValue: 0.5 })
+    ], QuestionSignaturePadModel.prototype, "penMinWidth", void 0);
+    __decorate([
+        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_0__["property"])({ defaultValue: 2.5 })
+    ], QuestionSignaturePadModel.prototype, "penMaxWidth", void 0);
+    __decorate([
+        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_0__["property"])({})
+    ], QuestionSignaturePadModel.prototype, "showPlaceholder", void 0);
+    __decorate([
+        Object(_jsonobject__WEBPACK_IMPORTED_MODULE_0__["property"])({ localizable: { defaultStr: "signaturePlaceHolder" } })
+    ], QuestionSignaturePadModel.prototype, "placeholder", void 0);
     return QuestionSignaturePadModel;
 }(_question__WEBPACK_IMPORTED_MODULE_2__["Question"]));
 
@@ -48838,6 +49207,21 @@ _jsonobject__WEBPACK_IMPORTED_MODULE_0__["Serializer"].addClass("signaturepad", 
         category: "general",
         default: 200,
     },
+    {
+        name: "signatureAutoScaleEnabled:boolean",
+        category: "general",
+        default: false,
+    },
+    {
+        name: "penMinWidth:number",
+        category: "general",
+        default: 0.5,
+    },
+    {
+        name: "penMaxWidth:number",
+        category: "general",
+        default: 2.5,
+    },
     //need to remove this property
     {
         name: "height:number",
@@ -48848,6 +49232,14 @@ _jsonobject__WEBPACK_IMPORTED_MODULE_0__["Serializer"].addClass("signaturepad", 
         name: "allowClear:boolean",
         category: "general",
         default: true,
+    },
+    { name: "showPlaceholder:boolean", category: "general", default: true },
+    {
+        name: "placeholder:text",
+        serializationProperty: "locPlaceholder",
+        category: "general",
+        dependsOn: "showPlaceholder",
+        visibleIf: function (obj) { return obj.showPlaceholder; }
     },
     {
         name: "backgroundImage:file",
@@ -49033,7 +49425,7 @@ var QuestionTagboxModel = /** @class */ (function (_super) {
         return new _utils_cssClassBuilder__WEBPACK_IMPORTED_MODULE_2__["CssClassBuilder"]()
             .append(this.cssClasses.control)
             .append(this.cssClasses.controlEmpty, this.isEmpty())
-            .append(this.cssClasses.onError, this.errors.length > 0)
+            .append(this.cssClasses.onError, this.hasCssError())
             .append(this.cssClasses.controlDisabled, this.isReadOnly)
             .toString();
     };
@@ -49109,8 +49501,9 @@ var QuestionTagboxModel = /** @class */ (function (_super) {
         }
     };
     QuestionTagboxModel.prototype.clearValue = function () {
+        var _a;
         _super.prototype.clearValue.call(this);
-        this.dropdownListModel.clear();
+        (_a = this.dropdownListModel) === null || _a === void 0 ? void 0 : _a.clear();
     };
     Object.defineProperty(QuestionTagboxModel.prototype, "showClearButton", {
         get: function () {
@@ -49723,6 +50116,10 @@ var QuestionTextModel = /** @class */ (function (_super) {
     QuestionTextModel.prototype.hasPlaceholder = function () {
         return !this.isReadOnly && this.inputType !== "range";
     };
+    QuestionTextModel.prototype.getControlCssClassBuilder = function () {
+        return _super.prototype.getControlCssClassBuilder.call(this)
+            .append(this.cssClasses.constrolWithCharacterCounter, !!this.getMaxLength());
+    };
     QuestionTextModel.prototype.isReadOnlyRenderDiv = function () {
         return this.isReadOnly && _settings__WEBPACK_IMPORTED_MODULE_6__["settings"].readOnly.textRenderMode === "div";
     };
@@ -50151,12 +50548,14 @@ var QuestionTextBase = /** @class */ (function (_super) {
             }
         }
     };
-    QuestionTextBase.prototype.getControlClass = function () {
+    QuestionTextBase.prototype.getControlCssClassBuilder = function () {
         return new _utils_cssClassBuilder__WEBPACK_IMPORTED_MODULE_3__["CssClassBuilder"]()
             .append(this.cssClasses.root)
-            .append(this.cssClasses.onError, this.errors.length > 0)
-            .append(this.cssClasses.controlDisabled, this.isReadOnly)
-            .toString();
+            .append(this.cssClasses.onError, this.hasCssError())
+            .append(this.cssClasses.controlDisabled, this.isReadOnly);
+    };
+    QuestionTextBase.prototype.getControlClass = function () {
+        return this.getControlCssClassBuilder().toString();
     };
     Object.defineProperty(QuestionTextBase.prototype, "isNewA11yStructure", {
         //a11y
@@ -50386,6 +50785,20 @@ var QuestionNonValue = /** @class */ (function (_super) {
         if (path === void 0) { path = null; }
         return null;
     };
+    Object.defineProperty(QuestionNonValue.prototype, "ariaRole", {
+        get: function () {
+            return null;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(QuestionNonValue.prototype, "ariaRequired", {
+        get: function () {
+            return null;
+        },
+        enumerable: false,
+        configurable: true
+    });
     return QuestionNonValue;
 }(_question__WEBPACK_IMPORTED_MODULE_0__["Question"]));
 
@@ -50964,8 +51377,8 @@ var settings = {
      * @param message A message to be displayed in the confirm dialog window.
      * @param callback A callback function that should be called with `true` if a user confirms an action or `false` otherwise.
      */
-    confirmActionAsync: function (message, callback) {
-        return Object(_utils_utils__WEBPACK_IMPORTED_MODULE_0__["showConfirmDialog"])(message, callback);
+    confirmActionAsync: function (message, callback, applyTitle) {
+        return Object(_utils_utils__WEBPACK_IMPORTED_MODULE_0__["showConfirmDialog"])(message, callback, applyTitle);
     },
     /**
      * A minimum width value for all survey elements.
@@ -52963,7 +53376,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _actions_container__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./actions/container */ "./src/actions/container.ts");
 /* harmony import */ var _utils_cssClassBuilder__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./utils/cssClassBuilder */ "./src/utils/cssClassBuilder.ts");
 /* harmony import */ var _notifier__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./notifier */ "./src/notifier.ts");
-/* harmony import */ var _cover__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./cover */ "./src/cover.ts");
+/* harmony import */ var _header__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./header */ "./src/header.ts");
 /* harmony import */ var _surveytimer__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./surveytimer */ "./src/surveytimer.ts");
 var __extends = (undefined && undefined.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -53373,16 +53786,16 @@ var SurveyModel = /** @class */ (function (_super) {
          *
          * For information on event handler parameters, refer to descriptions within the interface.
          *
-         * [View Demo](/form-library/examples/customize-survey-with-css/ (linkStyle))
+         * [View Demo](https://surveyjs.io/form-library/examples/customize-survey-with-css/ (linkStyle))
          * @see css
          */
         _this.onUpdateQuestionCssClasses = _this.addEvent();
         /**
-         * An event that is raised before rendering a standalone panel and panels within [Dynamic Panel](/form-library/examples/duplicate-group-of-fields-in-form/). Use it to override default panel CSS classes.
+         * An event that is raised before rendering a standalone panel and panels within [Dynamic Panel](https://surveyjs.io/form-library/examples/duplicate-group-of-fields-in-form/). Use it to override default panel CSS classes.
          *
          * For information on event handler parameters, refer to descriptions within the interface.
          *
-         * [View Demo](/form-library/examples/customize-survey-with-css/ (linkStyle))
+         * [View Demo](https://surveyjs.io/form-library/examples/customize-survey-with-css/ (linkStyle))
          * @see css
          */
         _this.onUpdatePanelCssClasses = _this.addEvent();
@@ -53391,7 +53804,7 @@ var SurveyModel = /** @class */ (function (_super) {
          *
          * For information on event handler parameters, refer to descriptions within the interface.
          *
-         * [View Demo](/form-library/examples/customize-survey-with-css/ (linkStyle))
+         * [View Demo](https://surveyjs.io/form-library/examples/customize-survey-with-css/ (linkStyle))
          * @see css
          */
         _this.onUpdatePageCssClasses = _this.addEvent();
@@ -53400,7 +53813,7 @@ var SurveyModel = /** @class */ (function (_super) {
          *
          * For information on event handler parameters, refer to descriptions within the interface.
          *
-         * [View Demo](/form-library/examples/customize-survey-with-css/ (linkStyle))
+         * [View Demo](https://surveyjs.io/form-library/examples/customize-survey-with-css/ (linkStyle))
          * @see css
          */
         _this.onUpdateChoiceItemCss = _this.addEvent();
@@ -53492,7 +53905,7 @@ var SurveyModel = /** @class */ (function (_super) {
          */
         _this.onMatrixRowAdding = _this.addEvent();
         /**
-         * This event is obsolete. Use the [`onMatrixRowAdding`](/form-library/documentation/api-reference/survey-data-model#onMatrixRowAdding) event instead.
+         * This event is obsolete. Use the [`onMatrixRowAdding`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onMatrixRowAdding) event instead.
          */
         _this.onMatrixBeforeRowAdded = _this.onMatrixRowAdding;
         /**
@@ -53512,7 +53925,7 @@ var SurveyModel = /** @class */ (function (_super) {
          */
         _this.onMatrixRenderRemoveButton = _this.addEvent();
         /**
-         * This event is obsolete. Use the [`onMatrixRenderRemoveButton`](/form-library/documentation/api-reference/survey-data-model#onMatrixRenderRemoveButton) event instead.
+         * This event is obsolete. Use the [`onMatrixRenderRemoveButton`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onMatrixRenderRemoveButton) event instead.
          */
         _this.onMatrixAllowRemoveRow = _this.onMatrixRenderRemoveButton;
         /**
@@ -53531,7 +53944,7 @@ var SurveyModel = /** @class */ (function (_super) {
          */
         _this.onAfterRenderMatrixCell = _this.addEvent();
         /**
-         * This event is obsolete. Use the [`onAfterRenderMatrixCell`](/form-library/documentation/api-reference/survey-data-model#onAfterRenderMatrixCell) event instead.
+         * This event is obsolete. Use the [`onAfterRenderMatrixCell`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onAfterRenderMatrixCell) event instead.
          */
         _this.onMatrixAfterCellRender = _this.onAfterRenderMatrixCell;
         /**
@@ -53589,7 +54002,7 @@ var SurveyModel = /** @class */ (function (_super) {
          *
          * For information on event handler parameters, refer to descriptions within the interface.
          *
-         * [View Demo](/form-library/examples/tabbed-interface-for-duplicate-group-option/ (linkStyle))
+         * [View Demo](https://surveyjs.io/form-library/examples/tabbed-interface-for-duplicate-group-option/ (linkStyle))
          */
         _this.onGetDynamicPanelTabTitle = _this.addEvent();
         /**
@@ -54018,7 +54431,7 @@ var SurveyModel = /** @class */ (function (_super) {
         /**
          * Gets or sets an object in which keys are UI elements and values are CSS classes applied to them.
          *
-         * [View Demo](/form-library/examples/customize-survey-with-css/ (linkStyle))
+         * [View Demo](https://surveyjs.io/form-library/examples/customize-survey-with-css/ (linkStyle))
          */
         get: function () {
             if (!this.cssValue) {
@@ -54293,7 +54706,7 @@ var SurveyModel = /** @class */ (function (_super) {
         /**
          * Specifies whether to focus the first question on the page on survey startup or when users switch between pages.
          *
-         * Default value: `true`
+         * Default value: `false` in v1.9.114 and later, `true` in earlier versions
          * @see focusOnFirstError
          * @see focusFirstQuestion
          * @see focusQuestion
@@ -58147,6 +58560,7 @@ var SurveyModel = /** @class */ (function (_super) {
     };
     SurveyModel.prototype.processResponsiveness = function (width, mobileWidth) {
         var isMobile = width < mobileWidth;
+        this.layoutElements.forEach(function (layoutElement) { return layoutElement.processResponsiveness && layoutElement.processResponsiveness(width); });
         if (this.isMobile === isMobile) {
             return false;
         }
@@ -60815,6 +61229,11 @@ var SurveyModel = /** @class */ (function (_super) {
                     }
                 }
             }
+            else if (isStrCiEqual(layoutElement.id, "advanced-header")) {
+                if (this.state === "running" && layoutElement.container === container) {
+                    containerLayoutElements.push(layoutElement);
+                }
+            }
             else {
                 if (Array.isArray(layoutElement.container) && layoutElement.container.indexOf(container) !== -1 || layoutElement.container === container) {
                     containerLayoutElements.push(layoutElement);
@@ -60829,8 +61248,8 @@ var SurveyModel = /** @class */ (function (_super) {
     /**
      * Applies a specified theme to the survey.
      *
-     * [Themes & Styles](/form-library/documentation/manage-default-themes-and-styles (linkStyle))
-     * @param theme An [`ITheme`](/form-library/documentation/api-reference/itheme) object with theme settings.
+     * [Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles (linkStyle))
+     * @param theme An [`ITheme`](https://surveyjs.io/form-library/documentation/api-reference/itheme) object with theme settings.
      */
     SurveyModel.prototype.applyTheme = function (theme) {
         var _this = this;
@@ -60838,14 +61257,15 @@ var SurveyModel = /** @class */ (function (_super) {
             return;
         Object.keys(theme).forEach(function (key) {
             if (key === "header") {
-                _this.removeLayoutElement("cover");
-                var newCoverModel = new _cover__WEBPACK_IMPORTED_MODULE_20__["Cover"]();
-                newCoverModel.fromTheme(theme);
+                _this.removeLayoutElement("advanced-header");
+                var advHeader_1 = new _header__WEBPACK_IMPORTED_MODULE_20__["Cover"]();
+                advHeader_1.fromTheme(theme);
                 _this.layoutElements.push({
-                    id: "cover",
+                    id: "advanced-header",
                     container: "header",
-                    component: "sv-cover",
-                    data: newCoverModel
+                    component: "sv-header",
+                    data: advHeader_1,
+                    processResponsiveness: function (width) { return advHeader_1.processResponsiveness(width); }
                 });
             }
             if (key === "isPanelless") {
@@ -60934,26 +61354,27 @@ var SurveyModel = /** @class */ (function (_super) {
         Object(_jsonobject__WEBPACK_IMPORTED_MODULE_1__["property"])({
             onSet: function (newValue, target) {
                 if (newValue === "advanced") {
-                    var layoutElement = target.layoutElements.filter(function (a) { return a.id === "cover"; })[0];
+                    var layoutElement = target.layoutElements.filter(function (a) { return a.id === "advanced-header"; })[0];
                     if (!layoutElement) {
-                        var cover = new _cover__WEBPACK_IMPORTED_MODULE_20__["Cover"]();
-                        cover.logoPositionX = target.logoPosition === "right" ? "right" : "left";
-                        cover.logoPositionY = "middle";
-                        cover.titlePositionX = target.logoPosition === "right" ? "left" : "right";
-                        cover.titlePositionY = "middle";
-                        cover.descriptionPositionX = target.logoPosition === "right" ? "left" : "right";
-                        cover.descriptionPositionY = "middle";
-                        cover.survey = target;
+                        var advHeader = new _header__WEBPACK_IMPORTED_MODULE_20__["Cover"]();
+                        advHeader.logoPositionX = target.logoPosition === "right" ? "right" : "left";
+                        advHeader.logoPositionY = "middle";
+                        advHeader.titlePositionX = target.logoPosition === "right" ? "left" : "right";
+                        advHeader.titlePositionY = "middle";
+                        advHeader.descriptionPositionX = target.logoPosition === "right" ? "left" : "right";
+                        advHeader.descriptionPositionY = "middle";
+                        advHeader.survey = target;
                         target.layoutElements.unshift({
-                            id: "cover",
+                            id: "advanced-header",
                             container: "header",
-                            component: "sv-cover",
-                            data: cover
+                            component: "sv-header",
+                            data: advHeader,
+                            processResponsiveness: function (width) { return advHeader.processResponsiveness(width); }
                         });
                     }
                 }
                 else {
-                    target.removeLayoutElement("cover");
+                    target.removeLayoutElement("advanced-header");
                 }
             }
         })
@@ -61043,7 +61464,7 @@ _jsonobject__WEBPACK_IMPORTED_MODULE_1__["Serializer"].addClass("survey", [
         default: "left",
         choices: ["none", "left", "right", "top", "bottom"],
     },
-    { name: "focusFirstQuestionAutomatic:boolean", default: true },
+    { name: "focusFirstQuestionAutomatic:boolean" },
     { name: "focusOnFirstError:boolean", default: true },
     { name: "completedHtml:html", serializationProperty: "locCompletedHtml" },
     {
@@ -61052,13 +61473,13 @@ _jsonobject__WEBPACK_IMPORTED_MODULE_1__["Serializer"].addClass("survey", [
     },
     {
         name: "completedHtmlOnCondition:htmlconditions",
-        className: "htmlconditionitem",
+        className: "htmlconditionitem", isArray: true
     },
     { name: "loadingHtml:html", serializationProperty: "locLoadingHtml" },
-    { name: "pages:surveypages", className: "page" },
+    { name: "pages:surveypages", className: "page", isArray: true },
     {
-        name: "questions",
-        alternativeName: "elements",
+        name: "elements",
+        alternativeName: "questions",
         baseClassName: "question",
         visible: false,
         isLightSerializable: false,
@@ -61078,7 +61499,7 @@ _jsonobject__WEBPACK_IMPORTED_MODULE_1__["Serializer"].addClass("survey", [
     },
     {
         name: "calculatedValues:calculatedvalues",
-        className: "calculatedvalue",
+        className: "calculatedvalue", isArray: true
     },
     { name: "surveyId", visible: false },
     { name: "surveyPostId", visible: false },
@@ -61097,7 +61518,7 @@ _jsonobject__WEBPACK_IMPORTED_MODULE_1__["Serializer"].addClass("survey", [
     "navigateToUrl",
     {
         name: "navigateToUrlOnCondition:urlconditions",
-        className: "urlconditionitem",
+        className: "urlconditionitem", isArray: true
     },
     {
         name: "questionsOrder",
@@ -62960,7 +63381,7 @@ var Camera = /** @class */ (function () {
             this.hasCameraCallback(callback);
         }
     };
-    Camera.prototype.getMediaConstraints = function (videoEl) {
+    Camera.prototype.getMediaConstraints = function (videoSize) {
         var devices = Camera.cameraList;
         if (!Array.isArray(devices) || devices.length < 1)
             return undefined;
@@ -62974,9 +63395,13 @@ var Camera = /** @class */ (function () {
         else {
             videoConstraints.facingMode = Camera.cameraFacingMode;
         }
-        if (videoEl) {
-            videoConstraints.width = { exact: videoEl.width ? videoEl.width : videoEl.scrollWidth };
-            videoConstraints.height = { exact: videoEl.height ? videoEl.height : videoEl.scrollHeight };
+        if (videoSize) {
+            if (videoSize === null || videoSize === void 0 ? void 0 : videoSize.height) {
+                videoConstraints.height = { ideal: videoSize.height };
+            }
+            if (videoSize === null || videoSize === void 0 ? void 0 : videoSize.width) {
+                videoConstraints.width = { ideal: videoSize.width };
+            }
         }
         return {
             video: videoConstraints,
@@ -62991,19 +63416,11 @@ var Camera = /** @class */ (function () {
             callback(undefined);
             return;
         }
-        if (imageWidth) {
-            videoEl.width = imageWidth;
-        }
-        else {
-            videoEl.style.width = "100%";
-        }
-        if (imageHeight) {
-            videoEl.height = imageHeight;
-        }
-        else {
-            videoEl.style.height = "100%";
-        }
-        var mediaConstraints = this.getMediaConstraints(videoEl);
+        videoEl.style.width = "100%";
+        videoEl.style.height = "auto";
+        videoEl.style.height = "100%";
+        videoEl.style.objectFit = "contain";
+        var mediaConstraints = this.getMediaConstraints({ width: imageWidth, height: imageHeight });
         navigator.mediaDevices.getUserMedia(mediaConstraints).then(function (stream) {
             var _a;
             videoEl.srcObject = stream;
@@ -63018,6 +63435,9 @@ var Camera = /** @class */ (function () {
             callback(undefined);
         });
     };
+    Camera.prototype.getImageSize = function (videoEl) {
+        return { width: videoEl.videoWidth, height: videoEl.videoHeight };
+    };
     Camera.prototype.snap = function (videoElementId, callback) {
         if ("undefined" === typeof document)
             return false;
@@ -63026,8 +63446,9 @@ var Camera = /** @class */ (function () {
         if (!videoEl)
             return false;
         var canvasEl = root.createElement("canvas");
-        canvasEl.height = videoEl.scrollHeight;
-        canvasEl.width = videoEl.scrollWidth;
+        var imageSize = this.getImageSize(videoEl);
+        canvasEl.height = imageSize.height;
+        canvasEl.width = imageSize.width;
         var context = canvasEl.getContext("2d");
         /*
         if(this._facingMode == 'user'){
@@ -63887,7 +64308,9 @@ function increaseHeightByContent(element, getComputedStyle) {
         getComputedStyle = function (elt) { return window.getComputedStyle(elt); };
     var style = getComputedStyle(element);
     element.style.height = "auto";
-    element.style.height = (element.scrollHeight + parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth)) + "px";
+    if (!!element.scrollHeight) {
+        element.style.height = (element.scrollHeight + parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth)) + "px";
+    }
 }
 function getOriginalEvent(event) {
     return event.originalEvent || event;
@@ -63978,7 +64401,7 @@ var Logger = /** @class */ (function () {
     return Logger;
 }());
 
-function showConfirmDialog(message, callback) {
+function showConfirmDialog(message, callback, applyTitle) {
     var locStr = new _localizablestring__WEBPACK_IMPORTED_MODULE_0__["LocalizableString"](undefined);
     var popupViewModel = _settings__WEBPACK_IMPORTED_MODULE_1__["settings"].showDialog({
         componentName: "sv-string-viewer",
@@ -64001,7 +64424,7 @@ function showConfirmDialog(message, callback) {
     var cancelBtn = toolbar.getActionById("cancel");
     cancelBtn.title = _surveyStrings__WEBPACK_IMPORTED_MODULE_2__["surveyLocalization"].getString("cancel");
     cancelBtn.innerCss = "sv-popup__body-footer-item sv-popup__button sd-btn sd-btn--small";
-    applyBtn.title = _surveyStrings__WEBPACK_IMPORTED_MODULE_2__["surveyLocalization"].getString("ok");
+    applyBtn.title = applyTitle || _surveyStrings__WEBPACK_IMPORTED_MODULE_2__["surveyLocalization"].getString("ok");
     applyBtn.innerCss = "sv-popup__body-footer-item sv-popup__button sv-popup__button--danger sd-btn sd-btn--small sd-btn--danger";
     popupViewModel.width = "452px";
     return true;

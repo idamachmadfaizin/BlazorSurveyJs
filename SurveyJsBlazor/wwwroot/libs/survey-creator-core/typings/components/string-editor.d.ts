@@ -1,0 +1,70 @@
+import { Base, LocalizableString, JsonObjectProperty, EventBase, CharacterCounter } from "survey-core";
+import { CreatorBase } from "../creator-base";
+import { QuestionAdornerViewModel } from "./question";
+export declare abstract class StringItemsNavigatorBase {
+    protected question: any;
+    constructor(question: any);
+    protected abstract getItemLocString(items: any, item: any): LocalizableString;
+    protected abstract getItemSets(): Array<any>;
+    protected abstract addNewItem(creator: CreatorBase, items: any, text?: string): void;
+    protected abstract getItemsPropertyName(items: any): string;
+    private static createItemsNavigator;
+    protected addNewItems(creator: CreatorBase, items: any, startIndex: number, itemsToAdd: string[]): void;
+    private setEventsForItem;
+    static setQuestion(questionAdorner: QuestionAdornerViewModel): boolean;
+}
+export declare class StringEditorConnector extends Base {
+    private locString;
+    static get(locString: LocalizableString): StringEditorConnector;
+    setAutoFocus(): void;
+    hasEditCompleteHandler: boolean;
+    focusOnEditor: boolean;
+    activateEditor(): void;
+    onDoActivate: EventBase<LocalizableString, any>;
+    onTextChanging: EventBase<StringEditorViewModelBase, any>;
+    onEditComplete: EventBase<StringEditorViewModelBase, any>;
+    onBackspaceEmptyString: EventBase<StringEditorViewModelBase, any>;
+    constructor(locString: LocalizableString);
+}
+export declare class StringEditorViewModelBase extends Base {
+    private locString;
+    private creator;
+    private blurredByEscape;
+    private focusedProgram;
+    private valueBeforeEdit;
+    private connector;
+    getEditorElement: () => HTMLElement;
+    characterCounter: CharacterCounter;
+    errorText: string;
+    focused: boolean;
+    editAsText: boolean;
+    compostionInProgress: boolean;
+    constructor(locString: LocalizableString, creator: CreatorBase);
+    afterRender(): void;
+    dispose(): void;
+    activate: () => boolean;
+    setLocString(locString: LocalizableString): void;
+    checkConstraints(event: any): void;
+    blurEditor: () => void;
+    onClick(event: any): void;
+    onFocus(event: any): void;
+    private checkMarkdownToTextConversion;
+    onCompositionStart(event: any): void;
+    onInput(event: any): void;
+    onCompositionEnd(event: any): void;
+    onBlur(event: any): void;
+    done(event: Event): void;
+    onPaste(event: ClipboardEvent): void;
+    onKeyDown(event: KeyboardEvent): boolean;
+    onKeyUp(event: KeyboardEvent): boolean;
+    private justFocused;
+    onMouseUp(event: MouseEvent): boolean;
+    findProperty(): JsonObjectProperty;
+    get maxLength(): number;
+    placeholderValue: string;
+    get placeholder(): string;
+    get contentEditable(): boolean;
+    get showCharacterCounter(): boolean;
+    get getCharacterCounterClass(): string;
+    className(text: any): string;
+}
