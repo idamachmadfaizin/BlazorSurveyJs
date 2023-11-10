@@ -1,26 +1,17 @@
 /// <reference path="../wwwroot/libs/survey-core/survey.core.d.ts" />
 
-import SurveyJsBlazor from "/_content/SurveyJsBlazor/scripts/survey-js-blazor.js";
+import SurveyJsBlazor, { IKoViewModel, IViewModel } from "/_content/SurveyJsBlazor/scripts/survey-js-blazor.js";
 
 import "/_content/SurveyJsBlazor/libs/knockout/knockout.js";
 import "/_content/SurveyJsBlazor/libs/survey-core/survey.core.min.js";
-import  "/_content/SurveyJsBlazor/libs/survey-knockout-ui/survey-knockout-ui.min.js";
+import "/_content/SurveyJsBlazor/libs/survey-knockout-ui/survey-knockout-ui.min.js";
 
 import { DotNetObjectType, IDotNetObject } from "../wwwroot/scripts/dot-net-object.type";
 import { IHashId } from "../wwwroot/scripts/hash-id";
 
-type IViewModel = {
-    model: any;
-}
-
 type IRenderModel = {
     jsonScheme: object,
 } & IHashId & IDotNetObject;
-
-type IKoViewModel = {
-    viewModel: IViewModel;
-    element: Element | null;
-}
 
 /**
  * The list of dotnet component method with attribute "JSInvokable".
@@ -50,10 +41,10 @@ export function render({ dotNetObject, hashId, jsonScheme }: IRenderModel) {
 
     survey.onComplete.add((sender: any) => onSurveyComplete(dotNetObject, sender));
 
-    const viewModel: IViewModel = {model: survey};
+    const viewModel: IViewModel = { model: survey };
 
     const surveyElement = document.querySelector(`survey[id="${hashId}"]`);
-    
+
     window.ko.applyBindings(viewModel, surveyElement);
 }
 
@@ -62,24 +53,24 @@ export function render({ dotNetObject, hashId, jsonScheme }: IRenderModel) {
  * @param hashId
  * @returns IKoViewModel
  */
-function getViewModel(hashId: number): IKoViewModel {
+function getViewModel(hashId: number): IKoViewModel<IViewModel> {
     const surveyElement = document.querySelector(`survey[id="${hashId}"]`)!;
 
     const viewModel = window.ko.dataFor(surveyElement);
 
-    return {viewModel: viewModel, element: surveyElement};
+    return { ko: viewModel, element: surveyElement };
 }
 
 /**
  * Dispose SurveyJs Form.
  * @param param IHashId
  */
-export function dispose({hashId}: IHashId) {
+export function dispose({ hashId }: IHashId) {
     const survey = getViewModel(hashId);
 
-    if (survey.element && survey.viewModel) {
-        if (!survey.viewModel.model.isDisposed) {
-            survey.viewModel.model.dispose();
+    if (survey.element && survey.ko) {
+        if (!survey.ko.model.isDisposed) {
+            survey.ko.model.dispose();
         }
 
         window.ko.cleanNode(survey.element);
@@ -91,9 +82,9 @@ export function dispose({hashId}: IHashId) {
  * Clear answer.
  * @param param
  */
-export function clear({hashId}: IHashId) {
+export function clear({ hashId }: IHashId) {
     const survey = getViewModel(hashId);
-    survey.viewModel.model.clear();
+    survey.ko.model.clear();
 }
 
 /**

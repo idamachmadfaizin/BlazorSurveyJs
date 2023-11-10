@@ -5,6 +5,7 @@
  * License: https://surveyjs.io/Licenses#SurveyCreator
  */
 (function webpackUniversalModuleDefinition(root, factory) {
+	root = this || (0, eval)("this");
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory(require("survey-creator-core"));
 	else if(typeof define === 'function' && define.amd)

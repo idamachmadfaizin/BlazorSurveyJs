@@ -14,5 +14,17 @@ internal abstract class CreatorJs
         public int HashId { get; set; }
         public CreatorOptions? CreatorOptions { get; set; } = default!;
         public string? JsonScheme { get; set; }
+        public string? Locale { get; set; }
+    }
+
+    internal class Dispose : IHashId
+    {
+        public int HashId { get; set; }
+    }
+
+    internal class SetLocal : IHashId
+    {
+        public int HashId { get; set; }
+        public string Locale { get; set; } = default!;
     }
 }

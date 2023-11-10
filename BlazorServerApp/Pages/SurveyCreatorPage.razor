@@ -7,9 +7,19 @@
 <PageTitle>Survey Creator</PageTitle>
 
 <h3>SurveyJs Creator</h3>
-<SurveyJsCreator Scheme="Scheme" SaveSurveyFunc="SaveSurveyFunc" CreatorOptions="CreatorOptions" class="vh-100"></SurveyJsCreator>
+
+<button class="btn btn-primary" @onclick="@(() => SetLocale("fr"))">Set to French</button>
+<button class="btn btn-primary" @onclick="@(() => SetLocale("id"))">Set to Indo</button>
+<button class="btn btn-primary" @onclick="@(() => SetLocale())">Set to Default</button>
+
+<SurveyJsCreator @ref="surveyJsCreator"
+                 Scheme="Scheme"
+                 SaveSurveyFunc="SaveSurveyFunc"
+                 CreatorOptions="CreatorOptions"
+                 class="vh-100" />
 
 @code {
+    SurveyJsCreator surveyJsCreator = default!;
     protected object? Scheme { get; set; }
     protected CreatorOptions? CreatorOptions { get; set; }
     private readonly string localStorageKey = "survey-json";
@@ -17,11 +27,11 @@
     public SurveyCreatorPage()
     {
         CreatorOptions = new CreatorOptions
-        {
-            ShowLogicTab = true,
-            IsAutoSave = true,
-            ShowPreviewTab = true,
-        };
+            {
+                ShowLogicTab = true,
+                IsAutoSave = true,
+                ShowPreviewTab = true,
+            };
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -42,5 +52,10 @@
     {
         logger.LogInformation($"OnSurveySave: {data}");
         await localStorage.SetItemAsStringAsync(localStorageKey, data.ToString());
+    }
+
+    async Task SetLocale(string? locale = "")
+    {
+        await surveyJsCreator.setLocale(locale);
     }
 }

@@ -20,6 +20,9 @@
     public CreatorOptions? CreatorOptions { get; set; }
 
     [Parameter]
+    public string? Locale { get; set; }
+
+    [Parameter]
     public EventCallback<object> SaveSurveyFunc { get; set; }
 
     [Parameter(CaptureUnmatchedValues = true)]
@@ -48,7 +51,8 @@
                     DotNetObject = objRef,
                     HashId = this.GetHashCode(),
                     CreatorOptions = CreatorOptions,
-                    JsonScheme = serializedScheme
+                    JsonScheme = serializedScheme,
+                    Locale = Locale,
                 };
             await module.InvokeVoidAsync("render", renderModel);
         }
@@ -60,6 +64,24 @@
         await SaveSurveyFunc.InvokeAsync(data);
     }
 
+    /// <summary>
+    /// Set the i18n of SurveyJs Creator.
+    /// </summary>
+    /// <param name="locale">language code. <see href="https://surveyjs.io/survey-creator/documentation/survey-localization-translate-surveys-to-different-languages#available-languages">Available Languages</see> .</param>
+    /// <returns></returns>
+    public async Task setLocale(string? locale)
+    {
+        var module = await jsModuleTask.Value;
+
+        var model = new CreatorJs.SetLocal
+            {
+                HashId = this.GetHashCode(),
+                Locale = string.IsNullOrEmpty(locale) ? "" : locale,
+            };
+
+        await module.InvokeVoidAsync("setLocale", model);
+    }
+
     async ValueTask IAsyncDisposable.DisposeAsync()
     {
         try
@@ -67,10 +89,16 @@
             if (jsModuleTask.IsValueCreated)
             {
                 var module = await jsModuleTask.Value;
+
+                // var model = new CreatorJs.Dispose
+                //     {
+                //         HashId = this.GetHashCode(),
+                //     };
+                // await module.InvokeVoidAsync("dispose", model);
                 await module.DisposeAsync();
             }
 
-            objRef?.Dispose();
+            objRef.Dispose();
 
             GC.SuppressFinalize(this);
         }
