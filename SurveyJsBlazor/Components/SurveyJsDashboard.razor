@@ -1,0 +1,12 @@
+﻿@using System.Reflection;
+
+<HeadContent>
+    <link href="./_content/@(assemblyName)/libs/survey-analytics/survey.analytics.min.css" rel="stylesheet" />
+</HeadContent>
+
+<h3>Hi</h3>
+
+@code {
+    private readonly string assemblyName = Assembly.GetExecutingAssembly().GetName().Name ?? "";
+
+}
