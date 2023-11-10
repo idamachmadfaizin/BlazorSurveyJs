@@ -361,3 +361,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Component javascripts
+/SurveyJsBlazor/Components/*.razor.js
