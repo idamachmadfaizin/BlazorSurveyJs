@@ -25,6 +25,12 @@ internal abstract class FormJs
     {
         public int HashId { get; set; }
     }
+
+    internal class SetLocale : ISetLocale
+    {
+        public int HashId { get; set; }
+        public string Locale { get; set; } = default!;
+    }
 }
 
 

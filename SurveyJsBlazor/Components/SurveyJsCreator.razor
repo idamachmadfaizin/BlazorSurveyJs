@@ -65,7 +65,7 @@
     }
 
     /// <summary>
-    /// Set the i18n of SurveyJs Creator.
+    /// Set the i18n.
     /// </summary>
     /// <param name="locale">language code. <see href="https://surveyjs.io/survey-creator/documentation/survey-localization-translate-surveys-to-different-languages#available-languages">Available Languages</see> .</param>
     /// <returns></returns>
@@ -73,7 +73,7 @@
     {
         var module = await jsModuleTask.Value;
 
-        var model = new CreatorJs.SetLocal
+        var model = new CreatorJs.SetLocale
             {
                 HashId = this.GetHashCode(),
                 Locale = string.IsNullOrEmpty(locale) ? "" : locale,

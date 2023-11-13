@@ -11,7 +11,8 @@ import "/_content/SurveyJsBlazor/libs/survey-creator-knockout/survey-creator-kno
 import "/_content/SurveyJsBlazor/libs/survey-creator-core/survey-creator-core.i18n.min.js";
 
 import { IDotNetObject } from "../wwwroot/scripts/dot-net-object.type";
-import { IHashId } from "../wwwroot/scripts/hash-id";
+import { IHashId } from "../wwwroot/scripts/hash-id.type";
+import { ISetLocale } from "../wwwroot/scripts/set-locale.type";
 
 declare const SurveyCreator: any;
 
@@ -71,9 +72,10 @@ export function dispose({ hashId }: IHashId) {
     }
 }
 
-type ISetLocale = {
-    locale: string;
-} & IHashId;
+/**
+ * Set i18n.
+ * @param param
+ */
 export function setLocale({ hashId, locale }: ISetLocale) {
     const survey = getViewModel(hashId);
     survey.ko.creator.locale = locale;

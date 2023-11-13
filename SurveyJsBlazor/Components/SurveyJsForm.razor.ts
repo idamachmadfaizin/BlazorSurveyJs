@@ -4,10 +4,12 @@ import SurveyJsBlazor, { IKoViewModel, IViewModel } from "/_content/SurveyJsBlaz
 
 import "/_content/SurveyJsBlazor/libs/knockout/knockout.js";
 import "/_content/SurveyJsBlazor/libs/survey-core/survey.core.min.js";
+import "/_content/SurveyJsBlazor/libs/survey-core/survey.i18n.min.js";
 import "/_content/SurveyJsBlazor/libs/survey-knockout-ui/survey-knockout-ui.min.js";
 
 import { DotNetObjectType, IDotNetObject } from "../wwwroot/scripts/dot-net-object.type";
-import { IHashId } from "../wwwroot/scripts/hash-id";
+import { IHashId } from "../wwwroot/scripts/hash-id.type";
+import { ISetLocale } from "../wwwroot/scripts/set-locale.type";
 
 type IRenderModel = {
     jsonScheme: object,
@@ -49,19 +51,6 @@ export function render({ dotNetObject, hashId, jsonScheme }: IRenderModel) {
 }
 
 /**
- * Get survey
- * @param hashId
- * @returns IKoViewModel
- */
-function getViewModel(hashId: number): IKoViewModel<IViewModel> {
-    const surveyElement = document.querySelector(`survey[id="${hashId}"]`)!;
-
-    const viewModel = window.ko.dataFor(surveyElement);
-
-    return { ko: viewModel, element: surveyElement };
-}
-
-/**
  * Dispose SurveyJs Form.
  * @param param IHashId
  */
@@ -85,6 +74,28 @@ export function dispose({ hashId }: IHashId) {
 export function clear({ hashId }: IHashId) {
     const survey = getViewModel(hashId);
     survey.ko.model.clear();
+}
+
+/**
+ * Set i18n.
+ * @param param
+ */
+export function setLocale({ hashId, locale }: ISetLocale) {
+    const survey = getViewModel(hashId);
+    survey.ko.model.locale = locale;
+}
+
+/**
+ * Get survey.
+ * @param hashId
+ * @returns IKoViewModel
+ */
+function getViewModel(hashId: number): IKoViewModel<IViewModel> {
+    const surveyElement = document.querySelector(`survey[id="${hashId}"]`)!;
+
+    const viewModel = window.ko.dataFor(surveyElement);
+
+    return { ko: viewModel, element: surveyElement };
 }
 
 /**

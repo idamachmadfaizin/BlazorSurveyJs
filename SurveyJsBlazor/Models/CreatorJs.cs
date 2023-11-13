@@ -22,7 +22,7 @@ internal abstract class CreatorJs
         public int HashId { get; set; }
     }
 
-    internal class SetLocal : IHashId
+    internal class SetLocale : ISetLocale
     {
         public int HashId { get; set; }
         public string Locale { get; set; } = default!;
