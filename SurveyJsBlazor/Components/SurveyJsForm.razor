@@ -18,6 +18,9 @@
     public object? Scheme { get; set; }
 
     [Parameter]
+    public string? Locale { get; set; }
+
+    [Parameter]
     public EventCallback<object> OnComplete { get; set; }
 
     [Parameter(CaptureUnmatchedValues = true)]
@@ -45,7 +48,8 @@
                 {
                     DotNetObject = objRef,
                     HashId = this.GetHashCode(),
-                    JsonScheme = serializedScheme
+                    JsonScheme = serializedScheme,
+                    Locale = Locale
                 };
             await module.InvokeVoidAsync("render", model);
         }
@@ -81,7 +85,7 @@
         var model = new FormJs.SetLocale
             {
                 HashId = this.GetHashCode(),
-                Locale = string.IsNullOrEmpty(locale) ? "" : locale,
+                Locale = locale,
             };
 
         await module.InvokeVoidAsync("setLocale", model);

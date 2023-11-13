@@ -76,7 +76,7 @@
         var model = new CreatorJs.SetLocale
             {
                 HashId = this.GetHashCode(),
-                Locale = string.IsNullOrEmpty(locale) ? "" : locale,
+                Locale = locale,
             };
 
         await module.InvokeVoidAsync("setLocale", model);

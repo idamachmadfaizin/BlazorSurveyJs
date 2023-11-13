@@ -1,19 +1,17 @@
 /// <reference path="../wwwroot/libs/survey-core/survey.core.d.ts" />
 
-import SurveyJsBlazor, { IKoViewModel, IViewModel } from "/_content/SurveyJsBlazor/scripts/survey-js-blazor.js";
+import SurveyJsBlazor from "/_content/SurveyJsBlazor/scripts/survey-js-blazor.js";
 
 import "/_content/SurveyJsBlazor/libs/knockout/knockout.js";
 import "/_content/SurveyJsBlazor/libs/survey-core/survey.core.min.js";
 import "/_content/SurveyJsBlazor/libs/survey-core/survey.i18n.min.js";
 import "/_content/SurveyJsBlazor/libs/survey-knockout-ui/survey-knockout-ui.min.js";
 
-import { DotNetObjectType, IDotNetObject } from "../wwwroot/scripts/dot-net-object.type";
-import { IHashId } from "../wwwroot/scripts/hash-id.type";
-import { ISetLocale } from "../wwwroot/scripts/set-locale.type";
-
-type IRenderModel = {
-    jsonScheme: object,
-} & IHashId & IDotNetObject;
+import { DotNetObjectType, IDotNetObject } from "../wwwroot/scripts/declarations/dot-net-object.type";
+import { IHashId } from "../wwwroot/scripts/declarations/hash-id.type";
+import { ILocale } from "../wwwroot/scripts/declarations/locale.type";
+import { IViewModel } from "../wwwroot/scripts/declarations/view-model.type";
+import { IKoViewModel } from "../wwwroot/scripts/declarations/ko-view-model.type";
 
 /**
  * The list of dotnet component method with attribute "JSInvokable".
@@ -29,7 +27,10 @@ SurveyJsBlazor.addQuestionProperty();
  * Render SurveyJS Form.
  * @param param
  */
-export function render({ dotNetObject, hashId, jsonScheme }: IRenderModel) {
+type IRenderModel = {
+    jsonScheme: object,
+} & IHashId & IDotNetObject & ILocale;
+export function render({ dotNetObject, hashId, jsonScheme, locale }: IRenderModel) {
     const survey = new window.Survey.Model(jsonScheme);
 
     survey.onCompleting.add((sender: any) => {
@@ -40,6 +41,8 @@ export function render({ dotNetObject, hashId, jsonScheme }: IRenderModel) {
         sender.setValue("maxScore", maxScore);
         sender.setValue("totalScore", totalScore);
     });
+
+    survey.locale = locale;
 
     survey.onComplete.add((sender: any) => onSurveyComplete(dotNetObject, sender));
 
@@ -80,7 +83,7 @@ export function clear({ hashId }: IHashId) {
  * Set i18n.
  * @param param
  */
-export function setLocale({ hashId, locale }: ISetLocale) {
+export function setLocale({ hashId, locale }: IHashId & ILocale) {
     const survey = getViewModel(hashId);
     survey.ko.model.locale = locale;
 }

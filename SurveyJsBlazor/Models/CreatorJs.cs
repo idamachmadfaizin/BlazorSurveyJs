@@ -8,7 +8,7 @@ namespace SurveyJsBlazor.Models;
 /// </summary>
 internal abstract class CreatorJs
 {
-    internal class Render : IDotNetObject<SurveyJsCreator>, IHashId
+    internal class Render : IDotNetObject<SurveyJsCreator>, IHashId, ILocale
     {
         public DotNetObjectReference<SurveyJsCreator>? DotNetObject { get; set; }
         public int HashId { get; set; }
@@ -22,9 +22,9 @@ internal abstract class CreatorJs
         public int HashId { get; set; }
     }
 
-    internal class SetLocale : ISetLocale
+    internal class SetLocale : IHashId, ILocale
     {
         public int HashId { get; set; }
-        public string Locale { get; set; } = default!;
+        public string? Locale { get; set; }
     }
 }

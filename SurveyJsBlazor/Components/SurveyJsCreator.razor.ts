@@ -1,6 +1,6 @@
 /// <reference path="../wwwroot/libs/survey-core/survey.core.d.ts" />
 
-import SurveyJsBlazor, { IKoViewModel } from "/_content/SurveyJsBlazor/scripts/survey-js-blazor.js";
+import SurveyJsBlazor from "/_content/SurveyJsBlazor/scripts/survey-js-blazor.js";
 
 import "/_content/SurveyJsBlazor/libs/knockout/knockout.js";
 import "/_content/SurveyJsBlazor/libs/survey-core/survey.core.min.js";
@@ -10,9 +10,10 @@ import "/_content/SurveyJsBlazor/libs/survey-creator-core/survey-creator-core.mi
 import "/_content/SurveyJsBlazor/libs/survey-creator-knockout/survey-creator-knockout.min.js";
 import "/_content/SurveyJsBlazor/libs/survey-creator-core/survey-creator-core.i18n.min.js";
 
-import { IDotNetObject } from "../wwwroot/scripts/dot-net-object.type";
-import { IHashId } from "../wwwroot/scripts/hash-id.type";
-import { ISetLocale } from "../wwwroot/scripts/set-locale.type";
+import { IDotNetObject } from "../wwwroot/scripts/declarations/dot-net-object.type";
+import { IHashId } from "../wwwroot/scripts/declarations/hash-id.type";
+import { ILocale } from "../wwwroot/scripts/declarations/locale.type";
+import { IKoViewModel } from "../wwwroot/scripts/declarations/ko-view-model.type";
 
 declare const SurveyCreator: any;
 
@@ -30,7 +31,7 @@ type IRender = {
     creatorOptions: any;
     jsonScheme: any;
     locale: string;
-} & IDotNetObject & IHashId;
+} & IDotNetObject & IHashId & ILocale;
 export function render({ dotNetObject, hashId, creatorOptions, jsonScheme, locale }: IRender) {
     if (!creatorOptions) {
         creatorOptions = {};
@@ -76,7 +77,7 @@ export function dispose({ hashId }: IHashId) {
  * Set i18n.
  * @param param
  */
-export function setLocale({ hashId, locale }: ISetLocale) {
+export function setLocale({ hashId, locale }: IHashId & ILocale) {
     const survey = getViewModel(hashId);
     survey.ko.creator.locale = locale;
 }

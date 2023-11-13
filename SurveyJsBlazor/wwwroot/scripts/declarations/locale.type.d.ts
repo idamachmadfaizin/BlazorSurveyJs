@@ -1,5 +1,5 @@
 import { IHashId } from "./hash-id.type";
 
-export type ISetLocale = {
+export type ILocale = {
     locale: string;
-} & IHashId;
+};

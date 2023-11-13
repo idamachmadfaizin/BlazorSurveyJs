@@ -6,12 +6,16 @@
 <PageTitle>Survey Form</PageTitle>
 
 <h3>SurveyJs Form</h3>
-<button class="btn btn-primary" @onclick="Clear">Clear</button>
 <button class="btn btn-primary" @onclick="@(() => SetLocale("fr"))">Set to French</button>
 <button class="btn btn-primary" @onclick="@(() => SetLocale("id"))">Set to Indo</button>
 <button class="btn btn-primary" @onclick="@(() => SetLocale())">Set to Default</button>
+<button class="btn btn-primary" @onclick="Clear">Clear</button>
 
-<SurveyJsForm Scheme="Scheme" OnComplete="OnSurveyComplete" @ref="surveyJsForm" class="mt-2"></SurveyJsForm>
+<SurveyJsForm @ref="surveyJsForm"
+              Scheme="Scheme"
+              Locale="id"
+              OnComplete="OnSurveyComplete"
+              class="mt-2" />
 
 @code {
     SurveyJsForm surveyJsForm = default!;

@@ -8,13 +8,13 @@ namespace SurveyJsBlazor.Models;
 /// </summary>
 internal abstract class FormJs
 {
-    internal class Render : IDotNetObject<SurveyJsForm>, IHashId
+    internal class Render : IDotNetObject<SurveyJsForm>, IHashId, ILocale
     {
         public DotNetObjectReference<SurveyJsForm>? DotNetObject { get; set; }
         public int HashId { get; set; }
         public string? JsonScheme { get; set; }
+        public string? Locale { get; set; }
     }
-
 
     internal class Dispose : IHashId
     {
@@ -26,10 +26,10 @@ internal abstract class FormJs
         public int HashId { get; set; }
     }
 
-    internal class SetLocale : ISetLocale
+    internal class SetLocale : IHashId, ILocale
     {
         public int HashId { get; set; }
-        public string Locale { get; set; } = default!;
+        public string? Locale { get; set; }
     }
 }
 
