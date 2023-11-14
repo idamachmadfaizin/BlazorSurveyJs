@@ -1,5 +1,6 @@
 ﻿@page "/survey-form"
 @using Newtonsoft.Json;
+@using SurveyJsBlazor.Enumerations;
 @inject ILogger<SurveyFormPage> logger
 @inject ILocalStorageService localStorage
 
@@ -9,18 +10,21 @@
 <button class="btn btn-primary" @onclick="@(() => SetLocale("fr"))">Set to French</button>
 <button class="btn btn-primary" @onclick="@(() => SetLocale("id"))">Set to Indo</button>
 <button class="btn btn-primary" @onclick="@(() => SetLocale())">Set to Default</button>
+<button class="btn btn-primary" @onclick="SwitchTheme">Switch Theme</button>
 <button class="btn btn-primary" @onclick="Clear">Clear</button>
 
 <SurveyJsForm @ref="surveyJsForm"
               Scheme="Scheme"
-              Locale="id"
-              Theme="SurveyJsBlazor.Enumerations.FormJsTheme.LayeredDarkPanelless"
+              Locale="Locale"
+              Theme="Theme"
               OnComplete="OnSurveyComplete"
               class="mt-2" />
 
 @code {
     SurveyJsForm surveyJsForm = default!;
     protected object? Scheme;
+    protected string? Locale = "id";
+    protected FormJsTheme? Theme;
     private readonly string localStorageKey = "survey-json";
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -50,5 +54,27 @@
     async Task SetLocale(string? locale = "")
     {
         await surveyJsForm.SetLocale(locale);
+    }
+
+    async Task SwitchTheme()
+    {
+        int? currentThemeIndex = (int?)Theme;
+        string[] themes = Enum.GetNames(typeof(FormJsTheme));
+
+        int? nextThemeIndex = currentThemeIndex.HasValue
+            ? (currentThemeIndex.Value == themes.Length ? null : currentThemeIndex.Value + 1)
+            : 0;
+
+        string? nextThemeString = nextThemeIndex.HasValue ? themes[nextThemeIndex.Value] : null;
+
+        if (string.IsNullOrEmpty(nextThemeString))
+        {
+            await surveyJsForm.SetTheme();
+            return;
+        }
+
+        Enum.TryParse<FormJsTheme>(nextThemeString, out FormJsTheme nextTheme);
+        Theme = nextTheme;
+        await surveyJsForm.SetTheme(nextTheme);
     }
 }

@@ -69,12 +69,10 @@
     public async Task Clear()
     {
         var module = await jsModuleTask.Value;
-
         var model = new FormJs.Clear
             {
                 HashId = this.GetHashCode()
             };
-
         await module.InvokeVoidAsync("clear", model);
     }
 
@@ -86,14 +84,23 @@
     public async Task SetLocale(string? locale)
     {
         var module = await jsModuleTask.Value;
-
         var model = new FormJs.SetLocale
             {
                 HashId = this.GetHashCode(),
                 Locale = locale,
             };
-
         await module.InvokeVoidAsync("setLocale", model);
+    }
+
+    public async Task SetTheme(FormJsTheme? theme = null)
+    {
+        var module = await jsModuleTask.Value;
+        var model = new FormJs.SetTheme
+            {
+                HashId = this.GetHashCode(),
+                Theme = theme.HasValue ? Enum.GetName(typeof(FormJsTheme), theme) : "",
+            };
+        await module.InvokeVoidAsync("setTheme", model);
     }
 
     async ValueTask IAsyncDisposable.DisposeAsync()
@@ -103,7 +110,6 @@
             if (jsModuleTask.IsValueCreated)
             {
                 var module = await jsModuleTask.Value;
-
                 var model = new FormJs.Dispose
                     {
                         HashId = this.GetHashCode(),

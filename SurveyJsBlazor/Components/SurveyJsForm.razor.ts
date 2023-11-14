@@ -15,6 +15,7 @@ import { ILocale } from "../wwwroot/scripts/declarations/locale.type";
 import { IViewModel } from "../wwwroot/scripts/declarations/view-model.type";
 import { IKoViewModel } from "../wwwroot/scripts/declarations/ko-view-model.type";
 import { ITheme } from "../wwwroot/scripts/declarations/theme.type";
+import { ExpressionItem } from "../wwwroot/libs/survey-core/typings/expressionItems";
 
 /**
  * The list of dotnet component method with attribute "JSInvokable".
@@ -34,7 +35,6 @@ type IRenderModel = {
     jsonScheme: object,
 } & IHashId & IDotNetObject & ILocale & ITheme;
 export function render({ dotNetObject, hashId, jsonScheme, locale, theme }: IRenderModel) {
-    console.log({ theme })
     const survey = new window.Survey.Model(jsonScheme);
     console.log(survey);
 
@@ -95,6 +95,17 @@ export function clear({ hashId }: IHashId) {
 export function setLocale({ hashId, locale }: IHashId & ILocale) {
     const survey = getViewModel(hashId);
     survey.ko.model.locale = locale;
+}
+
+export function setTheme({ hashId, theme }: IHashId & ITheme) {
+    const survey = getViewModel(hashId);
+    console.log({ survey, theme });
+    var exist = Object.keys(window.SurveyTheme).find(key => key === theme);
+
+    if (!exist) {
+        throw new Error("Theme not found");
+    }
+    survey.ko.model.applyTheme(window.SurveyTheme[theme]);
 }
 
 /**

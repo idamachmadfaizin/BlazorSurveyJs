@@ -32,6 +32,12 @@ internal abstract class FormJs
         public int HashId { get; set; }
         public string? Locale { get; set; }
     }
+
+    internal class SetTheme : IHashId, ITheme
+    {
+        public int HashId { get; set; }
+        public string? Theme { get; set; }
+    }
 }
 
 
