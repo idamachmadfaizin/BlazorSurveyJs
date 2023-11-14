@@ -6,6 +6,7 @@
     "removeComments": false,
     "strict": true,
     "target": "ES2017",
+    "esModuleInterop": true,
     "paths": {
       "/_content/SurveyJsBlazor/scripts/*": [ "./wwwroot/scripts/*" ]
     },

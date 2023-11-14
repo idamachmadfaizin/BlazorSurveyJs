@@ -1,5 +1,6 @@
 ﻿@using System.Reflection;
 @using Newtonsoft.Json;
+@using SurveyJsBlazor.Enumerations;
 @using SurveyJsBlazor.Models;
 
 @implements IAsyncDisposable
@@ -19,6 +20,9 @@
 
     [Parameter]
     public string? Locale { get; set; }
+
+    [Parameter]
+    public FormJsTheme? Theme { get; set; }
 
     [Parameter]
     public EventCallback<object> OnComplete { get; set; }
@@ -49,7 +53,8 @@
                     DotNetObject = objRef,
                     HashId = this.GetHashCode(),
                     JsonScheme = serializedScheme,
-                    Locale = Locale
+                    Locale = Locale,
+                    Theme = Theme.HasValue ? Enum.GetName(typeof(FormJsTheme), Theme) : ""
                 };
             await module.InvokeVoidAsync("render", model);
         }

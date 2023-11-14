@@ -1,4 +1,5 @@
 /// <reference path="../wwwroot/libs/survey-core/survey.core.d.ts" />
+/// <reference path="../wwwroot/libs/survey-core/themes/index.d.ts" />
 
 import SurveyJsBlazor from "/_content/SurveyJsBlazor/scripts/survey-js-blazor.js";
 
@@ -6,12 +7,14 @@ import "/_content/SurveyJsBlazor/libs/knockout/knockout.js";
 import "/_content/SurveyJsBlazor/libs/survey-core/survey.core.min.js";
 import "/_content/SurveyJsBlazor/libs/survey-core/survey.i18n.min.js";
 import "/_content/SurveyJsBlazor/libs/survey-knockout-ui/survey-knockout-ui.min.js";
+import "/_content/SurveyJsBlazor/libs/survey-core/themes/index.min.js";
 
 import { DotNetObjectType, IDotNetObject } from "../wwwroot/scripts/declarations/dot-net-object.type";
 import { IHashId } from "../wwwroot/scripts/declarations/hash-id.type";
 import { ILocale } from "../wwwroot/scripts/declarations/locale.type";
 import { IViewModel } from "../wwwroot/scripts/declarations/view-model.type";
 import { IKoViewModel } from "../wwwroot/scripts/declarations/ko-view-model.type";
+import { ITheme } from "../wwwroot/scripts/declarations/theme.type";
 
 /**
  * The list of dotnet component method with attribute "JSInvokable".
@@ -29,9 +32,11 @@ SurveyJsBlazor.addQuestionProperty();
  */
 type IRenderModel = {
     jsonScheme: object,
-} & IHashId & IDotNetObject & ILocale;
-export function render({ dotNetObject, hashId, jsonScheme, locale }: IRenderModel) {
+} & IHashId & IDotNetObject & ILocale & ITheme;
+export function render({ dotNetObject, hashId, jsonScheme, locale, theme }: IRenderModel) {
+    console.log({ theme })
     const survey = new window.Survey.Model(jsonScheme);
+    console.log(survey);
 
     survey.onCompleting.add((sender: any) => {
         const totalScore = calculateTotalScore(survey, sender.data);
@@ -43,6 +48,10 @@ export function render({ dotNetObject, hashId, jsonScheme, locale }: IRenderMode
     });
 
     survey.locale = locale;
+
+    if (theme) {
+        survey.applyTheme(window.SurveyTheme[theme]);
+    }
 
     survey.onComplete.add((sender: any) => onSurveyComplete(dotNetObject, sender));
 

@@ -4,6 +4,7 @@
  * License: MIT (http://www.opensource.org/licenses/mit-license.php)
  */
 (function webpackUniversalModuleDefinition(root, factory) {
+	root = this || (0, eval)("this");
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
 	else if(typeof define === 'function' && define.amd)
