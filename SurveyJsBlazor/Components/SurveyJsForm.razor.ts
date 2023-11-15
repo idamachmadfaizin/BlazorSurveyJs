@@ -15,7 +15,6 @@ import { ILocale } from "../wwwroot/scripts/declarations/locale.type";
 import { IViewModel } from "../wwwroot/scripts/declarations/view-model.type";
 import { IKoViewModel } from "../wwwroot/scripts/declarations/ko-view-model.type";
 import { ITheme } from "../wwwroot/scripts/declarations/theme.type";
-import { ExpressionItem } from "../wwwroot/libs/survey-core/typings/expressionItems";
 
 /**
  * The list of dotnet component method with attribute "JSInvokable".
@@ -32,11 +31,10 @@ SurveyJsBlazor.addQuestionProperty();
  * @param param
  */
 type IRenderModel = {
-    jsonScheme: object,
+    jsonScheme: string,
 } & IHashId & IDotNetObject & ILocale & ITheme;
 export function render({ dotNetObject, hashId, jsonScheme, locale, theme }: IRenderModel) {
-    const survey = new window.Survey.Model(jsonScheme);
-    console.log(survey);
+    const survey = new window.Survey.Model(JSON.parse(jsonScheme));
 
     survey.onCompleting.add((sender: any) => {
         const totalScore = calculateTotalScore(survey, sender.data);
@@ -99,7 +97,6 @@ export function setLocale({ hashId, locale }: IHashId & ILocale) {
 
 export function setTheme({ hashId, theme }: IHashId & ITheme) {
     const survey = getViewModel(hashId);
-    console.log({ survey, theme });
     var exist = Object.keys(window.SurveyTheme).find(key => key === theme);
 
     if (!exist) {

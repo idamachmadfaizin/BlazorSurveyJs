@@ -28,8 +28,8 @@ Object.freeze(Methods);
 SurveyJsBlazor.addQuestionProperty();
 
 type IRender = {
-    creatorOptions: any;
-    jsonScheme: any;
+    creatorOptions: object;
+    jsonScheme: string;
     locale: string;
 } & IDotNetObject & IHashId & ILocale;
 export function render({ dotNetObject, hashId, creatorOptions, jsonScheme, locale }: IRender) {

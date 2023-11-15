@@ -1,11 +1,88 @@
 ﻿@page "/survey-dashboard"
+@using Newtonsoft.Json;
+@inject ILogger<SurveyDashboardPage> logger
+@inject ILocalStorageService localStorage
 
 <PageTitle>Survey Dashboard</PageTitle>
 
 <h3>Survey Dashboard</h3>
 
-<SurveyJsDashboard></SurveyJsDashboard>
+<SurveyJsForm Scheme="Scheme" />
+<SurveyJsDashboard Scheme="Scheme" Data="SurveyResults" />
 
 @code {
+    protected object? Scheme { get; set; }
+    protected object? SurveyResults { get; set; }
+    private readonly string localStorageKey = "survey-json";
 
+    public SurveyDashboardPage()
+    {
+        string surveyJson = @"
+            {
+                ""elements"": [
+                    {
+                        ""name"": ""satisfaction-score"",
+                        ""title"": ""How would you describe your experience with our product?"",
+                        ""type"": ""radiogroup"",
+                        ""choices"": [
+                            { ""value"": 5, ""text"": ""Fully satisfying"" },
+                            { ""value"": 4, ""text"": ""Generally satisfying"" },
+                            { ""value"": 3, ""text"": ""Neutral"" },
+                            { ""value"": 2, ""text"": ""Rather unsatisfying"" },
+                            { ""value"": 1, ""text"": ""Not satisfying at all"" }
+                        ],
+                        ""isRequired"": true
+                    },
+                    {
+                        ""name"": ""nps-score"",
+                        ""title"": ""On a scale of zero to ten, how likely are you to recommend our product to a friend or colleague?"",
+                        ""type"": ""rating"",
+                        ""rateMin"": 0,
+                        ""rateMax"": 10
+                    }
+                ],
+                ""showQuestionNumbers"": ""off"",
+                ""completedHtml"": ""Thank you for your feedback!""
+            }";
+        string surveyResults = @"
+            [
+                {
+                    ""satisfaction-score"": 5,
+                    ""nps-score"": 10,
+                    ""asd"": 100,
+                },
+                {
+                    ""satisfaction-score"": 5,
+                    ""nps-score"": 9
+                },
+                {
+                    ""satisfaction-score"": 3,
+                    ""nps-score"": 6
+                },
+                {
+                    ""satisfaction-score"": 3,
+                    ""nps-score"": 6
+                },
+                {
+                    ""satisfaction-score"": 2,
+                    ""nps-score"": 3
+                }
+            ]";
+        Scheme = JsonConvert.DeserializeObject(surveyJson);
+        SurveyResults = JsonConvert.DeserializeObject(surveyResults);
+    }
+
+    // protected override async Task OnAfterRenderAsync(bool firstRender)
+    // {
+    //     if (firstRender)
+    //     {
+    //         var objLocalStorage = await localStorage.GetItemAsStringAsync(localStorageKey);
+    //         if (objLocalStorage is not null)
+    //         {
+    //             var obj = JsonConvert.DeserializeObject(objLocalStorage);
+    //             Scheme = obj;
+    //             StateHasChanged();
+    //         }
+    //     }
+    // }
 }
